@@ -1,12 +1,15 @@
 {
-  "buildCommand": "npm run build:frontend",
-  "outputDirectory": "frontend/dist/frontend/browser",
-  "installCommand": "npm run install:all",
-  "framework": null,
-  "rewrites": [
+  "version": 2,
+  "builds": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "src": "backend/src/server.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "backend/src/server.js"
     }
   ]
 }
