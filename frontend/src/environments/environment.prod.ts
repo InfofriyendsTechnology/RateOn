@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://your-production-api.com/api/v1',
+  apiUrl: 'https://backend-three-lime-71.vercel.app/api/v1',
   appName: 'RateOn',
   tokenKey: 'rateon_token',
   userKey: 'rateon_user',
