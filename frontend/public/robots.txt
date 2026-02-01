@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://rateon.vercel.app/sitemap.xml
