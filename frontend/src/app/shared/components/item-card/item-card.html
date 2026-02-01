@@ -1,0 +1,57 @@
+<div class="item-card" (click)="onCardClick()">
+  <div class="item-image">
+    <img 
+      [src]="item.images && item.images.length > 0 ? item.images[0] : getDefaultImage()" 
+      [alt]="item.name"
+      (error)="onImageError($event)"
+      loading="lazy"
+    />
+    <app-availability-badge 
+      [status]="item.availability.status || 'available'"
+      size="small"
+      class="badge-overlay"
+    ></app-availability-badge>
+  </div>
+  
+  <div class="item-content">
+    <h3 class="item-name">{{item.name}}</h3>
+    
+    <!-- Category -->
+    <span class="item-category-small" *ngIf="item.category">{{item.category}}</span>
+    
+    <p class="item-description">{{item.description}}</p>
+    
+    <!-- Stats Row -->
+    <div class="item-stats">
+      <!-- Rating -->
+      <div class="stat-item">
+        <lucide-icon [img]="Star" [size]="16" class="stat-icon"></lucide-icon>
+        <span class="stat-value">{{getRating() | number:'1.1-1'}}</span>
+      </div>
+      
+      <!-- Reviews -->
+      <div class="stat-item">
+        <lucide-icon [img]="MessageSquare" [size]="14" class="stat-icon review-icon"></lucide-icon>
+        <span class="stat-value">{{getReviewCount()}} Review{{getReviewCount() !== 1 ? 's' : ''}}</span>
+      </div>
+    </div>
+    
+    <div class="item-footer">
+      <div class="item-price">
+        <span>₹{{item.price || 0}}</span>
+      </div>
+      
+      <button 
+        *ngIf="showReviewButton()"
+        [class]="getReviewButtonClass()" 
+        (click)="onReviewAction($event)"
+      >
+        {{getReviewButtonText()}}
+      </button>
+      
+      <span *ngIf="isOwner" class="owner-label">
+        Your Item
+      </span>
+    </div>
+  </div>
+</div>

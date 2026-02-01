@@ -1,0 +1,8 @@
+<span 
+  class="availability-badge" 
+  [class]="getStatusClass()"
+  [class.size-small]="size === 'small'"
+  [class.size-medium]="size === 'medium'"
+>
+  {{getStatusText()}}
+</span>

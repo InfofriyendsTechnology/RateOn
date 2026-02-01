@@ -1,0 +1,231 @@
+<div class="items-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Menu Items</h1>
+      <p class="subtitle">Manage your business menu items and view customer reviews</p>
+    </div>
+    <button (click)="openAddModal()" class="btn-add">
+      <lucide-icon [img]="Plus" [size]="20"></lucide-icon>
+      <span>Add Item</span>
+    </button>
+  </div>
+  
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading your menu items...</p>
+  </div>
+  
+  <!-- Empty State -->
+  <div *ngIf="!loading && items.length === 0" class="empty-state">
+    <div class="empty-icon">
+      <lucide-icon [img]="ImageIcon" [size]="64"></lucide-icon>
+    </div>
+    <h3>No Menu Items Yet</h3>
+    <p>Start building your menu by adding your first item</p>
+    <button (click)="openAddModal()" class="btn-primary">
+      <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
+      <span>Add First Item</span>
+    </button>
+  </div>
+  
+  <!-- Items Grid -->
+  <div class="items-grid" *ngIf="!loading && items.length > 0">
+    <div *ngFor="let item of items; let itemIndex = index" class="item-card">
+      <!-- Item Image Slider -->
+      <div class="item-image-slider">
+        <div class="slider-container">
+          <img 
+            [src]="getCurrentItemImage(itemIndex) || getDefaultItemImage()" 
+            [alt]="item.name"
+            (error)="onItemImageError($event)"
+            class="slider-image"
+          >
+          
+          <!-- Navigation Arrows (only show if multiple images) -->
+          <button 
+            *ngIf="item.images && item.images.length > 1"
+            class="slider-arrow slider-arrow-left"
+            (click)="previousImage(itemIndex)"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+          </button>
+          
+          <button 
+            *ngIf="item.images && item.images.length > 1"
+            class="slider-arrow slider-arrow-right"
+            (click)="nextImage(itemIndex)"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </button>
+          
+          <!-- Image indicators (dots) -->
+          <div *ngIf="item.images && item.images.length > 1" class="slider-indicators">
+            <span 
+              *ngFor="let img of item.images; let i = index" 
+              class="indicator"
+              [class.active]="i === getItemCurrentIndex(itemIndex)"
+            ></span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Item Content -->
+      <div class="item-content">
+        <!-- Item name -->
+        <h3 class="item-name">{{item.name}}</h3>
+        
+        <!-- Category -->
+        <span class="item-category-small" *ngIf="item.category">{{item.category}}</span>
+        
+        <!-- Description -->
+        <p class="item-description" *ngIf="item.description">{{item.description}}</p>
+        
+        <!-- Stats Row -->
+        <div class="item-stats">
+          <!-- Rating -->
+          <div class="stat-item">
+            <lucide-icon [img]="Star" [size]="16" class="stat-icon"></lucide-icon>
+            <span class="stat-value">{{($any(item).stats?.averageRating || item.averageRating || 0) | number:'1.1-1'}}</span>
+          </div>
+          
+          <!-- Reviews -->
+          <div class="stat-item">
+            <lucide-icon [img]="MessageSquare" [size]="14" class="stat-icon review-icon"></lucide-icon>
+            <span class="stat-value">{{($any(item).stats?.totalReviews || item.reviewCount || 0)}} Review{{($any(item).stats?.totalReviews || item.reviewCount || 0) !== 1 ? 's' : ''}}</span>
+          </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="item-footer">
+          <div class="item-price">
+            <lucide-icon [img]="IndianRupee" [size]="18"></lucide-icon>
+            <span>{{item.price}}</span>
+          </div>
+          <button (click)="openEditModal(item)" class="btn-edit-item">
+            <lucide-icon [img]="Edit2" [size]="16"></lucide-icon>
+            <span>Edit Item</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <h2>{{editMode ? 'Edit' : 'Add'}} Menu Item</h2>
+      <button (click)="closeModal()" class="btn-close">
+        <lucide-icon [img]="X" [size]="24"></lucide-icon>
+      </button>
+    </div>
+    
+    <!-- Modal Body -->
+    <div class="modal-body">
+      <form>
+        <!-- Item Name -->
+        <div class="form-group">
+          <label class="form-label">Item Name <span class="required">*</span></label>
+          <input 
+            [(ngModel)]="itemForm.name" 
+            name="name"
+            placeholder="e.g., Paneer Tikka Masala" 
+            class="form-input"
+          >
+        </div>
+        
+        <!-- Description -->
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea 
+            [(ngModel)]="itemForm.description" 
+            name="description"
+            placeholder="Briefly describe your item..." 
+            class="form-textarea" 
+            rows="3"
+          ></textarea>
+        </div>
+        
+        <!-- Price and Category Row -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Price (₹) <span class="required">*</span></label>
+            <div class="input-with-icon">
+              <lucide-icon [img]="IndianRupee" [size]="18" class="input-icon"></lucide-icon>
+              <input 
+                [(ngModel)]="itemForm.price" 
+                name="price"
+                type="number" 
+                placeholder="0" 
+                class="form-input with-icon"
+                min="0"
+              >
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <input 
+              [(ngModel)]="itemForm.category" 
+              name="category"
+              placeholder="e.g., Main Course" 
+              class="form-input"
+            >
+          </div>
+        </div>
+        
+        <!-- Image Upload -->
+        <div class="form-group">
+          <label class="form-label">Item Photos</label>
+          <input 
+            type="file" 
+            #fileInput 
+            (change)="onFileSelected($event)" 
+            accept="image/*" 
+            multiple 
+            hidden
+          >
+          <button 
+            type="button"
+            (click)="fileInput.click()" 
+            class="btn-upload"
+          >
+            <lucide-icon [img]="Upload" [size]="18"></lucide-icon>
+            <span>Choose Photos</span>
+          </button>
+          <p class="form-hint">You can upload multiple images (max 5MB each)</p>
+          
+          <!-- Image Previews -->
+          <div *ngIf="imagePreviewUrls.length > 0" class="image-previews">
+            <div *ngFor="let url of imagePreviewUrls; let i = index" class="preview-item">
+              <img [src]="url" alt="Preview">
+              <button 
+                type="button"
+                (click)="removeImage(i)" 
+                class="btn-remove-image"
+              >
+                <lucide-icon [img]="X" [size]="16"></lucide-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <button (click)="closeModal()" class="btn-secondary">Cancel</button>
+      <button (click)="saveItem()" class="btn-primary">
+        {{editMode ? 'Update' : 'Add'}} Item
+      </button>
+    </div>
+  </div>
+</div>

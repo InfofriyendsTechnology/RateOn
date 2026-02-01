@@ -1,0 +1,36 @@
+.availability-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  
+  // Status colors
+  &.available {
+    background: #d1fae5;
+    color: #065f46;
+  }
+  
+  &.out-of-stock {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+  
+  &.coming-soon {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  
+  // Size variants
+  &.size-small {
+    padding: 4px 12px;
+    font-size: 0.75rem;
+  }
+  
+  &.size-medium {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+  }
+}

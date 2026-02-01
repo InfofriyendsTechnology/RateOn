@@ -1,0 +1,166 @@
+.business-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  
+  &:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
+  }
+  
+  .business-image {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+    background: #f3f4f6;
+    
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+    
+    &:hover img {
+      transform: scale(1.05);
+    }
+    
+    .category-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: capitalize;
+      background: rgba(8, 32, 82, 0.9);
+      color: white;
+      backdrop-filter: blur(8px);
+      
+      // Category-specific colors
+      &.category-restaurant {
+        background: rgba(239, 68, 68, 0.9);
+      }
+      
+      &.category-cafe {
+        background: rgba(245, 158, 11, 0.9);
+      }
+      
+      &.category-retail {
+        background: rgba(16, 185, 129, 0.9);
+      }
+      
+      &.category-hotel {
+        background: rgba(59, 130, 246, 0.9);
+      }
+      
+      &.category-service {
+        background: rgba(139, 92, 246, 0.9);
+      }
+    }
+  }
+  
+  .business-content {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  
+  .business-header {
+    margin-bottom: 12px;
+    
+    .business-name {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #082052;
+      margin: 0 0 8px 0;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      
+      .claimed-icon {
+        flex-shrink: 0;
+      }
+    }
+    
+    .business-address {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #6b7280;
+      font-size: 0.875rem;
+      
+      span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    }
+  }
+  
+  .business-description {
+    color: #4b5563;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    margin: 0 0 16px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    flex: 1;
+  }
+  
+  .business-footer {
+    padding-top: 12px;
+    border-top: 1px solid #e5e7eb;
+    
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      text-align: center;
+    }
+    
+    .stat {
+      
+      .stat-value {
+        display: block;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #082052;
+      }
+      
+      .stat-label {
+        display: block;
+        font-size: 0.75rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+      }
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 640px) {
+  .business-card {
+    .business-footer {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+    }
+  }
+}

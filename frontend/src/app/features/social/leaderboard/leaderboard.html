@@ -1,0 +1,120 @@
+<div class="leaderboard-container">
+  <!-- Header -->
+  <div class="header">
+    <h1>Leaderboard</h1>
+    <p>Top contributors and most active reviewers</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button 
+      [class.active]="selectedTab === 'reviewers'" 
+      (click)="selectTab('reviewers')"
+      class="tab-btn"
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2L9.09 8.26L2 9.27L7 14.14L5.82 21.02L12 17.77L18.18 21.02L17 14.14L22 9.27L14.91 8.26L12 2Z"></path>
+      </svg>
+      Top Reviewers
+    </button>
+    <button 
+      [class.active]="selectedTab === 'active'" 
+      (click)="selectTab('active')"
+      class="tab-btn"
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+      </svg>
+      Most Active
+    </button>
+    <button 
+      [class.active]="selectedTab === 'category'" 
+      (click)="selectTab('category')"
+      class="tab-btn"
+    >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="12" y1="20" x2="12" y2="10"></line>
+        <line x1="18" y1="20" x2="18" y2="4"></line>
+        <line x1="6" y1="20" x2="6" y2="16"></line>
+      </svg>
+      By Category
+    </button>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <div *ngIf="selectedTab === 'active'" class="filter-group">
+      <label>Timeframe:</label>
+      <select [(ngModel)]="timeframe" (change)="onTimeframeChange()" class="filter-select">
+        <option value="week">This Week</option>
+        <option value="month">This Month</option>
+        <option value="year">This Year</option>
+        <option value="all">All Time</option>
+      </select>
+    </div>
+
+    <div *ngIf="selectedTab === 'category'" class="filter-group">
+      <label>Category:</label>
+      <select [(ngModel)]="selectedCategory" (change)="onCategoryChange()" class="filter-select">
+        <option *ngFor="let cat of categories" [value]="cat">{{cat}}</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Loading leaderboard...</p>
+  </div>
+
+  <!-- Leaderboard List -->
+  <div *ngIf="!loading" class="leaderboard-list">
+    <div *ngIf="users.length === 0" class="no-data">
+      <p>No data available yet</p>
+    </div>
+
+    <div 
+      *ngFor="let user of users" 
+      class="user-card"
+      [class.top-three]="user.rank && user.rank <= 3"
+      (click)="viewProfile(user._id)"
+    >
+      <div class="rank-badge" [class.top]="user.rank && user.rank <= 3">
+        <span class="rank-number">{{user.rank}}</span>
+        <span class="medal" *ngIf="user.rank">{{getMedalEmoji(user.rank)}}</span>
+      </div>
+
+      <div class="user-avatar">
+        <img 
+          [src]="user.avatar || 'assets/default-avatar.png'" 
+          [alt]="user.name"
+        />
+      </div>
+
+      <div class="user-info">
+        <h3>{{user.name}}</h3>
+        <p class="email">{{user.email}}</p>
+      </div>
+
+      <div class="user-stats">
+        <div class="stat">
+          <span class="stat-value">{{user.totalReviews}}</span>
+          <span class="stat-label">Reviews</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">{{user.totalPoints || 0}}</span>
+          <span class="stat-label">Points</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">{{user.trustScore}}</span>
+          <span class="stat-label">Trust Score</span>
+        </div>
+      </div>
+
+      <div class="level-badge" [style.background-color]="getLevelColor(user.level)">
+        <span>{{getLevelName(user.level)}}</span>
+        <span class="level-num">L{{user.level}}</span>
+      </div>
+    </div>
+  </div>
+</div>

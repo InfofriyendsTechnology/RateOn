@@ -1,0 +1,18 @@
+<div class="rating-stars" [class]="'size-' + size" (mouseleave)="onMouseLeave()">
+  <div class="stars">
+    <span 
+      *ngFor="let star of getStars()"
+      class="star"
+      [class]="getStarClass(star)"
+      [class.interactive]="!readonly"
+      (click)="onStarClick(star)"
+      (mouseenter)="onStarHover(star)"
+    >
+      ★
+    </span>
+  </div>
+  
+  <span *ngIf="showCount && reviewCount > 0" class="rating-text">
+    {{getRatingText()}}
+  </span>
+</div>

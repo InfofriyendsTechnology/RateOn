@@ -1,0 +1,299 @@
+{
+	"info": {
+		"_postman_id": "rateon-api-collection",
+		"name": "RateOn - Public Review Platform",
+		"description": "Complete API collection for RateOn platform with authentication, user management, and trust infrastructure",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:1126/api/v1",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"token\", jsonData.data.token);",
+									"    pm.environment.set(\"token\", jsonData.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"johndoe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register"]
+						},
+						"description": "Register a new user account. Returns JWT token and verification link."
+					},
+					"response": []
+				},
+				{
+					"name": "Login User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"token\", jsonData.data.token);",
+									"    pm.environment.set(\"token\", jsonData.data.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"login\": \"johndoe\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Login with username/email and password. Supports both Admin and User login."
+					},
+					"response": []
+				},
+				{
+					"name": "Logout User",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/logout",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "logout"]
+						},
+						"description": "Logout current user. Requires authentication token."
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Email",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/verify-email?token=your-verification-token",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "verify-email"],
+							"query": [
+								{
+									"key": "token",
+									"value": "your-verification-token",
+									"description": "Verification token from registration email"
+								}
+							]
+						},
+						"description": "Verify user email with token. Increases trust score by 10 points."
+					},
+					"response": []
+				},
+				{
+					"name": "Google OAuth - Start",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/google",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "google"]
+						},
+						"description": "Initiates Google OAuth flow. Open this URL in browser to login with Google."
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints including register, login, logout, and OAuth"
+		},
+		{
+			"name": "User Profile",
+			"item": [
+				{
+					"name": "Get Own Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/profile",
+							"host": ["{{base_url}}"],
+							"path": ["users", "profile"]
+						},
+						"description": "Get authenticated user's complete profile including trust score and verification badges."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"bio\": \"I love exploring new restaurants and sharing my experiences!\",\n  \"location\": \"New York, USA\",\n  \"avatar\": \"https://example.com/avatar.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/profile",
+							"host": ["{{base_url}}"],
+							"path": ["users", "profile"]
+						},
+						"description": "Update user profile information. Cannot update protected fields like trustScore, level, email, username."
+					},
+					"response": []
+				},
+				{
+					"name": "Get User By ID (Public)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/:userId",
+							"host": ["{{base_url}}"],
+							"path": ["users", ":userId"],
+							"variable": [
+								{
+									"key": "userId",
+									"value": "user-id-here",
+									"description": "MongoDB ObjectId of the user"
+								}
+							]
+						},
+						"description": "Get public profile of any user. Email and sensitive data excluded."
+					},
+					"response": []
+				}
+			],
+			"description": "User profile management endpoints"
+		},
+		{
+			"name": "System",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:1126/",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "1126",
+							"path": [""]
+						},
+						"description": "Check if server is running"
+					},
+					"response": []
+				}
+			],
+			"description": "System health and status endpoints"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

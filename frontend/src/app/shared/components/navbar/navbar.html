@@ -1,0 +1,60 @@
+<nav class="navbar">
+  <div class="container">
+    <div class="nav-content">
+      <a routerLink="/" class="logo">
+        <img src="/RateOn_Blue.png" alt="RateOn">
+      </a>
+
+      <div class="nav-links" [class.active]="isMenuOpen">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">
+          <lucide-icon [img]="Home" [size]="18" [strokeWidth]="2"></lucide-icon>
+          <span>Home</span>
+        </a>
+        <a routerLink="/explore" routerLinkActive="active" class="nav-link">
+          <lucide-icon [img]="Compass" [size]="18" [strokeWidth]="2"></lucide-icon>
+          <span>Explore</span>
+        </a>
+        <a routerLink="/leaderboard" routerLinkActive="active" class="nav-link">
+          <lucide-icon [img]="Trophy" [size]="18" [strokeWidth]="2"></lucide-icon>
+          <span>Leaderboard</span>
+        </a>
+        
+        <ng-container *ngIf="!isLoggedIn">
+          <div class="nav-divider"></div>
+          <a routerLink="/auth/login" routerLinkActive="active" class="nav-link nav-link-secondary">
+            <lucide-icon [img]="LogIn" [size]="18" [strokeWidth]="2"></lucide-icon>
+            <span>Login</span>
+          </a>
+          <a routerLink="/auth/register" routerLinkActive="active" class="btn-primary">
+            <lucide-icon [img]="UserPlus" [size]="18" [strokeWidth]="2"></lucide-icon>
+            <span>Sign Up</span>
+          </a>
+        </ng-container>
+        
+        <ng-container *ngIf="isLoggedIn">
+          <div class="nav-divider"></div>
+          <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
+            <lucide-icon [img]="LayoutDashboard" [size]="18" [strokeWidth]="2"></lucide-icon>
+            <span>Dashboard</span>
+          </a>
+          <div class="user-badge">
+            <img *ngIf="getUserAvatar() && !avatarFailed" [src]="getUserAvatar()" [alt]="currentUser?.username" 
+                 class="user-avatar-img" crossorigin="anonymous" referrerpolicy="no-referrer"
+                 (error)="onAvatarError($event)">
+            <lucide-icon *ngIf="!getUserAvatar() || avatarFailed" [img]="User" [size]="16" [strokeWidth]="2"></lucide-icon>
+            <span>{{ currentUser?.username }}</span>
+          </div>
+          <button (click)="logout()" class="btn-logout">
+            <lucide-icon [img]="LogOut" [size]="18" [strokeWidth]="2"></lucide-icon>
+            <span>Logout</span>
+          </button>
+        </ng-container>
+      </div>
+
+      <button class="menu-toggle" (click)="toggleMenu()" [attr.aria-label]="isMenuOpen ? 'Close menu' : 'Open menu'">
+        <lucide-icon *ngIf="!isMenuOpen" [img]="Menu" [size]="24" [strokeWidth]="2"></lucide-icon>
+        <lucide-icon *ngIf="isMenuOpen" [img]="X" [size]="24" [strokeWidth]="2"></lucide-icon>
+      </button>
+    </div>
+  </div>
+</nav>

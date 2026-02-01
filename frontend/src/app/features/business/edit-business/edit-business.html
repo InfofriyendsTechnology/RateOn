@@ -1,0 +1,363 @@
+<div class="edit-business-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <button class="back-btn" (click)="goBack()">
+      <lucide-icon [img]="ArrowLeft" [size]="18"></lucide-icon>
+      <span>Back to Settings</span>
+    </button>
+    <div class="header-content">
+      <h1>
+        <lucide-icon [img]="Building" [size]="24"></lucide-icon>
+        Edit Business Details
+      </h1>
+      <p class="subtitle">Update your business information</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading business details...</p>
+  </div>
+
+  <!-- Edit Form -->
+  <form *ngIf="!loading" [formGroup]="businessForm" (ngSubmit)="onSubmit()" class="business-form">
+    
+    <!-- Basic Information Section -->
+    <div class="form-section">
+      <h2 class="section-title">
+        <lucide-icon [img]="Building" [size]="20"></lucide-icon>
+        Basic Information
+      </h2>
+      
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label for="name">Business Name <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="name" 
+            formControlName="name"
+            [class.invalid]="isFieldInvalid('name')"
+            placeholder="Enter your business name"
+          />
+          <span class="error-message" *ngIf="isFieldInvalid('name')">
+            {{getFieldError('name')}}
+          </span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="category">Category <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="category" 
+            formControlName="category"
+            [class.invalid]="isFieldInvalid('category')"
+            placeholder="e.g., Italian Restaurant, Coffee Shop"
+          />
+          <span class="error-message" *ngIf="isFieldInvalid('category')">
+            {{getFieldError('category')}}
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="subcategory">Subcategory</label>
+          <input 
+            type="text" 
+            id="subcategory" 
+            formControlName="subcategory"
+            placeholder="e.g., Fast Food, Italian"
+          />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label for="description">Description</label>
+          <textarea 
+            id="description" 
+            formControlName="description"
+            rows="4"
+            placeholder="Describe your business, what makes it special..."
+            [class.invalid]="isFieldInvalid('description')"
+          ></textarea>
+          <span class="char-count">{{businessForm.get('description')?.value?.length || 0}} / 2000</span>
+          <span class="error-message" *ngIf="isFieldInvalid('description')">
+            {{getFieldError('description')}}
+          </span>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label>
+            <lucide-icon [img]="Image" [size]="18"></lucide-icon>
+            Business Logo
+          </label>
+          <div class="image-upload-section">
+            <div class="image-preview" *ngIf="logoPreview">
+              <img [src]="logoPreview" alt="Logo preview" />
+              <button type="button" class="remove-image-btn" (click)="removeLogo()">
+                <lucide-icon [img]="X" [size]="16"></lucide-icon>
+              </button>
+            </div>
+            <div class="upload-area" *ngIf="!logoPreview" (click)="logoInput.click()">
+              <lucide-icon [img]="Image" [size]="32" class="upload-icon"></lucide-icon>
+              <p class="upload-text">Click to upload logo</p>
+              <small>PNG, JPG up to 5MB</small>
+            </div>
+            <input 
+              #logoInput
+              type="file" 
+              accept="image/*"
+              (change)="onLogoSelect($event)"
+              style="display: none;"
+            />
+          </div>
+        </div>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label>
+            <lucide-icon [img]="Image" [size]="18"></lucide-icon>
+            Cover Images
+          </label>
+          <div class="cover-images-grid">
+            <div *ngFor="let img of coverImagePreviews; let i = index" class="image-preview">
+              <img [src]="img" alt="Cover image" />
+              <button type="button" class="remove-image-btn" (click)="removeCoverImage(i)">
+                <lucide-icon [img]="X" [size]="16"></lucide-icon>
+              </button>
+            </div>
+            <div class="upload-area" (click)="coverInput.click()" *ngIf="coverImagePreviews.length < 5">
+              <lucide-icon [img]="Image" [size]="28" class="upload-icon"></lucide-icon>
+              <p class="upload-text">Add cover image</p>
+            </div>
+          </div>
+          <input 
+            #coverInput
+            type="file" 
+            accept="image/*"
+            multiple
+            (change)="onCoverImagesSelect($event)"
+            style="display: none;"
+          />
+          <small class="help-text">Upload up to 5 cover images for your business</small>
+        </div>
+      </div>
+    </div>
+
+    <!-- Location Section -->
+    <div class="form-section">
+      <h2 class="section-title">
+        <lucide-icon [img]="MapPin" [size]="20"></lucide-icon>
+        Location Details
+      </h2>
+
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label for="address">Address <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="address" 
+            formControlName="address"
+            [class.invalid]="isFieldInvalid('address')"
+            placeholder="Street address"
+          />
+          <span class="error-message" *ngIf="isFieldInvalid('address')">
+            {{getFieldError('address')}}
+          </span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="city">City <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="city" 
+            formControlName="city"
+            [class.invalid]="isFieldInvalid('city')"
+            placeholder="City"
+          />
+          <span class="error-message" *ngIf="isFieldInvalid('city')">
+            {{getFieldError('city')}}
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="state">State <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="state" 
+            formControlName="state"
+            [class.invalid]="isFieldInvalid('state')"
+            placeholder="State"
+          />
+          <span class="error-message" *ngIf="isFieldInvalid('state')">
+            {{getFieldError('state')}}
+          </span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pincode">Pincode</label>
+          <input 
+            type="text" 
+            id="pincode" 
+            formControlName="pincode"
+            [class.invalid]="isFieldInvalid('pincode')"
+            placeholder="6-digit pincode"
+            maxlength="6"
+          />
+          <span class="error-message" *ngIf="isFieldInvalid('pincode')">
+            {{getFieldError('pincode')}}
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="country">Country</label>
+          <input 
+            type="text" 
+            id="country" 
+            formControlName="country"
+            placeholder="Country"
+            readonly
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="form-section">
+      <h2 class="section-title">
+        <lucide-icon [img]="Phone" [size]="20"></lucide-icon>
+        Contact Information
+      </h2>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="phone">Phone Number</label>
+          <input 
+            type="tel" 
+            id="phone" 
+            formControlName="phone"
+            [class.invalid]="isFieldInvalid('phone')"
+            placeholder="10-digit mobile number"
+            maxlength="10"
+          />
+          <span class="error-message" *ngIf="isFieldInvalid('phone')">
+            {{getFieldError('phone')}}
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="whatsapp">WhatsApp Number</label>
+          <input 
+            type="tel" 
+            id="whatsapp" 
+            formControlName="whatsapp"
+            [class.invalid]="isFieldInvalid('whatsapp')"
+            placeholder="10-digit WhatsApp number"
+            maxlength="10"
+          />
+          <span class="error-message" *ngIf="isFieldInvalid('whatsapp')">
+            {{getFieldError('whatsapp')}}
+          </span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input 
+            type="email" 
+            id="email" 
+            formControlName="email"
+            [class.invalid]="isFieldInvalid('email')"
+            placeholder="business@example.com"
+          />
+          <span class="error-message" *ngIf="isFieldInvalid('email')">
+            {{getFieldError('email')}}
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="website">Website</label>
+          <input 
+            type="url" 
+            id="website" 
+            formControlName="website"
+            placeholder="https://www.yourbusiness.com"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Operating Hours Section -->
+    <div class="form-section">
+      <h2 class="section-title">
+        <lucide-icon [img]="Clock" [size]="20"></lucide-icon>
+        Operating Hours
+      </h2>
+      <p class="section-description">Set your business hours for each day of the week</p>
+
+      <div class="hours-grid" formArrayName="businessHours">
+        <div *ngFor="let hour of businessHoursArray.controls; let i = index" 
+             class="hours-row" 
+             [formGroupName]="i">
+          <div class="day-checkbox">
+            <input 
+              type="checkbox" 
+              [id]="'day-' + i"
+              [checked]="!hour.get('isClosed')?.value"
+              (change)="toggleDayClosed(i)"
+            />
+            <label [for]="'day-' + i" class="day-label">
+              {{getDayLabel(hour.get('day')?.value)}}
+            </label>
+          </div>
+          
+          <div class="time-selects" *ngIf="!hour.get('isClosed')?.value">
+            <div class="time-group">
+              <label class="time-label">Open</label>
+              <select formControlName="open" class="time-select">
+                <option *ngFor="let time of timeOptions" [value]="time">{{time}}</option>
+              </select>
+            </div>
+            
+            <span class="time-separator">—</span>
+            
+            <div class="time-group">
+              <label class="time-label">Close</label>
+              <select formControlName="close" class="time-select">
+                <option *ngFor="let time of timeOptions" [value]="time">{{time}}</option>
+              </select>
+            </div>
+          </div>
+          
+          <span class="closed-label" *ngIf="hour.get('isClosed')?.value">Closed</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="form-actions">
+      <button type="button" class="cancel-btn" (click)="goBack()">
+        Cancel
+      </button>
+      <button 
+        type="submit" 
+        class="save-btn" 
+        [disabled]="submitting || businessForm.invalid"
+      >
+        <lucide-icon [img]="Save" [size]="18"></lucide-icon>
+        <span *ngIf="!submitting">Save Changes</span>
+        <span *ngIf="submitting">Saving...</span>
+      </button>
+    </div>
+  </form>
+</div>

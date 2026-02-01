@@ -1,0 +1,387 @@
+<div class="business-detail-container" *ngIf="business">
+  <!-- Back Button -->
+  <button class="back-btn" (click)="goBack()">
+    <lucide-icon [img]="ArrowLeft" [size]="18"></lucide-icon>
+    <span>Back to Explore</span>
+  </button>
+
+  <!-- Business Header -->
+  <div class="business-header">
+    <div class="business-images">
+      <img 
+        [src]="business.images && business.images.length > 0 ? business.images[0] : getDefaultBusinessImage()" 
+        [alt]="business.name"
+        (error)="onBusinessImageError($event)"
+        class="main-image"
+      />
+      <div class="image-gallery" *ngIf="business.images && business.images.length > 1">
+        <img 
+          *ngFor="let img of business.images.slice(1, 4)" 
+          [src]="img" 
+          [alt]="business.name"
+          (error)="onGalleryImageError($event)"
+          class="gallery-thumb"
+        />
+      </div>
+    </div>
+
+    <div class="business-info">
+      <div class="title-section">
+        <h1>
+          {{business.name}}
+          <lucide-icon 
+            *ngIf="business.claimed" 
+            [img]="CheckCircle" 
+            [size]="24" 
+            [color]="'#10b981'"
+            class="claimed-icon"
+          ></lucide-icon>
+        </h1>
+        <span class="category-badge">{{business.category}}</span>
+        <span *ngIf="isBusinessOwner" class="owner-badge">Your Business</span>
+      </div>
+
+      <app-rating-stars 
+        [rating]="getCalculatedAverageRating()"
+        [readonly]="true"
+        [showCount]="true"
+        [reviewCount]="getTotalReviewsCount()"
+        size="large"
+      ></app-rating-stars>
+
+      <p class="description">{{business.description}}</p>
+
+      <div class="contact-info">
+        <div class="info-item">
+          <lucide-icon [img]="MapPin" [size]="18" [color]="'#6b7280'"></lucide-icon>
+          <span>{{business.address?.street}}, {{business.address?.area}}, {{business.address?.city}}</span>
+        </div>
+        <div class="info-item" *ngIf="business.phone">
+          <lucide-icon [img]="Phone" [size]="18" [color]="'#6b7280'"></lucide-icon>
+          <span>{{business.phone}}</span>
+        </div>
+        <div class="info-item" *ngIf="business.hours">
+          <lucide-icon [img]="Clock" [size]="18" [color]="'#6b7280'"></lucide-icon>
+          <span>{{business.hours}}</span>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-value">{{items.length}}</span>
+          <span class="stat-label">Items</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">{{getTotalReviewsCount()}}</span>
+          <span class="stat-label">Reviews</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value">{{getCalculatedAverageRating() | number:'1.1-1'}}</span>
+          <span class="stat-label">Rating</span>
+        </div>
+      </div>
+      
+      <!-- Edit Business Button (Owner Only) -->
+      <button *ngIf="isBusinessOwner" class="edit-business-btn" (click)="editBusiness()">
+        <lucide-icon [img]="Edit" [size]="18"></lucide-icon>
+        <span>Edit Business Details</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Owner View: Show management message instead of tabs -->
+  <div *ngIf="isBusinessOwner" class="owner-notice">
+    <div class="owner-notice-content">
+      <lucide-icon [img]="CheckCircle" [size]="24" [color]="'#f59e0b'"></lucide-icon>
+      <div>
+        <h3>Your Business Dashboard</h3>
+        <p>You're viewing your business as the owner. To manage items, reviews, and settings, visit your <a routerLink="/business/dashboard">Business Dashboard</a>.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer View: Show tabs and filters in one row -->
+  <div *ngIf="!isBusinessOwner" class="tabs-filters-row">
+    <div class="tabs">
+      <button 
+        [class.active]="selectedTab === 'items'" 
+        (click)="selectTab('items')"
+        class="tab-btn"
+      >
+        Items Menu ({{items.length}})
+      </button>
+      <button 
+        [class.active]="selectedTab === 'reviews'" 
+        (click)="selectTab('reviews')"
+        class="tab-btn"
+      >
+      Reviews ({{getTotalReviewsCount()}})
+      </button>
+    </div>
+
+    <!-- Filters (show only when items tab is active) -->
+    <div *ngIf="selectedTab === 'items'" class="items-filters">
+      <label class="filter-checkbox">
+        <input type="checkbox" [(ngModel)]="showAvailableOnly" />
+        <span class="checkbox-text">Show available only</span>
+      </label>
+
+      <div class="filter-select-wrapper">
+        <select [(ngModel)]="selectedCategory" class="filter-select">
+          <option value="">All Categories</option>
+          <option *ngFor="let cat of categories" [value]="cat">{{cat}}</option>
+        </select>
+        <lucide-icon [img]="ChevronDown" [size]="18" class="select-arrow"></lucide-icon>
+      </div>
+    </div>
+  </div>
+
+  <!-- Items Section (always shown for owners, tab-based for customers) -->
+  <div *ngIf="isBusinessOwner || selectedTab === 'items'" class="items-section">
+
+    <!-- Items Grid -->
+    <div class="items-grid">
+      <div *ngIf="filteredItems.length === 0" class="no-items">
+        <p>No items found</p>
+      </div>
+
+      <app-item-card 
+        *ngFor="let item of filteredItems" 
+        [item]="item"
+        [businessId]="business._id"
+        [isOwner]="isBusinessOwner"
+        [hasUserReview]="item.hasUserReview || false"
+        (cardClick)="navigateToReview($event)"
+        (reviewAction)="handleItemAction($event)"
+      ></app-item-card>
+    </div>
+  </div>
+
+  <!-- Reviews Tab (hidden for owners) -->
+  <div *ngIf="!isBusinessOwner && selectedTab === 'reviews'" class="reviews-section">
+    <div *ngIf="reviews.length === 0" class="no-reviews">
+      <p>No reviews yet. Be the first to review!</p>
+    </div>
+
+    <!-- Reviews Summary Widget -->
+    <div *ngIf="reviews.length > 0" class="reviews-summary">
+      <div class="summary-left">
+        <div class="average-rating">{{getCalculatedAverageRating() | number:'1.1-1'}}</div>
+        <app-rating-stars 
+          [rating]="getCalculatedAverageRating()"
+          [readonly]="true"
+          size="large"
+        ></app-rating-stars>
+        <div class="total-reviews">Based on {{getTotalReviewsCount()}} review{{getTotalReviewsCount() !== 1 ? 's' : ''}}</div>
+      </div>
+      
+      <div class="summary-right">
+        <div class="rating-breakdown">
+          <div *ngFor="let rating of [5, 4, 3, 2, 1]" class="rating-bar-row">
+            <span class="rating-label">{{rating}}</span>
+            <lucide-icon [img]="Star" [size]="14" class="star-icon"></lucide-icon>
+            <div class="rating-bar">
+              <div class="rating-bar-fill" [style.width.%]="getRatingPercentage(rating)">
+                <div class="item-icon" *ngIf="getItemForRating(rating)" [title]="getItemForRating(rating)!.name">
+                  <img 
+                    [src]="getItemForRating(rating)!.image || getDefaultItemImage()" 
+                    [alt]="getItemForRating(rating)!.name"
+                    (error)="onItemIconError($event)"
+                  />
+                </div>
+              </div>
+            </div>
+            <span class="rating-count">{{getRatingCount(rating)}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reviews-list">
+      <div 
+        *ngFor="let review of reviews" 
+        class="review-card"
+        [attr.data-item-id]="review.itemId?._id || review.item?._id"
+        [class.user-review]="isUserReview(review)"
+      >
+        <div class="review-content-wrapper">
+          <!-- Left: User Avatar -->
+          <img 
+            [src]="getUserAvatar(review)"
+            [alt]="getUserName(review)"
+            class="user-avatar"
+            (error)="onAvatarError($event, review)"
+          />
+          
+          <!-- Middle: Review Content -->
+          <div class="review-content">
+            <!-- Top: Name, Item, Date -->
+            <div class="review-top">
+              <div class="user-info">
+                <div class="name-row">
+                  <h4>
+                    {{getUserName(review)}}
+                    <span class="you-label" *ngIf="isUserReview(review)">(You)</span>
+                  </h4>
+                  <span class="item-info">
+                    {{review.itemId?.name || review.item?.name || 'Unknown Item'}} 
+                    <span class="business-name">({{business.name}})</span>
+                  </span>
+                </div>
+                <span class="review-date">{{formatDate(review.createdAt)}}</span>
+              </div>
+            </div>
+            
+            <!-- Stars (Big) -->
+            <div class="review-rating">
+              <app-rating-stars 
+                [rating]="review.rating"
+                [readonly]="true"
+                size="large"
+              ></app-rating-stars>
+            </div>
+            
+            <!-- Images and Text in One Row -->
+            <div class="review-content-row">
+              <div class="review-images" *ngIf="review.images?.length">
+                <button 
+                  class="nav-btn prev" 
+                  *ngIf="review.images.length > 1" 
+                  (click)="prevReviewImage(review)"
+                  type="button"
+                >
+                  <lucide-icon [img]="ChevronLeft" [size]="16"></lucide-icon>
+                </button>
+
+                <img 
+                  [src]="review.images[getReviewImageIndex(review._id)]" 
+                  alt="Review image"
+                  class="review-image"
+                  (click)="openImagePreview(review, getReviewImageIndex(review._id))"
+                />
+
+                <button 
+                  class="nav-btn next" 
+                  *ngIf="review.images.length > 1" 
+                  (click)="nextReviewImage(review)"
+                  type="button"
+                >
+                  <lucide-icon [img]="ChevronRight" [size]="16"></lucide-icon>
+                </button>
+              </div>
+              
+              <p class="review-text">{{review.reviewText || review.comment}}</p>
+            </div>
+          </div>
+          
+          <!-- Right: Edit Button -->
+          <button 
+            *ngIf="isUserReview(review)" 
+            class="edit-review-btn"
+            (click)="editReview(review)"
+          >
+            <lucide-icon [img]="Star" [size]="16"></lucide-icon>
+            Edit
+          </button>
+        </div>
+        
+        <!-- Owner Reply Section -->
+        <div class="owner-reply" *ngIf="review.ownerReply">
+          <div class="reply-header">
+            <strong>Business Owner</strong>
+            <span class="reply-date">{{formatDate(review.ownerReply.createdAt)}}</span>
+          </div>
+          <p class="reply-text">{{review.ownerReply.comment}}</p>
+        </div>
+        
+        <!-- Reply Button (Business Owner Only) -->
+        <div class="review-actions" *ngIf="isBusinessOwner && !review.ownerReply">
+          <button 
+            class="reply-btn" 
+            *ngIf="replyingToReview !== review._id"
+            (click)="startReply(review._id)"
+          >
+            Reply
+          </button>
+          
+          <!-- Reply Form -->
+          <div class="reply-form" *ngIf="replyingToReview === review._id">
+            <textarea 
+              [(ngModel)]="replyText[review._id]"
+              placeholder="Write your response..."
+              rows="3"
+            ></textarea>
+            <div class="reply-form-actions">
+              <button class="cancel-btn" (click)="cancelReply(review._id)">Cancel</button>
+              <button 
+                class="submit-btn" 
+                (click)="submitReply(review._id)"
+                [disabled]="!replyText[review._id]?.trim()"
+              >
+                Post Reply
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Image Preview Modal -->
+<div 
+  class="image-preview-backdrop" 
+  *ngIf="showImagePreview" 
+  (click)="closeImagePreview()"
+>
+  <div class="image-preview-modal" (click)="$event.stopPropagation()">
+    <button 
+      class="close-btn" 
+      type="button" 
+      (click)="closeImagePreview()"
+    >
+      <lucide-icon [img]="X" [size]="18"></lucide-icon>
+    </button>
+
+    <div class="image-preview-body">
+      <button 
+        class="nav-btn prev" 
+        *ngIf="previewImages.length > 1" 
+        type="button" 
+        (click)="prevPreviewImage($event)"
+      >
+        <lucide-icon [img]="ChevronLeft" [size]="20"></lucide-icon>
+      </button>
+
+      <img 
+        *ngIf="previewImages.length" 
+        [src]="previewImages[previewIndex]" 
+        alt="Review image"
+        class="preview-image"
+      />
+
+      <button 
+        class="nav-btn next" 
+        *ngIf="previewImages.length > 1" 
+        type="button" 
+        (click)="nextPreviewImage($event)"
+      >
+        <lucide-icon [img]="ChevronRight" [size]="20"></lucide-icon>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Loading State -->
+<div *ngIf="loading" class="loading">
+  <div class="spinner"></div>
+  <p>Loading...</p>
+</div>
+
+<!-- Error State -->
+<div *ngIf="error" class="error">
+  <p>{{error}}</p>
+  <button (click)="goBack()">Go Back</button>
+</div>
+
+
