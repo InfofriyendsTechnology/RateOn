@@ -70,13 +70,4 @@ const startServer = async () => {
     }
 };
 
-// For Vercel serverless deployment
-if (process.env.VERCEL) {
-    connectDB();
-    initializeDatabase();
-} else {
-    startServer();
-}
-
-// Export for Vercel
-export default app;
+startServer();
