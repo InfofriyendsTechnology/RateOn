@@ -8,10 +8,13 @@ import { ReviewService } from '../../../core/services/review';
 import { BusinessService, Business } from '../../../core/services/business';
 import { NotificationService } from '../../../core/services/notification.service';
 import { StorageService } from '../../../core/services/storage';
+import { AuthService } from '../../../core/services/auth';
+import { ReviewDraftService } from '../../../core/services/review-draft';
+import { AuthModalComponent } from '../../../shared/components/auth-modal/auth-modal.component';
 
 @Component({
   selector: 'app-write-review',
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, AuthModalComponent],
   templateUrl: './write-review.html',
   styleUrl: './write-review.scss',
 })
@@ -41,6 +44,7 @@ export class WriteReview implements OnInit {
   error = '';
   hoveredRating = 0;
   showValidation = false;
+  showAuthModal = false;
   
   maxImages = 5;
   maxFileSize = 5 * 1024 * 1024; // 5MB
@@ -52,7 +56,9 @@ export class WriteReview implements OnInit {
     private reviewService: ReviewService,
     private businessService: BusinessService,
     private notificationService: NotificationService,
-    private storage: StorageService
+    private storage: StorageService,
+    private authService: AuthService,
+    private reviewDraftService: ReviewDraftService
   ) {}
 
   ngOnInit() {
@@ -249,6 +255,12 @@ export class WriteReview implements OnInit {
       this.notificationService.showError('Item information not found');
       return;
     }
+
+    // Check if user is authenticated
+    if (!this.authService.isAuthenticated()) {
+      this.saveDraftAndShowAuth();
+      return;
+    }
     
     this.submitting = true;
     
@@ -313,5 +325,42 @@ export class WriteReview implements OnInit {
     } else {
       this.router.navigate(['/explore']);
     }
+  }
+
+  saveDraftAndShowAuth() {
+    // Save review draft to localStorage
+    const businessId = typeof this.item?.businessId === 'string' 
+      ? this.item.businessId 
+      : (this.item?.businessId as any)?._id || this.business?._id;
+
+    if (this.item && businessId) {
+      this.reviewDraftService.saveDraft({
+        itemId: this.item._id,
+        businessId: businessId,
+        rating: this.rating,
+        comment: this.reviewText
+      });
+    }
+
+    // Show auth modal
+    this.showAuthModal = true;
+  }
+
+  onAuthSuccess() {
+    // After successful auth, restore draft and submit
+    this.showAuthModal = false;
+    
+    // Small delay to ensure auth state is updated
+    setTimeout(() => {
+      const draft = this.reviewDraftService.getDraft();
+      if (draft) {
+        // Draft is already in form, just submit
+        this.submitReview();
+      }
+    }, 500);
+  }
+
+  closeAuthModal() {
+    this.showAuthModal = false;
   }
 }

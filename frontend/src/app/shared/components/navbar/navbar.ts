@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Home, Compass, Trophy, LogIn, UserPlus, LayoutDashboard, User, LogOut, Menu, X, Building2 } from 'lucide-angular';
+import { LucideAngularModule, Home, Compass, Trophy, LogIn, UserPlus, LayoutDashboard, User, LogOut, Menu, X, Building2, Moon, Sun } from 'lucide-angular';
 import { StorageService } from '../../../core/services/storage';
+import { ThemeService } from '../../../core/services/theme';
 
 @Component({
   selector: 'app-navbar',
@@ -24,12 +25,16 @@ export class Navbar {
   readonly LogOut = LogOut;
   readonly Menu = Menu;
   readonly X = X;
+  readonly Moon = Moon;
+  readonly Sun = Sun;
   isMenuOpen = false;
   avatarFailed = false;
+  showLogoutModal = false;
 
   constructor(
     private storage: StorageService,
-    private router: Router
+    private router: Router,
+    public themeService: ThemeService
   ) {}
 
   get isLoggedIn(): boolean {
@@ -39,12 +44,29 @@ export class Navbar {
   get currentUser(): any {
     return this.storage.getUser();
   }
+  
+  get isBusinessOwner(): boolean {
+    const user = this.currentUser;
+    return user?.role === 'business_owner';
+  }
+  
+  getDashboardLink(): string {
+    return this.isBusinessOwner ? '/business/dashboard' : '/home';
+  }
 
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
   }
 
-  logout() {
+  openLogoutModal() {
+    this.showLogoutModal = true;
+  }
+
+  closeLogoutModal() {
+    this.showLogoutModal = false;
+  }
+
+  confirmLogout() {
     this.storage.clearAuth();
     window.location.href = '/auth/login';
   }
@@ -55,6 +77,20 @@ export class Navbar {
     
     // Try multiple possible avatar locations
     return user.profile?.avatar || user.avatar || user.googleProfile?.picture || null;
+  }
+  
+  getUserInitial(): string {
+    const user = this.currentUser;
+    if (!user) return '?';
+    
+    // Try to get initial from firstName, lastName, or username
+    if (user.profile?.firstName) {
+      return user.profile.firstName.charAt(0).toUpperCase();
+    }
+    if (user.username) {
+      return user.username.charAt(0).toUpperCase();
+    }
+    return '?';
   }
   
   onAvatarError(event: any) {

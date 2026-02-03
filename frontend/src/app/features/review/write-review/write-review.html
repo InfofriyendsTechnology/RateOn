@@ -200,3 +200,10 @@
     </div>
   </div>
 </div>
+
+<!-- Auth Modal -->
+<app-auth-modal 
+  *ngIf="showAuthModal"
+  (authSuccess)="onAuthSuccess()"
+  (close)="closeAuthModal()"
+></app-auth-modal>

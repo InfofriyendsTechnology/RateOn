@@ -1,181 +1,344 @@
 <div class="landing-page">
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="container hero-layout">
-      <div class="hero-copy">
-        <h1>Reviews you can trust, reputation you can build</h1>
-        <p class="tagline">
-          Join a transparent community where honest reviews matter. Share your experiences, build your reputation, and help others make better decisions.
-        </p>
-        <div class="cta-buttons">
-          <a routerLink="/auth/register" class="btn btn-primary">
-            <lucide-icon [img]="UserPlus" [size]="18" [strokeWidth]="2"></lucide-icon>
-            Write a Review
-          </a>
-          <a routerLink="/business/register" class="btn btn-business">
-            <lucide-icon [img]="Building2" [size]="18" [strokeWidth]="2"></lucide-icon>
-            I'm a Business Owner
-          </a>
+  <!-- Modern Header (Shown when logged in) -->
+  <header *ngIf="isLoggedIn" class="modern-header">
+    <div class="header-container">
+      <div class="header-logo">
+        <img 
+          *ngIf="themeService.isDarkMode()" 
+          src="/LOGO_WHITE.png" 
+          alt="RateOn" 
+        />
+        <img 
+          *ngIf="!themeService.isDarkMode()" 
+          src="/LOGO_BLACK.png" 
+          alt="RateOn" 
+        />
+      </div>
+      
+      <div class="header-spacer"></div>
+      
+      <div class="header-actions">
+        <!-- User Menu -->
+        <div class="user-menu">
+          <button class="user-avatar-btn" (click)="toggleUserMenu()">
+            <img *ngIf="user?.avatar" [src]="user.avatar" alt="Profile" />
+            <div *ngIf="!user?.avatar" class="avatar-placeholder-small">
+              <lucide-icon [img]="User" [size]="20"></lucide-icon>
+            </div>
+          </button>
+          
+          <!-- Dropdown Menu -->
+          <div *ngIf="showUserMenu" class="user-dropdown">
+            <div class="dropdown-header">
+              <p class="dropdown-name">{{ user?.username }}</p>
+            </div>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item" (click)="navigateToProfile(); toggleUserMenu()">
+              <lucide-icon [img]="User" [size]="18"></lucide-icon>
+              <span>Profile</span>
+            </button>
+            <button class="dropdown-item" (click)="navigateToDashboard(); toggleUserMenu()">
+              <lucide-icon [img]="Home" [size]="18"></lucide-icon>
+              <span>Home</span>
+            </button>
+            <div class="dropdown-divider"></div>
+            <button class="dropdown-item danger" (click)="openLogoutModal(); toggleUserMenu()">
+              <lucide-icon [img]="LogOut" [size]="18"></lucide-icon>
+              <span>Logout</span>
+            </button>
+          </div>
         </div>
       </div>
+    </div>
+  </header>
 
-      <div class="hero-visual">
-        <div class="hero-card">
-          <div class="hero-card-header">
-            <div class="dot"></div>
-            <div class="dot"></div>
-            <div class="dot"></div>
-          </div>
-          <div class="hero-card-body">
-            <div class="hero-review-row">
-              <div class="avatar-circle avatar-primary">RO</div>
-              <div class="hero-review-content">
-                <div class="hero-review-top">
-                  <span class="name">RateOn User</span>
-                  <span class="badge badge-green">Verified</span>
-                </div>
-                <div class="stars">★★★★★</div>
-                <p class="text">"Share your honest reviews and build your reputation in our community"</p>
-              </div>
-            </div>
-          </div>
+  <!-- Hero Banner Section (Shown when NOT logged in) -->
+  <section *ngIf="!isLoggedIn" class="hero-banner">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-logo">
+        <img 
+          *ngIf="themeService.isDarkMode()" 
+          src="/LOGO_WHITE.png" 
+          alt="RateOn" 
+        />
+        <img 
+          *ngIf="!themeService.isDarkMode()" 
+          src="/LOGO_BLACK.png" 
+          alt="RateOn" 
+        />
+      </div>
+      <h1 class="hero-title">Review What Matters</h1>
+      <p class="hero-tagline">Rate specific items, not just businesses. Build trust through transparency and honest feedback.</p>
+      <div class="hero-actions">
+        <a routerLink="/auth/login" [queryParams]="{auto: 'google'}" class="btn btn-primary btn-lg">
+          <lucide-icon [img]="LogIn" [size]="20"></lucide-icon>
+          <span>Login</span>
+        </a>
+        <a routerLink="/auth/register" [queryParams]="{auto: 'google'}" class="btn btn-primary btn-lg">
+          <lucide-icon [img]="UserPlus" [size]="20"></lucide-icon>
+          <span>Sign Up</span>
+        </a>
+      </div>
+    </div>
+  </section>
+  
+  <!-- Welcome Section (Shown when logged in) -->
+  <section *ngIf="isLoggedIn" class="welcome-section">
+    <div class="container">
+      <div class="welcome-content">
+        <p class="greeting-text">{{ greeting }}</p>
+        <h1 class="welcome-title">Welcome back, <span class="username-highlight">{{ user?.username }}</span></h1>
+        <p class="welcome-subtitle">Ready to discover amazing places and share your experiences?</p>
+        
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button class="action-btn primary" (click)="navigateToExplore()">
+            <lucide-icon [img]="Compass" [size]="24"></lucide-icon>
+            <span>Explore</span>
+          </button>
+          <button class="action-btn secondary" (click)="navigateToDashboard()">
+            <lucide-icon [img]="TrendingUp" [size]="24"></lucide-icon>
+            <span>My Home</span>
+          </button>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- How it works -->
-  <section class="how-it-works">
+  <!-- What is RateOn -->
+  <section class="section what-is">
     <div class="container">
-      <h2>How RateOn works</h2>
+      <div class="section-header">
+        <h2>What is RateOn?</h2>
+        <p class="section-subtitle">A new approach to reviews</p>
+      </div>
+      <div class="content-grid">
+        <div class="content-block">
+          <lucide-icon [img]="Target" [size]="32"></lucide-icon>
+          <h3>Item-Specific Reviews</h3>
+          <p>Review individual products and services, not just businesses. Get precise feedback on what matters.</p>
+        </div>
+        <div class="content-block">
+          <lucide-icon [img]="Shield" [size]="32"></lucide-icon>
+          <h3>Verified Trust System</h3>
+          <p>Build your reputation through quality reviews. Earn trust scores based on helpfulness and accuracy.</p>
+        </div>
+        <div class="content-block">
+          <lucide-icon [img]="Users" [size]="32"></lucide-icon>
+          <h3>Community Driven</h3>
+          <p>Connect with real reviewers. Help others make informed decisions through shared experiences.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="section how-it-works">
+    <div class="container">
+      <div class="section-header">
+        <h2>How It Works</h2>
+        <p class="section-subtitle">Simple, transparent, effective</p>
+      </div>
       <div class="steps">
         <div class="step">
-          <div class="step-icon">1</div>
-          <h3>Create your profile</h3>
-          <p>Sign up in seconds with email or Google and set up your public profile.</p>
+          <div class="step-number">1</div>
+          <h3>Find Items</h3>
+          <p>Search for specific products or services you want to review or explore.</p>
         </div>
         <div class="step">
-          <div class="step-icon">2</div>
-          <h3>Share honest reviews</h3>
-          <p>Rate places, products and services with text, photos and detailed scores.</p>
+          <div class="step-number">2</div>
+          <h3>Share Experience</h3>
+          <p>Write detailed reviews with ratings, photos, and helpful insights.</p>
         </div>
         <div class="step">
-          <div class="step-icon">3</div>
-          <h3>Build your reputation</h3>
-          <p>Earn trust score, levels and badges as the community reacts to your reviews.</p>
+          <div class="step-number">3</div>
+          <h3>Build Trust</h3>
+          <p>Earn reputation through quality contributions and help others decide.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Feature grid -->
-  <section class="features">
+  <!-- Features -->
+  <section class="section features">
     <div class="container">
-      <h2>Built for users, businesses & communities</h2>
+      <div class="section-header">
+        <h2>Features</h2>
+        <p class="section-subtitle">Everything you need to share and discover</p>
+      </div>
       <div class="features-grid">
         <div class="feature-card">
-          <div class="feature-icon">
-            <lucide-icon [img]="Star" [size]="24" [strokeWidth]="2"></lucide-icon>
-          </div>
-          <h3>Honest, permanent reviews</h3>
-          <p>Businesses can reply, but they can't delete or hide reviews. Transparency by design.</p>
+          <lucide-icon [img]="Star" [size]="28"></lucide-icon>
+          <h3>Detailed Ratings</h3>
+          <p>Rate items on multiple dimensions for comprehensive feedback.</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">
-            <lucide-icon [img]="Award" [size]="24" [strokeWidth]="2"></lucide-icon>
-          </div>
-          <h3>Trust score & levels</h3>
-          <p>Every action you take contributes to your public trust score and level progression.</p>
+          <lucide-icon [img]="Image" [size]="28"></lucide-icon>
+          <h3>Photo Reviews</h3>
+          <p>Add images to your reviews to show real experiences.</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">
-            <lucide-icon [img]="Search" [size]="24" [strokeWidth]="2"></lucide-icon>
-          </div>
-          <h3>Smart discovery</h3>
-          <p>Find the best places and products through filters, categories and top reviewers.</p>
+          <lucide-icon [img]="MessageSquare" [size]="28"></lucide-icon>
+          <h3>Business Responses</h3>
+          <p>Direct communication between reviewers and businesses.</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">
-            <lucide-icon [img]="MessageCircle" [size]="24" [strokeWidth]="2"></lucide-icon>
-          </div>
-          <h3>Engaged community</h3>
-          <p>Reactions, comments and follows turn reviews into real conversations.</p>
+          <lucide-icon [img]="TrendingUp" [size]="28"></lucide-icon>
+          <h3>Trust Score</h3>
+          <p>Build credibility through consistent, helpful reviews.</p>
+        </div>
+        <div class="feature-card">
+          <lucide-icon [img]="Search" [size]="28"></lucide-icon>
+          <h3>Smart Search</h3>
+          <p>Find exactly what you're looking for with advanced filters.</p>
+        </div>
+        <div class="feature-card">
+          <lucide-icon [img]="Building2" [size]="28"></lucide-icon>
+          <h3>Business Tools</h3>
+          <p>Manage items, respond to reviews, and build your brand.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Audience split -->
-  <section class="audience">
+  <!-- For Businesses -->
+  <section class="section for-businesses">
     <div class="container">
-      <h2>Built for everyone</h2>
-      <p class="audience-subtitle">Whether you're sharing your opinion, managing your business, or discovering new places—RateOn has you covered.</p>
-      <div class="audience-grid">
-        <div class="audience-card">
-          <div class="audience-icon">
-            <lucide-icon [img]="User" [size]="24" [strokeWidth]="2"></lucide-icon>
-          </div>
-          <h3>For reviewers</h3>
-          <ul>
-            <li>Share honest experiences with photos & details</li>
-            <li>Build a public profile & gain followers</li>
-            <li>Unlock badges as your impact grows</li>
-          </ul>
+      <div class="section-header">
+        <h2>For Business Owners</h2>
+        <p class="section-subtitle">Manage your reputation effectively</p>
+      </div>
+      <div class="business-features">
+        <div class="business-card">
+          <lucide-icon [img]="Package" [size]="32"></lucide-icon>
+          <h3>Item Management</h3>
+          <p>Add and manage your products or services. Keep information accurate and up-to-date.</p>
         </div>
-        <div class="audience-card audience-card--featured">
-          <div class="audience-icon">
-            <lucide-icon [img]="Building2" [size]="24" [strokeWidth]="2"></lucide-icon>
-          </div>
-          <h3>For business owners</h3>
-          <ul>
-            <li>Claim your profile and reply officially</li>
-            <li>Understand what customers really think</li>
-            <li>Use feedback to improve your service</li>
-          </ul>
+        <div class="business-card">
+          <lucide-icon [img]="Bell" [size]="32"></lucide-icon>
+          <h3>Review Notifications</h3>
+          <p>Get instant alerts when customers review your items. Stay responsive and engaged.</p>
         </div>
-        <div class="audience-card">
-          <div class="audience-icon">
-            <lucide-icon [img]="UserPlus" [size]="24" [strokeWidth]="2"></lucide-icon>
-          </div>
-          <h3>For communities</h3>
-          <ul>
-            <li>Discover trusted places faster</li>
-            <li>See who the top reviewers are locally</li>
-            <li>Keep a permanent record of experiences</li>
-          </ul>
+        <div class="business-card">
+          <lucide-icon [img]="BarChart3" [size]="32"></lucide-icon>
+          <h3>Analytics Dashboard</h3>
+          <p>Track performance, understand feedback trends, and improve your offerings.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="container footer-grid">
-      <div class="footer-brand">
-        <img src="/RateOn_White.png" alt="RateOn" class="footer-logo" />
-        <p>RateOn is a transparent, community-driven review platform for places, products and services.</p>
+  <!-- Why Choose RateOn -->
+  <section class="section why-choose">
+    <div class="container">
+      <div class="section-header">
+        <h2>Why Choose RateOn?</h2>
+        <p class="section-subtitle">What makes us different</p>
       </div>
-      <div class="footer-column">
-        <h4>Product</h4>
-        <a routerLink="/">Overview</a>
-        <a routerLink="/auth/register">For reviewers</a>
-        <a routerLink="/auth/register">For business owners</a>
-      </div>
-      <div class="footer-column">
-        <h4>Company</h4>
-        <a href="javascript:void(0)">About</a>
-        <a href="javascript:void(0)">Contact</a>
-      </div>
-      <div class="footer-column">
-        <h4>Legal</h4>
-        <a href="javascript:void(0)">Terms</a>
-        <a href="javascript:void(0)">Privacy</a>
+      <div class="reasons">
+        <div class="reason">
+          <lucide-icon [img]="CheckCircle2" [size]="24"></lucide-icon>
+          <div>
+            <h3>Granular Reviews</h3>
+            <p>Review specific items, not entire businesses. More precise, more useful.</p>
+          </div>
+        </div>
+        <div class="reason">
+          <lucide-icon [img]="CheckCircle2" [size]="24"></lucide-icon>
+          <div>
+            <h3>Trust-Based System</h3>
+            <p>Reviewers earn credibility. Quality matters more than quantity.</p>
+          </div>
+        </div>
+        <div class="reason">
+          <lucide-icon [img]="CheckCircle2" [size]="24"></lucide-icon>
+          <div>
+            <h3>Transparent Platform</h3>
+            <p>No hidden agendas. Real reviews from real people.</p>
+          </div>
+        </div>
+        <div class="reason">
+          <lucide-icon [img]="CheckCircle2" [size]="24"></lucide-icon>
+          <div>
+            <h3>Easy to Use</h3>
+            <p>Clean interface. Simple process. Get started in seconds.</p>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="footer-bottom">
-      <div class="container footer-bottom-inner">
-        <span>© {{ currentYear }} RateOn. All rights reserved.</span>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="section cta">
+    <div class="container">
+      <h2>Start Reviewing Today</h2>
+      <p>Join our community and make your voice heard</p>
+      <div class="cta-actions">
+        <a routerLink="/auth/register" class="btn btn-primary btn-lg">
+          <lucide-icon [img]="UserPlus" [size]="22"></lucide-icon>
+          <span>Create Free Account</span>
+        </a>
       </div>
+    </div>
+  </section>
+
+  <!-- Footer - Simple, No Header Structure -->
+  <footer class="footer">
+    <div class="footer-center">
+      <img 
+        *ngIf="themeService.isDarkMode()" 
+        src="/LOGO_WHITE.png" 
+        alt="RateOn" 
+        class="footer-logo" 
+        (click)="onLogoClick()"
+      />
+      <img 
+        *ngIf="!themeService.isDarkMode()" 
+        src="/LOGO_BLACK.png" 
+        alt="RateOn" 
+        class="footer-logo" 
+        (click)="onLogoClick()"
+      />
+      <p class="footer-tagline">Honest reviews. Real impact.</p>
+      <div class="footer-links">
+        <a routerLink="/explore">Explore</a>
+        <span class="separator">•</span>
+        <a routerLink="/auth/login">Login</a>
+        <span class="separator">•</span>
+        <a routerLink="/auth/register">Sign Up</a>
+        <span class="separator">•</span>
+        <a href="#">Privacy</a>
+        <span class="separator">•</span>
+        <a href="#">Terms</a>
+      </div>
+      <p class="footer-copyright">&copy; 2026 RateOn. All rights reserved.</p>
     </div>
   </footer>
+
+  <!-- Fixed Theme Toggle Button (Always visible at bottom-right) -->
+  <button class="theme-toggle-fixed" (click)="toggleTheme()" aria-label="Toggle theme">
+    <lucide-icon *ngIf="themeService.isDarkMode()" [img]="Sun" [size]="24"></lucide-icon>
+    <lucide-icon *ngIf="!themeService.isDarkMode()" [img]="Moon" [size]="24"></lucide-icon>
+  </button>
+</div>
+
+<!-- Logout Confirmation Modal -->
+<div *ngIf="showLogoutModal" class="modal-overlay" (click)="closeLogoutModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Logout Confirmation</h3>
+      <p>Are you sure you want to logout?</p>
+    </div>
+    
+    <div class="modal-actions">
+      <button class="btn-modal-danger" (click)="confirmLogout()">
+        <lucide-icon [img]="LogOut" [size]="18"></lucide-icon>
+        Logout
+      </button>
+      <button class="btn-modal-cancel" (click)="closeLogoutModal()">
+        Cancel
+      </button>
+    </div>
+  </div>
 </div>

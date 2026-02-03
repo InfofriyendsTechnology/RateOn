@@ -1,0 +1,137 @@
+<div class="admin-dashboard">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h1>Super Admin Dashboard</h1>
+      <p class="header-subtitle">{{ todayDate }}</p>
+    </div>
+    <button class="logout-btn" (click)="logout()">
+      <lucide-icon [img]="LogOut" [size]="20"></lucide-icon>
+      Logout
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading analytics...</p>
+  </div>
+
+  <!-- Analytics Cards -->
+  <div *ngIf="!isLoading" class="analytics-grid">
+    <!-- User Stats -->
+    <div class="analytics-card">
+      <div class="card-icon users">
+        <lucide-icon [img]="Users" [size]="32"></lucide-icon>
+      </div>
+      <div class="card-content">
+        <div class="card-value">{{ userAnalytics?.totalUsers || 0 }}</div>
+        <div class="card-label">Total Users</div>
+        <div class="card-details" *ngIf="userAnalytics">
+          <span>{{ userAnalytics?.googleUsers || 0 }} Google</span>
+          <span>{{ userAnalytics?.emailUsers || 0 }} Email</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Business Owners -->
+    <div class="analytics-card">
+      <div class="card-icon businesses">
+        <lucide-icon [img]="Building2" [size]="32"></lucide-icon>
+      </div>
+      <div class="card-content">
+        <div class="card-value">{{ userAnalytics?.businessOwners || 0 }}</div>
+        <div class="card-label">Business Owners</div>
+        <div class="card-details" *ngIf="contentAnalytics">
+          <span>{{ contentAnalytics?.totalBusinesses || 0 }} Businesses</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Reviews -->
+    <div class="analytics-card">
+      <div class="card-icon reviews">
+        <lucide-icon [img]="FileText" [size]="32"></lucide-icon>
+      </div>
+      <div class="card-content">
+        <div class="card-value">{{ contentAnalytics?.totalReviews || 0 }}</div>
+        <div class="card-label">Total Reviews</div>
+        <div class="card-details" *ngIf="contentAnalytics?.mostReviewedBusiness">
+          <span>Top: {{ contentAnalytics.mostReviewedBusiness.name }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Growth -->
+    <div class="analytics-card">
+      <div class="card-icon growth">
+        <lucide-icon [img]="TrendingUp" [size]="32"></lucide-icon>
+      </div>
+      <div class="card-content">
+        <div class="card-value">{{ contentAnalytics?.totalItems || 0 }}</div>
+        <div class="card-label">Total Items</div>
+        <div class="card-details">
+          <span>Products & Services</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detailed Stats -->
+  <div *ngIf="!isLoading && userAnalytics" class="detailed-stats">
+    <!-- User Breakdown -->
+    <div class="stat-section">
+      <h2>User Analytics</h2>
+      <div class="stat-grid">
+        <div class="stat-item">
+          <span class="stat-label">Gmail Users</span>
+          <span class="stat-value">{{ userAnalytics?.gmailUsers || 0 }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Other Email</span>
+          <span class="stat-value">{{ userAnalytics?.otherEmailUsers || 0 }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Regular Users</span>
+          <span class="stat-value">{{ (userAnalytics?.totalUsers || 0) - (userAnalytics?.businessOwners || 0) }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Business Owners</span>
+          <span class="stat-value highlight">{{ userAnalytics?.businessOwners || 0 }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Content Stats -->
+    <div class="stat-section" *ngIf="contentAnalytics">
+      <h2>Content Analytics</h2>
+      <div class="stat-grid">
+        <div class="stat-item">
+          <span class="stat-label">Total Businesses</span>
+          <span class="stat-value">{{ contentAnalytics?.totalBusinesses || 0 }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Total Items</span>
+          <span class="stat-value">{{ contentAnalytics?.totalItems || 0 }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Total Reviews</span>
+          <span class="stat-value">{{ contentAnalytics?.totalReviews || 0 }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Businesses Without Reviews</span>
+          <span class="stat-value">{{ contentAnalytics?.businessesWithoutReviews || 0 }}</span>
+        </div>
+      </div>
+
+      <!-- Top Business -->
+      <div class="top-item" *ngIf="contentAnalytics?.mostReviewedBusiness">
+        <h3>Most Reviewed Business</h3>
+        <div class="top-item-card">
+          <div class="top-item-name">{{ contentAnalytics.mostReviewedBusiness.name }}</div>
+          <div class="top-item-count">{{ contentAnalytics.mostReviewedBusiness.reviewCount }} reviews</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

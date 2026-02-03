@@ -1,0 +1,275 @@
+// ============================================================================
+// PROFESSIONAL BUTTON SYSTEM
+// Reusable, Consistent, Theme-Aware
+// ============================================================================
+
+@use './design-system' as *;
+
+// ============================================================================
+// BASE BUTTON CLASS
+// ============================================================================
+.btn {
+  @include button-base;
+  @include button-md;
+  
+  lucide-icon {
+    flex-shrink: 0;
+    transition: transform $transition-base;
+  }
+  
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+// ============================================================================
+// BUTTON SIZES
+// ============================================================================
+.btn-sm {
+  @include button-sm;
+}
+
+.btn-md {
+  @include button-md;
+}
+
+.btn-lg {
+  @include button-lg;
+}
+
+// ============================================================================
+// PRIMARY BUTTON - Silver Metallic Gradient
+// ============================================================================
+.btn-primary {
+  @include silver-button;
+  
+  lucide-icon {
+    transition: transform $transition-base;
+  }
+  
+  &:hover:not(:disabled) {
+    lucide-icon {
+      transform: translateX(2px);
+    }
+  }
+}
+
+
+// ============================================================================
+// SECONDARY BUTTON - Solid accent color
+// ============================================================================
+.btn-secondary {
+  background: var(--color-accent);
+  font-weight: 600;
+  border: 2px solid var(--color-accent);
+  box-shadow: var(--silver-glow);
+  color: var(--button-text-on-silver);
+  
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: var(--silver-glow-hover);
+  }
+}
+
+// ============================================================================
+// OUTLINE BUTTON - Subtle Action
+// Dark Mode: White outline with white text
+// Light Mode: Accent outline with accent text
+// ============================================================================
+.btn-outline {
+  background: transparent;
+  
+  // Dark Mode: Silver outline with white text
+  color: white;
+  border: 2px solid var(--color-accent);
+  
+  // Light Mode: Silver outline with black text
+  html.light-mode &,
+  body.light-theme & {
+    color: #000000;
+    border-color: var(--color-accent);
+  }
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    
+    // Dark mode hover
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 14px rgba(255, 255, 255, 0.2);
+    
+    // Light mode hover
+    html.light-mode &,
+    body.light-theme & {
+      background: var(--color-accent-gradient);
+      color: #000000;
+      box-shadow: 0 4px 14px rgba(102, 102, 102, 0.3);
+    }
+  }
+}
+
+// ============================================================================
+// GHOST BUTTON - Minimal
+// ============================================================================
+.btn-ghost {
+  background: transparent;
+  color: var(--text-primary);
+  
+  &:hover:not(:disabled) {
+    background: var(--bg-hover);
+  }
+}
+
+// ============================================================================
+// GRADIENT BUTTON - Silver Metallic Premium
+// ============================================================================
+.btn-gradient {
+  @include silver-button;
+  position: relative;
+  overflow: hidden;
+  border: none;
+  
+  lucide-icon {
+    transition: transform $transition-base;
+  }
+  
+  &:hover:not(:disabled) {
+    lucide-icon {
+      transform: translateX(3px);
+    }
+  }
+}
+
+// ============================================================================
+// GLASS BUTTON - Modern Glass Effect
+// ============================================================================
+.btn-glass {
+  @include glass-effect;
+  color: white;
+  
+  html.dark-mode &,
+  html:not(.light-mode) & {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    }
+  }
+  
+  html.light-mode & {
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    
+    &:hover:not(:disabled) {
+      background: rgba(0, 0, 0, 0.05);
+      border-color: var(--border-color-strong);
+      box-shadow: var(--shadow-lg);
+    }
+  }
+}
+
+// ============================================================================
+// BUTTON STATES
+// ============================================================================
+.btn-success {
+  background: #10b981;
+  color: white;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+  
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+  }
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: white;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, 0.3);
+  
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+  }
+}
+
+.btn-warning {
+  background: #f59e0b;
+  color: white;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+  
+  &:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4);
+  }
+}
+
+// ============================================================================
+// YELLOW ACCENT BUTTON - Primary CTA
+// ============================================================================
+.btn-yellow {
+  background: $color-yellow;
+  color: #000000;
+  font-weight: 700;
+  box-shadow: 0 4px 14px $color-yellow-alpha-30;
+  border: 2px solid transparent;
+  
+  &:hover:not(:disabled) {
+    background: $color-yellow-light;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px $color-yellow-alpha-30, 0 0 40px $color-yellow-alpha-20;
+    
+    lucide-icon {
+      transform: translateX(3px);
+    }
+  }
+  
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+}
+
+.btn-yellow-outline {
+  background: transparent;
+  color: $color-yellow;
+  border: 2px solid $color-yellow;
+  font-weight: 600;
+  
+  &:hover:not(:disabled) {
+    background: $color-yellow;
+    color: #000000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px $color-yellow-alpha-30;
+  }
+}
+
+// ============================================================================
+// FULL WIDTH BUTTON
+// ============================================================================
+.btn-block {
+  width: 100%;
+}
+
+// ============================================================================
+// BUTTON GROUP
+// ============================================================================
+.btn-group {
+  display: flex;
+  gap: $space-3;
+  flex-wrap: wrap;
+  
+  @media (max-width: $breakpoint-sm) {
+    flex-direction: column;
+    
+    .btn {
+      width: 100%;
+    }
+  }
+}

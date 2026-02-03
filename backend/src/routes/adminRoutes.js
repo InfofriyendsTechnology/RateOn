@@ -1,5 +1,9 @@
 import { Router } from 'express';
 import { 
+    adminLogin,
+    adminLogout,
+    getUserAnalytics,
+    getContentAnalytics,
     getPlatformStats,
     getUsers,
     getUserDetails,
@@ -12,11 +16,21 @@ import authorize from '../middleware/authorize.js';
 
 const router = Router();
 
-// All admin routes require authentication and admin role
+// Public admin routes (no auth required)
+router.post('/login', adminLogin.validator, adminLogin.handler);
+
+// All routes below require authentication and admin role
 router.use(auth);
 router.use(authorize(['admin']));
 
-// Platform statistics
+// Admin logout
+router.post('/logout', adminLogout.handler);
+
+// Analytics endpoints
+router.get('/analytics/users', getUserAnalytics.handler);
+router.get('/analytics/content', getContentAnalytics.handler);
+
+// Platform statistics (existing)
 router.get('/stats', getPlatformStats);
 
 // User management

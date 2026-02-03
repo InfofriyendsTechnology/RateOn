@@ -1,0 +1,554 @@
+<div class="home-container">
+  <!-- Profile Header Section -->
+  <div class="profile-header">
+    <div class="profile-cover" [class.has-custom]="user?.coverPhoto">
+      <!-- Custom Cover Photo -->
+      <img 
+        *ngIf="user?.coverPhoto && !coverFailed" 
+        [src]="user.coverPhoto" 
+        (error)="onCoverError($event)"
+        alt="Cover"
+        class="cover-img"
+      />
+      
+      <!-- Default Branded Cover -->
+      <div *ngIf="!user?.coverPhoto || coverFailed" class="default-cover">
+        <!-- Background gradient -->
+        <div class="cover-gradient"></div>
+        
+        <!-- Simple small grid pattern -->
+        <div class="cover-grid-pattern">
+          <svg class="grid-svg" viewBox="0 0 800 200" preserveAspectRatio="xMidYMid slice">
+            <defs>
+              <pattern id="grid" width="15" height="15" patternUnits="userSpaceOnUse">
+                <rect width="15" height="15" fill="none" stroke="rgba(251, 191, 36, 0.12)" stroke-width="0.5"/>
+              </pattern>
+            </defs>
+            <rect width="800" height="200" fill="url(#grid)" />
+          </svg>
+        </div>
+        
+        <!-- Star animations for reviews -->
+        <div class="cover-stars">
+          <div *ngFor="let star of starPositions" class="floating-star" [style.left.%]="star.left" [style.top.%]="star.top" [style.animation-delay.s]="star.delay">
+            <lucide-icon [img]="Star" [size]="star.size"></lucide-icon>
+          </div>
+        </div>
+        
+        <!-- Logo in top right corner -->
+        <div class="cover-logo-corner">
+          <img 
+            *ngIf="themeService.isDarkMode()" 
+            src="/LOGO_WHITE.png" 
+            alt="RateOn" 
+          />
+          <img 
+            *ngIf="!themeService.isDarkMode()" 
+            src="/LOGO_BLACK.png" 
+            alt="RateOn" 
+          />
+          <div class="logo-glow"></div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="profile-main">
+      <div class="avatar-wrapper">
+        <img 
+          *ngIf="user?.avatar && !avatarFailed" 
+          [src]="user.avatar" 
+          (error)="onAvatarError($event)"
+          alt="Profile"
+          class="avatar-img"
+        >
+        <div *ngIf="!user?.avatar || avatarFailed" class="avatar-placeholder">
+          <lucide-icon [img]="User" [size]="56"></lucide-icon>
+        </div>
+      </div>
+      
+      <div class="profile-info">
+        <h1 class="profile-name">
+          {{ user?.firstName || user?.username || 'User' }}
+          <span *ngIf="user?.lastName"> {{ user.lastName }}</span>
+        </h1>
+        <p class="profile-username">@{{ user?.username }}</p>
+        <p class="profile-bio" *ngIf="user?.bio">{{ user.bio }}</p>
+        <p class="profile-bio" *ngIf="!user?.bio">Food enthusiast • Reviewer • Explorer</p>
+      </div>
+      
+      <div class="profile-action">
+        <button class="btn-edit-profile" (click)="navigateToProfile()">
+          <lucide-icon [img]="Edit" [size]="18"></lucide-icon>
+          Edit Profile
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon reviews">
+        <lucide-icon [img]="FileText" [size]="24"></lucide-icon>
+      </div>
+      <div class="stat-content">
+        <p class="stat-value">{{ user?.totalReviews || 0 }}</p>
+        <p class="stat-label">Reviews</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon followers">
+        <lucide-icon [img]="Users" [size]="24"></lucide-icon>
+      </div>
+      <div class="stat-content">
+        <p class="stat-value">{{ user?.totalFollowers || 0 }}</p>
+        <p class="stat-label">Followers</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon following">
+        <lucide-icon [img]="UserPlus" [size]="24"></lucide-icon>
+      </div>
+      <div class="stat-content">
+        <p class="stat-value">{{ user?.totalFollowing || 0 }}</p>
+        <p class="stat-label">Following</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon helpful">
+        <lucide-icon [img]="ThumbsUp" [size]="24"></lucide-icon>
+      </div>
+      <div class="stat-content">
+        <p class="stat-value">{{ user?.helpfulReactions || 0 }}</p>
+        <p class="stat-label">Helpful</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trust Score & Level -->
+  <div class="trust-level-section">
+    <!-- Trust Score Card -->
+    <div class="trust-card">
+      <h3 class="section-title">Trust Score</h3>
+      <div class="trust-circle-container">
+        <svg class="trust-circle" viewBox="0 0 160 160">
+          <circle
+            class="trust-bg"
+            cx="80"
+            cy="80"
+            r="70"
+            fill="none"
+            stroke="var(--bg-secondary)"
+            stroke-width="12"
+          />
+          <circle
+            class="trust-progress"
+            cx="80"
+            cy="80"
+            r="70"
+            fill="none"
+            [attr.stroke]="getTrustColor()"
+            stroke-width="12"
+            stroke-linecap="round"
+            [style.stroke-dasharray]="getTrustScoreCircumference()"
+            [style.stroke-dashoffset]="getTrustScoreOffset()"
+            transform="rotate(-90 80 80)"
+          />
+        </svg>
+        <div class="trust-score-value">
+          <p class="score-number">{{ user?.trustScore || 0 }}</p>
+          <p class="score-label">{{ getTrustLabel() }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Level Card -->
+    <div class="level-card">
+      <h3 class="section-title">Current Level</h3>
+      <div class="level-badge" [class]="getLevelClass(user?.level)">
+        <lucide-icon [img]="Star" [size]="32"></lucide-icon>
+        <p class="level-name">{{ user?.level || 'Bronze' }}</p>
+      </div>
+      <p class="level-description">
+        Keep reviewing to reach {{ getNextLevel() }}!
+      </p>
+    </div>
+  </div>
+
+  <!-- Recent Reviews -->
+  <div class="recent-reviews-section">
+    <div class="section-header">
+      <h3 class="section-title">Recent Reviews</h3>
+      <button class="btn-view-all" (click)="navigateToProfile()">
+        View All
+      </button>
+    </div>
+
+    <div *ngIf="loadingReviews" class="loading-state">
+      <p>Loading reviews...</p>
+    </div>
+
+    <div *ngIf="!loadingReviews && recentReviews.length === 0" class="empty-state">
+      <lucide-icon [img]="FileText" [size]="48"></lucide-icon>
+      <p>No reviews yet</p>
+      <button class="btn-primary" (click)="writeReview()">
+        Write Your First Review
+      </button>
+    </div>
+
+    <div *ngIf="!loadingReviews && recentReviews.length > 0" class="reviews-list">
+      <div *ngFor="let review of recentReviews" class="review-card" (click)="viewBusiness(review.businessId)">
+        <div class="review-header">
+          <p class="business-name">{{ review.businessName || 'Business' }}</p>
+          <div class="review-rating">
+            <lucide-icon 
+              *ngFor="let star of getRatingArray(review.rating)" 
+              [img]="Star" 
+              [size]="16"
+              class="star-filled"
+            ></lucide-icon>
+            <lucide-icon 
+              *ngFor="let star of getEmptyStars(review.rating)" 
+              [img]="Star" 
+              [size]="16"
+              class="star-empty"
+            ></lucide-icon>
+          </div>
+        </div>
+        <p class="review-text">{{ review.review }}</p>
+        <p class="review-date">{{ formatDate(review.createdAt) }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="quick-actions">
+    <h3 class="section-title">Quick Actions</h3>
+    <div class="actions-grid">
+      <button class="action-btn" (click)="writeReview()">
+        <lucide-icon [img]="Edit" [size]="24"></lucide-icon>
+        <span>Write Review</span>
+      </button>
+
+      <button class="action-btn" (click)="discoverPlaces()">
+        <lucide-icon [img]="Search" [size]="24"></lucide-icon>
+        <span>Discover</span>
+      </button>
+
+      <button class="action-btn" (click)="navigateToProfile()">
+        <lucide-icon [img]="User" [size]="24"></lucide-icon>
+        <span>My Profile</span>
+      </button>
+
+      <button class="action-btn" (click)="openSettings()">
+        <lucide-icon [img]="Settings" [size]="24"></lucide-icon>
+        <span>Settings</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Business Owner CTA -->
+  <div *ngIf="!isBusinessOwner" class="business-cta">
+    <div class="cta-content">
+      <lucide-icon [img]="Briefcase" [size]="32"></lucide-icon>
+      <h4>Are you a business owner?</h4>
+      <p>Manage your business, respond to reviews, and grow your presence</p>
+      <button class="btn-become-owner" (click)="openBusinessOwnerModal()">
+        Become a Business Owner
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Business Owner Upgrade Modal -->
+<div *ngIf="showBusinessOwnerModal" class="modal-overlay" (click)="closeBusinessOwnerModal()">
+  <div class="modal-content business-owner-modal" (click)="$event.stopPropagation()">
+    <div class="modal-icon-header">
+      <div class="icon-circle">
+        <lucide-icon [img]="Briefcase" [size]="32"></lucide-icon>
+      </div>
+    </div>
+    
+    <div class="modal-header centered">
+      <h3>Become a Business Owner</h3>
+      <p>Manage your business & respond to reviews</p>
+    </div>
+    
+    <div class="modal-body">
+      <div class="features-grid">
+        <div class="feature-item">
+          <div class="feature-icon">
+            <lucide-icon [img]="Building2" [size]="20"></lucide-icon>
+          </div>
+          <div class="feature-content">
+            <h4>Manage Businesses</h4>
+          </div>
+        </div>
+        
+        <div class="feature-item">
+          <div class="feature-icon">
+            <lucide-icon [img]="FileText" [size]="20"></lucide-icon>
+          </div>
+          <div class="feature-content">
+            <h4>Respond to Reviews</h4>
+          </div>
+        </div>
+        
+        <div class="feature-item">
+          <div class="feature-icon">
+            <lucide-icon [img]="TrendingUp" [size]="20"></lucide-icon>
+          </div>
+          <div class="feature-content">
+            <h4>Track Performance</h4>
+          </div>
+        </div>
+        
+        <div class="feature-item">
+          <div class="feature-icon">
+            <lucide-icon [img]="Award" [size]="20"></lucide-icon>
+          </div>
+          <div class="feature-content">
+            <h4>Promote Business</h4>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-actions">
+      <button class="btn-modal-primary" (click)="becomeBusinessOwner()" [disabled]="converting">
+        <lucide-icon *ngIf="!converting" [img]="Check" [size]="18"></lucide-icon>
+        {{ converting ? 'Upgrading...' : 'Upgrade Now' }}
+      </button>
+      <button class="btn-modal-secondary" (click)="closeBusinessOwnerModal()" [disabled]="converting">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Avatar Upload Modal -->
+<div *ngIf="showAvatarModal" class="modal-overlay" (click)="closeAvatarModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Change Profile Picture</h3>
+      <p>Upload a new photo for your profile</p>
+    </div>
+    
+    <div class="avatar-preview" *ngIf="avatarPreview">
+      <img [src]="avatarPreview" alt="Preview" />
+    </div>
+    
+    <input 
+      type="file" 
+      #avatarInput 
+      (change)="onAvatarSelected($event)" 
+      accept="image/*"
+      style="display: none;"
+    />
+    
+    <div class="modal-actions">
+      <button class="btn-modal-confirm" (click)="avatarInput.click()" *ngIf="!selectedAvatar">
+        Choose Photo
+      </button>
+      <button class="btn-modal-confirm" (click)="uploadAvatar()" *ngIf="selectedAvatar" [disabled]="uploading">
+        {{ uploading ? 'Uploading...' : 'Upload' }}
+      </button>
+      <button class="btn-modal-cancel" (click)="closeAvatarModal()">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Cover Photo Upload Modal -->
+<div *ngIf="showCoverModal" class="modal-overlay" (click)="closeCoverModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Change Cover Photo</h3>
+      <p>Upload a banner image for your profile</p>
+    </div>
+    
+    <div class="cover-preview" *ngIf="coverPreview">
+      <img [src]="coverPreview" alt="Preview" />
+    </div>
+    
+    <input 
+      type="file" 
+      #coverInput 
+      (change)="onCoverSelected($event)" 
+      accept="image/*"
+      style="display: none;"
+    />
+    
+    <div class="modal-actions">
+      <button class="btn-modal-confirm" (click)="coverInput.click()" *ngIf="!selectedCover">
+        Choose Photo
+      </button>
+      <button class="btn-modal-confirm" (click)="uploadCover()" *ngIf="selectedCover" [disabled]="uploading">
+        {{ uploading ? 'Uploading...' : 'Upload' }}
+      </button>
+      <button class="btn-modal-cancel" (click)="closeCoverModal()">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Account Modal -->
+<div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDeleteModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Delete Account</h3>
+      <p class="danger-text">This action cannot be undone!</p>
+    </div>
+    
+    <p class="modal-warning">
+      Are you sure you want to permanently delete your account? All your reviews, stats, and data will be lost.
+    </p>
+    
+    <div class="modal-actions">
+      <button class="btn-modal-danger" (click)="confirmDelete()" [disabled]="deleting">
+        {{ deleting ? 'Deleting...' : 'Delete Account' }}
+      </button>
+      <button class="btn-modal-cancel" (click)="closeDeleteModal()">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Business Information Modal -->
+<div *ngIf="showBusinessInfoModal" class="modal-overlay">
+  <div class="modal-content business-info-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Add Your Business</h3>
+      <p>Step {{ currentBusinessStep }} of {{ totalBusinessSteps }}</p>
+    </div>
+    
+    <div class="modal-body business-form">
+      <!-- Step 1: Business Name & Category -->
+      <div *ngIf="currentBusinessStep === 1">
+        <div class="form-group">
+          <label>Business Name <span class="required">*</span></label>
+          <input 
+            type="text" 
+            [(ngModel)]="businessInfoForm.name" 
+            placeholder="Enter business name"
+            class="form-input"
+            autofocus
+          />
+        </div>
+        
+        <div class="form-group">
+          <label>Category <span class="required">*</span></label>
+          <select [(ngModel)]="businessInfoForm.category" class="form-input">
+            <option value="">Select category</option>
+            <option value="restaurant">Restaurant</option>
+            <option value="cafe">Café</option>
+            <option value="bar">Bar</option>
+            <option value="hotel">Hotel</option>
+            <option value="shop">Shop</option>
+            <option value="service">Service</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- Step 2: Location -->
+      <div *ngIf="currentBusinessStep === 2">
+        <div class="form-group">
+          <label>City <span class="required">*</span></label>
+          <input 
+            type="text" 
+            [(ngModel)]="businessInfoForm.city" 
+            placeholder="City name"
+            class="form-input"
+            autofocus
+          />
+        </div>
+        
+        <div class="form-group">
+          <label>Address</label>
+          <input 
+            type="text" 
+            [(ngModel)]="businessInfoForm.address" 
+            placeholder="Street address (optional)"
+            class="form-input"
+          />
+        </div>
+      </div>
+      
+      <!-- Step 3: Contact & Description -->
+      <div *ngIf="currentBusinessStep === 3">
+        <div class="form-group">
+          <label>Phone</label>
+          <input 
+            type="tel" 
+            [(ngModel)]="businessInfoForm.phone" 
+            placeholder="+1 234 567 8900"
+            class="form-input"
+            autofocus
+          />
+        </div>
+        
+        <div class="form-group">
+          <label>Website</label>
+          <input 
+            type="url" 
+            [(ngModel)]="businessInfoForm.website" 
+            placeholder="https://example.com"
+            class="form-input"
+          />
+        </div>
+        
+        <div class="form-group">
+          <label>Description</label>
+          <textarea 
+            [(ngModel)]="businessInfoForm.description" 
+            placeholder="Brief description (optional)"
+            rows="3"
+            class="form-input"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-actions">
+      <div class="btn-group" *ngIf="currentBusinessStep === 1">
+        <button class="btn-modal-cancel" (click)="closeBusinessInfoModal()">
+          Cancel
+        </button>
+        <button class="btn-modal-primary" (click)="nextBusinessStep()">
+          Continue
+        </button>
+      </div>
+      
+      <div class="btn-group" *ngIf="currentBusinessStep === 2">
+        <button class="btn-modal-secondary" (click)="previousBusinessStep()">
+          Back
+        </button>
+        <button class="btn-modal-cancel" (click)="closeBusinessInfoModal()">
+          Cancel
+        </button>
+        <button class="btn-modal-primary" (click)="nextBusinessStep()">
+          Continue
+        </button>
+      </div>
+      
+      <div class="btn-group" *ngIf="currentBusinessStep === 3">
+        <button class="btn-modal-secondary" (click)="previousBusinessStep()">
+          Back
+        </button>
+        <button class="btn-modal-cancel" (click)="closeBusinessInfoModal()">
+          Cancel
+        </button>
+        <button class="btn-modal-primary" (click)="addBusiness()" [disabled]="addingBusiness">
+          {{ addingBusiness ? 'Adding...' : 'Add Business' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

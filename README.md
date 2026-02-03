@@ -13,6 +13,8 @@ Unlike Google Reviews (business-level only), RateOn enables:
 - **Permanent reviews** - Business owners cannot delete reviews, only reply
 - **Trust score system** - Automated gamification with 10 levels
 - **Social features** - Follow users, activity feeds, leaderboards
+- **Simplified auth flow** - Google-first with review-time authentication
+- **Business owner roles** - Convert any user to business owner instantly
 
 ### Example
 ```
@@ -21,6 +23,53 @@ Jay's Cafe
   ├── Masala Pav (3.8⭐, 23 reviews) - ₹25 - Out of Stock
   └── Coffee (4.2⭐, 67 reviews) - ₹30 - Available
 ```
+
+---
+
+## 🔐 Authentication Flow (NEW - Simplified)
+
+### User Authentication
+**Public browsing** - No login required to browse businesses and read reviews
+
+**Review-time authentication** - Users only need to log in when submitting a review:
+1. User writes a review (no login required)
+2. On submit, auth modal appears with Google OAuth (primary) or email/password (fallback)
+3. After authentication, review is automatically submitted
+4. Draft is saved in localStorage during auth process
+
+**Login options:**
+- Google OAuth (primary method)
+- Email/Password (fallback)
+
+### Business Owner System
+**No separate business accounts** - Business owners are regular users with `business_owner` role:
+
+1. Any user clicks "Become Business Owner" in their dashboard
+2. User role instantly converts to `business_owner`
+3. Business owner can:
+   - Create unlimited businesses
+   - Add unlimited products/items to each business
+   - Reply to reviews
+   - Update item availability
+
+### Super Admin System
+**Dynamic password authentication** - No database lookup required:
+
+**Access:** Click RateOn logo in footer → Opens `/admin/login`
+
+**Password formula:** `D+M+YYYY+9325` (no zero padding)
+- Today (Feb 3, 2026): `3220269325`
+- Dec 25, 2026: `251220269325`
+- Jan 1, 2027: `1120279325`
+
+**Email:** `admin@rateon.com`
+
+**Dashboard:** `/admin/dashboard` shows:
+- Total users (Google vs Email breakdown)
+- Business owners count
+- Total businesses, items, reviews
+- Most reviewed business
+- Analytics and insights
 
 ---
 
@@ -155,18 +204,31 @@ npm run dev:frontend
 ## 🎯 Key Features
 
 ### For Users
+- **Browse without login** - Explore all businesses and reviews publicly
+- **Review-time auth** - Only log in when posting a review
+- **Google-first** - Quick OAuth login or email/password fallback
 - Review specific items, not just businesses
 - See real-time availability and prices
 - Follow trusted reviewers
 - Build trust score through quality reviews
-- Permanent reviews that can't be deleted
+- **Upgrade to business owner** - One-click role conversion
 
 ### For Business Owners
-- Manage item catalog with photos
-- Update availability instantly
+- **No separate registration** - Upgrade from regular user account
+- **Unlimited businesses** - Create and manage multiple locations
+- **Unlimited items** - Add products/services with photos
+- Update availability and prices instantly
 - Reply to reviews
 - View analytics per item
 - Cannot delete customer reviews
+
+### For Super Admin
+- **Dynamic password** - Changes daily based on date formula
+- **Analytics dashboard** - User, business, review statistics
+- **No database dependency** - Token-based authentication
+- View user breakdown (Google vs Email, Gmail vs other)
+- Monitor platform growth and engagement
+- Identify most reviewed businesses
 
 ### Platform Features
 - Trust score system (0-100 points, 10 levels)
@@ -236,6 +298,34 @@ FRONTEND_URL=http://localhost:5300
 
 - [Backend Documentation](./backend/README.md)
 - [Frontend Documentation](./frontend/README.md)
+
+---
+
+## 🚧 Migration Notes (Gradual Cleanup)
+
+### Old Flow Code to Remove
+The following legacy code from the old business account system will be removed gradually:
+
+**Backend:**
+- `backend/src/routes/businessAuthRoutes.js` - Separate business auth (deprecated)
+- Old business registration controllers (replaced by role conversion)
+
+**Frontend:**
+- `frontend/src/app/features/business-auth/` - Separate business auth pages
+  - `business-auth/register/`
+  - `business-auth/login/`
+  - `business-auth/callback/`
+  - `business-auth/account-conflict/`
+- Legacy business guards (replaced by `businessOwnerGuard`)
+
+**Status:** These files are marked for removal but kept temporarily for reference
+
+### New Implementation
+**Unified Auth:**
+- Single `authRoutes.js` for all users
+- `businessOwnerGuard` - Role-based guard (not auth-based)
+- `POST /api/v1/user/become-business-owner` - Role conversion endpoint
+- Review-time authentication via `AuthModalComponent`
 
 ---
 

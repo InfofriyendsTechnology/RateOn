@@ -38,6 +38,24 @@ export class AdminService {
 
   constructor(private http: HttpClient) {}
 
+  // Authentication
+  login(credentials: { email: string; password: string }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/login`, credentials);
+  }
+
+  logout(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/logout`, {});
+  }
+
+  // Analytics
+  getUserAnalytics(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/analytics/users`);
+  }
+
+  getContentAnalytics(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/analytics/content`);
+  }
+
   // Platform Statistics
   getPlatformStats(): Observable<{ stats: PlatformStats }> {
     return this.http.get<{ stats: PlatformStats }>(`${this.apiUrl}/stats`);

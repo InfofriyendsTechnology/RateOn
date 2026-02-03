@@ -2,7 +2,8 @@
   <div class="container">
     <div class="nav-content">
       <a routerLink="/" class="logo">
-        <img src="/RateOn_Blue.png" alt="RateOn">
+        <img *ngIf="!themeService.isDarkMode()" src="/LOGO_BLACK.png" alt="RateOn" class="logo-img">
+        <img *ngIf="themeService.isDarkMode()" src="/LOGO_WHITE.png" alt="RateOn" class="logo-img">
       </a>
 
       <div class="nav-links" [class.active]="isMenuOpen">
@@ -19,6 +20,13 @@
           <span>Leaderboard</span>
         </a>
         
+        <!-- Theme Toggle -->
+        <button class="theme-toggle" (click)="themeService.toggleTheme()" 
+                [attr.aria-label]="themeService.isDarkMode() ? 'Switch to light mode' : 'Switch to dark mode'">
+          <lucide-icon *ngIf="themeService.isDarkMode()" [img]="Sun" [size]="18" [strokeWidth]="2"></lucide-icon>
+          <lucide-icon *ngIf="!themeService.isDarkMode()" [img]="Moon" [size]="18" [strokeWidth]="2"></lucide-icon>
+        </button>
+        
         <ng-container *ngIf="!isLoggedIn">
           <div class="nav-divider"></div>
           <a routerLink="/auth/login" routerLinkActive="active" class="nav-link nav-link-secondary">
@@ -33,18 +41,21 @@
         
         <ng-container *ngIf="isLoggedIn">
           <div class="nav-divider"></div>
-          <a routerLink="/dashboard" routerLinkActive="active" class="nav-link">
-            <lucide-icon [img]="LayoutDashboard" [size]="18" [strokeWidth]="2"></lucide-icon>
-            <span>Dashboard</span>
+          <a [routerLink]="getDashboardLink()" routerLinkActive="active" class="nav-link">
+            <lucide-icon *ngIf="!isBusinessOwner" [img]="Home" [size]="18" [strokeWidth]="2"></lucide-icon>
+            <lucide-icon *ngIf="isBusinessOwner" [img]="Building2" [size]="18" [strokeWidth]="2"></lucide-icon>
+            <span>{{ isBusinessOwner ? 'Dashboard' : 'Home' }}</span>
           </a>
           <div class="user-badge">
             <img *ngIf="getUserAvatar() && !avatarFailed" [src]="getUserAvatar()" [alt]="currentUser?.username" 
                  class="user-avatar-img" crossorigin="anonymous" referrerpolicy="no-referrer"
                  (error)="onAvatarError($event)">
-            <lucide-icon *ngIf="!getUserAvatar() || avatarFailed" [img]="User" [size]="16" [strokeWidth]="2"></lucide-icon>
+            <div *ngIf="!getUserAvatar() || avatarFailed" class="user-avatar-fallback">
+              {{ getUserInitial() }}
+            </div>
             <span>{{ currentUser?.username }}</span>
           </div>
-          <button (click)="logout()" class="btn-logout">
+          <button (click)="openLogoutModal()" class="btn-logout">
             <lucide-icon [img]="LogOut" [size]="18" [strokeWidth]="2"></lucide-icon>
             <span>Logout</span>
           </button>
@@ -58,3 +69,23 @@
     </div>
   </div>
 </nav>
+
+<!-- Logout Confirmation Modal -->
+<div *ngIf="showLogoutModal" class="modal-overlay" (click)="closeLogoutModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Logout Confirmation</h3>
+      <p>Are you sure you want to logout?</p>
+    </div>
+    
+    <div class="modal-actions">
+      <button class="btn-modal-danger" (click)="confirmLogout()">
+        <lucide-icon [img]="LogOut" [size]="18"></lucide-icon>
+        Logout
+      </button>
+      <button class="btn-modal-cancel" (click)="closeLogoutModal()">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>

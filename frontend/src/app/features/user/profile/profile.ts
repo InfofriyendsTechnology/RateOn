@@ -5,37 +5,56 @@ import { Router } from '@angular/router';
 import { StorageService } from '../../../core/services/storage';
 import { UserService } from '../../../core/services/user';
 import { ReviewService } from '../../../core/services/review';
-import { ImageCropperComponent, ImageCroppedEvent, LoadedImage } from 'ngx-image-cropper';
-import { DomSanitizer } from '@angular/platform-browser';
+import { LucideAngularModule, User, Edit, Mail, Phone, MapPin, Shield, Star, FileText, Users, UserPlus, ThumbsUp, Camera, Trash2, X, Check, ArrowLeft, Award, Image } from 'lucide-angular';
 import { ToastService } from '../../../core/services/toast';
+import { ThemeService } from '../../../core/services/theme';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, ImageCropperComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
 export class ProfileComponent implements OnInit {
+  // Lucide Icons
+  readonly User = User;
+  readonly Edit = Edit;
+  readonly Mail = Mail;
+  readonly Phone = Phone;
+  readonly MapPin = MapPin;
+  readonly Shield = Shield;
+  readonly Star = Star;
+  readonly FileText = FileText;
+  readonly Users = Users;
+  readonly UserPlus = UserPlus;
+  readonly ThumbsUp = ThumbsUp;
+  readonly Camera = Camera;
+  readonly Trash2 = Trash2;
+  readonly X = X;
+  readonly Check = Check;
+  readonly ArrowLeft = ArrowLeft;
+  readonly Award = Award;
+  readonly Image = Image;
+
   user: any = null;
   isEditing: boolean = false;
   editForm: any = {};
   selectedFile: File | null = null;
   previewUrl: string | null = null;
-  
-  // Image cropper properties
-  showCropper: boolean = false;
-  imageChangedEvent: any = null;
-  croppedImage: any = '';
-  croppedBlob: Blob | null = null;
+  selectedCoverFile: File | null = null;
+  coverPreviewUrl: string | null = null;
+  saving = false;
   
   // Delete modal
   showDeleteModal: boolean = false;
+  deleting = false;
   
   // Reviews
   reviews: any[] = [];
   loadingReviews = false;
   avatarFailed = false;
+  coverFailed = false;
 
   badges: any[] = [
     { id: 'foodie', name: 'Foodie', icon: '🍕', selected: false },
@@ -51,8 +70,8 @@ export class ProfileComponent implements OnInit {
     private router: Router,
     private userService: UserService,
     private reviewService: ReviewService,
-    private sanitizer: DomSanitizer,
-    private toast: ToastService
+    private toast: ToastService,
+    public themeService: ThemeService
   ) {}
 
   ngOnInit() {
@@ -74,6 +93,7 @@ export class ProfileComponent implements OnInit {
       totalFollowing: storedUser.stats?.totalFollowing || 0,
       helpfulReactions: storedUser.stats?.helpfulReactions || 0,
       avatar: storedUser.profile?.avatar || null,
+      coverPhoto: storedUser.profile?.coverPhoto || null,
       firstName: storedUser.profile?.firstName || '',
       lastName: storedUser.profile?.lastName || '',
       bio: storedUser.profile?.bio || '',
@@ -144,6 +164,8 @@ export class ProfileComponent implements OnInit {
       this.resetEditForm();
       this.selectedFile = null;
       this.previewUrl = null;
+      this.selectedCoverFile = null;
+      this.coverPreviewUrl = null;
     }
   }
 
@@ -154,56 +176,55 @@ export class ProfileComponent implements OnInit {
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      this.toast.error('Invalid File Type', 'Only image files (JPEG, PNG, WebP) are allowed.');
-      event.target.value = ''; // Clear input
+      this.toast.error('Only image files are allowed');
+      event.target.value = '';
       return;
     }
 
     // Validate file size (5MB limit)
-    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+    const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
-      this.toast.error('File Too Large', 'Please select an image under 5MB.');
-      event.target.value = ''; // Clear input
+      this.toast.error('Please select an image under 5MB');
+      event.target.value = '';
       return;
     }
 
-    // Open cropper modal
-    this.imageChangedEvent = event;
-    this.showCropper = true;
+    // Set file and create preview
+    this.selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      this.previewUrl = e.target.result;
+    };
+    reader.readAsDataURL(file);
   }
+  
+  onCoverFileSelected(event: any): void {
+    const file = event.target.files[0];
+    
+    if (!file) return;
 
-  imageCropped(event: ImageCroppedEvent): void {
-    this.croppedImage = event.objectUrl;
-    this.croppedBlob = event.blob || null;
-  }
-
-  imageLoaded(image: LoadedImage): void {
-    // Image loaded in cropper
-  }
-
-  cropperReady(): void {
-    // Cropper ready
-  }
-
-  loadImageFailed(): void {
-    this.toast.error('Image Load Failed', 'Please try another file.');
-    this.showCropper = false;
-  }
-
-  applyCrop(): void {
-    if (this.croppedBlob) {
-      // Convert blob to file
-      this.selectedFile = new File([this.croppedBlob], 'avatar.png', { type: 'image/png' });
-      this.previewUrl = this.croppedImage;
-      this.showCropper = false;
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      this.toast.error('Only image files are allowed');
+      event.target.value = '';
+      return;
     }
-  }
 
-  cancelCrop(): void {
-    this.showCropper = false;
-    this.imageChangedEvent = null;
-    this.croppedImage = '';
-    this.croppedBlob = null;
+    // Validate file size (10MB limit for cover)
+    const maxSize = 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      this.toast.error('Please select an image under 10MB');
+      event.target.value = '';
+      return;
+    }
+
+    // Set file and create preview
+    this.selectedCoverFile = file;
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      this.coverPreviewUrl = e.target.result;
+    };
+    reader.readAsDataURL(file);
   }
 
   toggleBadge(badge: any): void {
@@ -211,8 +232,35 @@ export class ProfileComponent implements OnInit {
       badge.selected = !badge.selected;
     }
   }
+  
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+  }
 
   saveProfile(): void {
+    this.saving = true;
+    
+    // Handle cover photo separately if selected
+    if (this.selectedCoverFile) {
+      this.userService.updateProfile({ coverPhoto: true }, this.selectedCoverFile).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.storage.saveUser(response.data.user);
+            // Continue with regular profile update
+            this.updateProfileData();
+          }
+        },
+        error: (error) => {
+          this.toast.error('Failed to upload cover photo');
+          this.saving = false;
+        }
+      });
+    } else {
+      this.updateProfileData();
+    }
+  }
+  
+  private updateProfileData(): void {
     const profileData = {
       firstName: this.editForm.firstName,
       lastName: this.editForm.lastName,
@@ -222,50 +270,30 @@ export class ProfileComponent implements OnInit {
       badges: this.badges.filter(b => b.selected).map(b => b.id)
     };
 
-    // Call API to update profile
     this.userService.updateProfile(profileData, this.selectedFile || undefined).subscribe({
       next: (response) => {
         if (response.success) {
-          // Update localStorage with new user data
           this.storage.saveUser(response.data.user);
-          
-          // Reload user data
           this.ngOnInit();
           this.isEditing = false;
           this.selectedFile = null;
           this.previewUrl = null;
-          
-          this.toast.success('Success!', 'Your profile has been updated successfully.');
+          this.selectedCoverFile = null;
+          this.coverPreviewUrl = null;
+          this.toast.success('Profile updated successfully!');
         }
+        this.saving = false;
       },
       error: (error) => {
-        console.error('Profile update failed:', error);
-        
-        // Extract error message from response
-        let errorMessage = 'Failed to update profile. Please try again.';
-        
-        if (error.error?.message) {
-          errorMessage = error.error.message;
-        } else if (error.message) {
-          errorMessage = error.message;
-        }
-        
-        // Show specific error messages
-        if (errorMessage.includes('File too large')) {
-          this.toast.error('File Too Large', 'Please select an image under 5MB.');
-        } else if (errorMessage.includes('Invalid token') || errorMessage.includes('expired')) {
-          this.toast.error('Session Expired', 'Please login again.');
-          this.storage.clearAuth();
-          this.router.navigate(['/auth/login']);
-        } else {
-          this.toast.error('Update Failed', errorMessage);
-        }
+        const errorMessage = error.error?.message || error.message || 'Failed to update profile';
+        this.toast.error(errorMessage);
+        this.saving = false;
       }
     });
   }
 
-  navigateToDashboard(): void {
-    this.router.navigate(['/user/dashboard']);
+  navigateToHome(): void {
+    this.router.navigate(['/home']);
   }
 
   openDeleteModal(): void {
@@ -277,22 +305,21 @@ export class ProfileComponent implements OnInit {
   }
 
   confirmDelete(): void {
-    this.showDeleteModal = false;
+    this.deleting = true;
     
     this.userService.deleteProfile().subscribe({
       next: (response) => {
         if (response.success) {
-          // Clear all auth data
           this.storage.clearAuth();
-          
-          // Redirect to home page
-          this.toast.success('Account Deleted', 'Your profile has been deleted successfully.');
+          this.toast.success('Account deleted successfully');
           setTimeout(() => this.router.navigate(['/']), 1000);
         }
+        this.deleting = false;
       },
       error: (error) => {
-        console.error('Profile deletion failed:', error);
-        this.toast.error('Deletion Failed', 'Failed to delete profile. Please try again.');
+        this.toast.error('Failed to delete account');
+        this.deleting = false;
+        this.showDeleteModal = false;
       }
     });
   }
@@ -321,6 +348,11 @@ export class ProfileComponent implements OnInit {
   
   onAvatarError(event: any) {
     this.avatarFailed = true;
+    event.target.style.display = 'none';
+  }
+  
+  onCoverError(event: any) {
+    this.coverFailed = true;
     event.target.style.display = 'none';
   }
 }

@@ -1,118 +1,77 @@
-<div class="auth-container">
-  <!-- Left Side - Branding -->
-  <div class="auth-left">
-    <a routerLink="/" class="back-home-btn">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M19 12H5M12 19l-7-7 7-7"/>
-      </svg>
-      Back to Home
-    </a>
-    <div class="brand-content">
-      <a routerLink="/">
-        <img src="/RateOn_White.png" alt="RateOn" class="brand-logo">
-      </a>
-      <h1>Join RateOn Today</h1>
-      <p>Create your account and start sharing your experiences with our community. Your voice matters!</p>
-      <div class="features">
-        <div class="feature-item">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
-          <span>Review individual items</span>
-        </div>
-        <div class="feature-item">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-            <circle cx="9" cy="7" r="4"/>
-            <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
-          </svg>
-          <span>Build your trust score</span>
-        </div>
-        <div class="feature-item">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/>
-          </svg>
-          <span>Help others decide better</span>
-        </div>
-      </div>
+<!-- Google Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showGoogleModal" (click)="closeGoogleModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Continue with Google?</h3>
+      <p>Fast and secure authentication</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal-confirm" (click)="confirmGoogleSignup()">
+        Yes, Continue
+      </button>
+      <button class="btn-modal-cancel" (click)="closeGoogleModal()">
+        No, Use Email
+      </button>
     </div>
   </div>
+</div>
 
-  <!-- Right Side - Form -->
-  <div class="auth-right">
-    <div class="form-wrapper">
-      <a routerLink="/" class="back-link">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M19 12H5M12 19l-7-7 7-7"/>
-        </svg>
-        Back to Home
-      </a>
-      <div class="mobile-logo">
-        <a routerLink="/">
-          <img src="/RateOn_Blue.png" alt="RateOn">
-        </a>
+<!-- Signup Page -->
+<div class="auth-page">
+  <div class="auth-content">
+    <a routerLink="/" class="auth-logo">
+      <img *ngIf="themeService.isDarkMode()" src="/LOGO_WHITE.png" alt="RateOn" />
+      <img *ngIf="!themeService.isDarkMode()" src="/LOGO_BLACK.png" alt="RateOn" />
+    </a>
+    
+    <h1>Create Account</h1>
+    <p class="auth-subtitle">Step {{ currentStep }} of {{ totalSteps }}</p>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="error-banner" *ngIf="errorMessage">
+        <p>{{ errorMessage }}</p>
       </div>
-      <div class="form-header">
-        <h2>Create Account</h2>
-        <p>Get started with your free account</p>
+      
+      <div class="success-banner" *ngIf="successMessage">
+        <p>{{ successMessage }}</p>
       </div>
 
-      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
-        <div class="success-banner" *ngIf="successMessage">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
-            <polyline points="22 4 12 14.01 9 11.01"/>
-          </svg>
-          <p>{{ successMessage }}</p>
-        </div>
-        <div class="error-banner" *ngIf="errorMessage">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="8" x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-          <p>{{ errorMessage }}</p>
-        </div>
-
-        <div class="form-group">
-          <label for="username">Username</label>
-          <input 
-            type="text" 
-            id="username" 
-            formControlName="username" 
-            placeholder="Choose a username"
-            [class.error]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched"
-          >
-          <span class="error-message" *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
-            Username must be at least 3 characters
-          </span>
-        </div>
-
-        <div class="form-group">
-          <label for="email">Email</label>
+      <!-- Step 1: Email -->
+      <div *ngIf="currentStep === 1">
+        <div class="field-group">
+          <label for="email">Email Address</label>
           <input 
             type="email" 
             id="email" 
             formControlName="email" 
             placeholder="Enter your email"
             [class.error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
+            autofocus
           >
-          <span class="error-message" *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
-            Please enter a valid email
+          <span class="field-error" *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+            Valid email required
           </span>
         </div>
+        
+        <button type="button" class="btn-submit" (click)="nextStep()">
+          Continue
+        </button>
+      </div>
 
-        <div class="form-group">
-          <label for="password">Password</label>
-          <div class="password-input-wrapper">
+      <!-- Step 2: Password & Confirm Password -->
+      <div *ngIf="currentStep === 2">
+        <div class="field-group">
+          <label for="password">Create Password</label>
+          <div class="password-field">
             <input 
               [type]="showPassword ? 'text' : 'password'" 
               id="password" 
               formControlName="password" 
-              placeholder="Create a password"
+              placeholder="Min 6 characters"
               [class.error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched"
+              autofocus
             >
-            <button type="button" class="password-toggle" (click)="togglePasswordVisibility()" tabindex="-1">
+            <button type="button" class="toggle-password" (click)="togglePasswordVisibility()">
               <svg *ngIf="!showPassword" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                 <circle cx="12" cy="12" r="3"/>
@@ -123,22 +82,22 @@
               </svg>
             </button>
           </div>
-          <span class="error-message" *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
-            Password must be at least 6 characters
+          <span class="field-error" *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+            Min 6 characters
           </span>
         </div>
 
-        <div class="form-group">
+        <div class="field-group">
           <label for="confirmPassword">Confirm Password</label>
-          <div class="password-input-wrapper">
+          <div class="password-field">
             <input 
               [type]="showConfirmPassword ? 'text' : 'password'" 
               id="confirmPassword" 
               formControlName="confirmPassword" 
-              placeholder="Confirm your password"
+              placeholder="Re-enter password"
               [class.error]="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched"
             >
-            <button type="button" class="password-toggle" (click)="toggleConfirmPasswordVisibility()" tabindex="-1">
+            <button type="button" class="toggle-password" (click)="toggleConfirmPasswordVisibility()">
               <svg *ngIf="!showConfirmPassword" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                 <circle cx="12" cy="12" r="3"/>
@@ -149,34 +108,76 @@
               </svg>
             </button>
           </div>
-          <span class="error-message" *ngIf="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched">
-            Please confirm your password
+          <span class="field-error" *ngIf="registerForm.get('confirmPassword')?.invalid && registerForm.get('confirmPassword')?.touched">
+            Required
           </span>
         </div>
-
-        <button type="submit" class="btn-submit" [disabled]="registerForm.invalid || isLoading">
-          <span *ngIf="!isLoading">Create Account</span>
-          <span *ngIf="isLoading">Creating account...</span>
-        </button>
-
-        <div class="divider">
-          <span>OR</span>
+        
+        <div class="btn-group">
+          <button type="button" class="btn-back" (click)="previousStep()">
+            Back
+          </button>
+          <button type="button" class="btn-submit" (click)="nextStep()">
+            Continue
+          </button>
         </div>
-
-        <button type="button" class="btn-google" (click)="signupWithGoogle()">
-          <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-            <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
-            <path d="M9.003 18c2.43 0 4.467-.806 5.956-2.18L12.05 13.56c-.806.54-1.836.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.96v2.332C2.44 15.983 5.485 18 9.003 18z" fill="#34A853"/>
-            <path d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71 0-.593.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
-            <path d="M9.003 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.464.891 11.426 0 9.003 0 5.485 0 2.44 2.017.96 4.958L3.967 7.29c.708-2.127 2.692-3.71 5.036-3.71z" fill="#EA4335"/>
-          </svg>
-          <span>Continue with Google</span>
-        </button>
-      </form>
-
-      <div class="form-footer">
-        <p>Already have an account? <a routerLink="/auth/login">Sign in here</a></p>
       </div>
-    </div>
+
+      <!-- Step 3: Username -->
+      <div *ngIf="currentStep === 3">
+        <div class="field-group">
+          <label for="username">Choose Username</label>
+          <input 
+            type="text" 
+            id="username" 
+            formControlName="username" 
+            placeholder="Your username"
+            [class.error]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched"
+            autofocus
+          >
+          <span class="field-error" *ngIf="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
+            Min 3 characters
+          </span>
+        </div>
+        
+        <div class="btn-group">
+          <button type="button" class="btn-back" (click)="previousStep()">
+            Back
+          </button>
+          <button type="submit" class="btn-submit" [disabled]="registerForm.invalid || isLoading">
+            {{ isLoading ? 'Creating account...' : 'Create Account' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="divider"><span>or</span></div>
+
+      <button type="button" class="btn-google" (click)="signupWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 18 18">
+          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
+          <path d="M9.003 18c2.43 0 4.467-.806 5.956-2.18L12.05 13.56c-.806.54-1.836.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.96v2.332C2.44 15.983 5.485 18 9.003 18z" fill="#34A853"/>
+          <path d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71 0-.593.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+          <path d="M9.003 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.464.891 11.426 0 9.003 0 5.485 0 2.44 2.017.96 4.958L3.967 7.29c.708-2.127 2.692-3.71 5.036-3.71z" fill="#EA4335"/>
+        </svg>
+        Continue with Google
+      </button>
+    </form>
+
+    <p class="auth-footer">
+      Already have an account? <a routerLink="/auth/login">Sign in</a>
+    </p>
   </div>
+
+  <!-- Theme Toggle - Top Right -->
+  <button class="theme-toggle" (click)="toggleTheme()">
+    <svg *ngIf="themeService.isDarkMode()" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+      <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+    </svg>
+    <svg *ngIf="!themeService.isDarkMode()" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+    </svg>
+  </button>
 </div>

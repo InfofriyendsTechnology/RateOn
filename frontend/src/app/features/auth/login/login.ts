@@ -4,27 +4,30 @@ import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth';
 import { StorageService } from '../../../core/services/storage';
+import { ThemeService } from '../../../core/services/theme';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './login.html',
-  styleUrl: './login.scss',
+  styleUrls: ['./login.scss'],
 })
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   isLoading = false;
   errorMessage = '';
   showPassword = false;
-  returnUrl: string = '/user/dashboard';
+  showGoogleModal = false;
+  returnUrl: string = '/home';
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
     private authService: AuthService,
-    private storage: StorageService
+    private storage: StorageService,
+    public themeService: ThemeService
   ) {
     this.loginForm = this.fb.group({
       login: ['', [Validators.required]],
@@ -33,8 +36,14 @@ export class LoginComponent implements OnInit {
   }
   
   ngOnInit() {
-    // Get return URL from query params or default to dashboard
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/user/dashboard';
+    // Get return URL from query params or default to home
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/home';
+    
+    // Show Google modal if auto param exists
+    const autoGoogle = this.route.snapshot.queryParams['auto'];
+    if (autoGoogle === 'google') {
+      this.showGoogleModal = true;
+    }
   }
 
   onSubmit() {
@@ -47,8 +56,13 @@ export class LoginComponent implements OnInit {
           this.isLoading = false;
           if (response.success) {
             console.log('Login successful:', response);
-            // Navigate to return URL or dashboard
-            this.router.navigate([this.returnUrl]);
+            // Redirect based on user role if no return URL specified
+            let targetUrl = this.returnUrl;
+            if (this.returnUrl === '/home') {
+              const user = this.storage.getUser();
+              targetUrl = user?.role === 'business_owner' ? '/business/dashboard' : '/home';
+            }
+            this.router.navigate([targetUrl]);
           } else {
             this.errorMessage = response.message || 'Login failed';
           }
@@ -71,5 +85,24 @@ export class LoginComponent implements OnInit {
 
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
+  }
+  
+  closeGoogleModal() {
+    this.showGoogleModal = false;
+    // Remove query param from URL
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {},
+      queryParamsHandling: 'merge'
+    });
+  }
+  
+  confirmGoogleLogin() {
+    this.showGoogleModal = false;
+    this.loginWithGoogle();
+  }
+  
+  toggleTheme() {
+    this.themeService.toggleTheme();
   }
 }

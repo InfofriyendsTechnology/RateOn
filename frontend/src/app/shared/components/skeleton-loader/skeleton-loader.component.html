@@ -1,0 +1,59 @@
+<div class="skeleton-container">
+  <!-- Review Card Skeleton -->
+  <ng-container *ngIf="type === 'review'">
+    <div class="skeleton-review" *ngFor="let item of items">
+      <div class="skeleton-review-header">
+        <div class="skeleton skeleton-avatar"></div>
+        <div class="skeleton-review-info">
+          <div class="skeleton skeleton-text skeleton-text-lg"></div>
+          <div class="skeleton skeleton-text skeleton-text-sm"></div>
+        </div>
+      </div>
+      <div class="skeleton-review-rating">
+        <div class="skeleton skeleton-stars"></div>
+        <div class="skeleton skeleton-text skeleton-text-xs"></div>
+      </div>
+      <div class="skeleton-review-content">
+        <div class="skeleton skeleton-text skeleton-text-full"></div>
+        <div class="skeleton skeleton-text skeleton-text-full"></div>
+        <div class="skeleton skeleton-text skeleton-text-md"></div>
+      </div>
+      <div class="skeleton-review-footer">
+        <div class="skeleton skeleton-badge"></div>
+        <div class="skeleton skeleton-badge"></div>
+        <div class="skeleton skeleton-badge"></div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Card Skeleton -->
+  <ng-container *ngIf="type === 'card'">
+    <div class="skeleton-card" *ngFor="let item of items">
+      <div class="skeleton skeleton-image"></div>
+      <div class="skeleton-card-content">
+        <div class="skeleton skeleton-text skeleton-text-lg"></div>
+        <div class="skeleton skeleton-text skeleton-text-md"></div>
+        <div class="skeleton skeleton-text skeleton-text-sm"></div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- List Item Skeleton -->
+  <ng-container *ngIf="type === 'list'">
+    <div class="skeleton-list" *ngFor="let item of items">
+      <div class="skeleton skeleton-avatar-sm"></div>
+      <div class="skeleton-list-content">
+        <div class="skeleton skeleton-text skeleton-text-md"></div>
+        <div class="skeleton skeleton-text skeleton-text-xs"></div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Text Skeleton -->
+  <div *ngIf="type === 'text'" class="skeleton skeleton-text" 
+       [style.height]="height" [style.width]="width"></div>
+
+  <!-- Avatar Skeleton -->
+  <div *ngIf="type === 'avatar'" class="skeleton skeleton-avatar"
+       [style.height]="height || '48px'" [style.width]="width || '48px'"></div>
+</div>

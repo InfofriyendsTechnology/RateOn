@@ -8,8 +8,15 @@ import { StorageService } from '../../../core/services/storage';
   template: `
     <div class="callback-container">
       <div class="callback-content">
-        <div class="spinner"></div>
-        <p>{{ message }}</p>
+        <div class="logo-container">
+          <img src="/LOGO_WHITE_ICON.png" alt="RateOn" class="logo" />
+        </div>
+        <div class="loading-dots">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <p class="message">{{ message }}</p>
       </div>
     </div>
   `,
@@ -19,31 +26,85 @@ import { StorageService } from '../../../core/services/storage';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #082052 0%, #1e40af 100%);
+      background: var(--bg-primary);
+      font-family: 'Inter', sans-serif;
     }
 
     .callback-content {
       text-align: center;
-      color: white;
+      color: var(--text-primary);
+      padding: 2rem;
     }
 
-    .spinner {
-      width: 50px;
-      height: 50px;
-      margin: 0 auto 20px;
-      border: 4px solid rgba(255, 255, 255, 0.3);
-      border-top-color: white;
+    .logo-container {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.875rem;
+    }
+
+    .logo {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .loading-dots {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .loading-dots span {
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
-      animation: spin 1s linear infinite;
+      background: #fbbf24;
+      animation: bounce 1.4s ease-in-out infinite;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    .loading-dots span:nth-child(1) {
+      animation-delay: -0.32s;
     }
 
-    p {
-      font-size: 1.2rem;
-      font-weight: 500;
+    .loading-dots span:nth-child(2) {
+      animation-delay: -0.16s;
+    }
+
+    @keyframes bounce {
+      0%, 80%, 100% {
+        transform: scale(0);
+        opacity: 0.5;
+      }
+      40% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    .message {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin: 0;
+      letter-spacing: 0.025em;
+    }
+
+    @media (max-width: 768px) {
+      .logo-container {
+        width: 90px;
+        height: 90px;
+        padding: 0.75rem;
+      }
+
+      .message {
+        font-size: 1rem;
+      }
     }
   `]
 })
@@ -82,8 +143,13 @@ export class CallbackComponent implements OnInit {
 
           this.message = 'Login successful! Redirecting...';
           
+          // Redirect based on user role
+          const redirectUrl = authData.user.role === 'business_owner' 
+            ? '/business/dashboard' 
+            : '/home';
+          
           setTimeout(() => {
-            this.router.navigate(['/user/dashboard']);
+            this.router.navigate([redirectUrl]);
           }, 1000);
         } catch (error) {
           console.error('Error parsing auth data:', error);

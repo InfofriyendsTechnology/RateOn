@@ -2,23 +2,42 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>RateOn - Item-Level Review Platform</title>
+  <title>RateOn - Transparent Review Platform</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="description" content="Modern item-level review platform. Rate individual items, explore businesses, and discover the best products through detailed community reviews.">
+  <meta name="description" content="Modern review platform with black, white & silver metallic design. Share honest reviews, build reputation, and discover trusted businesses.">
+  <meta name="keywords" content="reviews, ratings, business reviews, product reviews, transparent reviews, community reviews">
+  <meta name="author" content="RateOn">
   
   <!-- PWA Meta Tags -->
-  <meta name="theme-color" content="#082052">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="RateOn">
   
-  <!-- Icons -->
-  <link rel="icon" type="image/png" href="/RateOn_Blue_Small.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/RateOn_Blue_Small.png">
-  <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
-  <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512x512.png">
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="RateOn - Transparent Review Platform">
+  <meta property="og:description" content="Share honest reviews, build reputation, and discover trusted businesses.">
+  <meta property="og:image" content="/LOGO_BLACK.png">
+  
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="RateOn - Transparent Review Platform">
+  <meta name="twitter:description" content="Share honest reviews, build reputation, and discover trusted businesses.">
+  <meta name="twitter:image" content="/LOGO_BLACK.png">
+  
+  <!-- Icons & Favicons -->
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/pwa-512x512.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="/pwa-192x192.png">
+  <link rel="apple-touch-icon" sizes="512x512" href="/pwa-512x512.png">
   
   <!-- Manifest -->
   <link rel="manifest" href="manifest.webmanifest">
@@ -26,8 +45,17 @@
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  
+  <!-- Theme Initialization Script - Prevents Flash -->
+  <script>
+    (function() {
+      const savedTheme = localStorage.getItem('rateon_theme');
+      const isDark = savedTheme === null ? true : savedTheme === 'dark';
+      document.documentElement.classList.add(isDark ? 'dark-theme' : 'light-theme');
+    })();
+  </script>
 </head>
-<body class="light-theme">
+<body>
   <app-root></app-root>
   <noscript>Please enable JavaScript to continue using this application.</noscript>
 </body>

@@ -86,8 +86,9 @@ export default {
                 contact: contact || {},
                 businessHours: businessHours || defaultBusinessHours,
                 menuPDF,
+                owner: req.user.id,  // Set owner for business_owner role
                 createdBy: req.user.id,
-                isClaimed: false,
+                isClaimed: true,  // Auto-claimed when created by business owner
                 isVerified: false
             });
 

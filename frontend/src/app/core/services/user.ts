@@ -75,4 +75,10 @@ export class UserService {
       headers: this.getAuthHeaders()
     });
   }
+
+  becomeBusinessOwner(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/user/become-business-owner`, {}, {
+      headers: this.getAuthHeaders()
+    });
+  }
 }

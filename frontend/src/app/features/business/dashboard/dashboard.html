@@ -3,14 +3,14 @@
   <aside class="sidebar">
     <div class="sidebar-header">
       <div class="logo">
-        <img *ngIf="sidebarOpen" src="/RateOn_White.png" alt="RateOn" class="logo-full">
-        <img *ngIf="!sidebarOpen" src="/RateOn_White_Small.png" alt="RateOn" class="logo-small">
+        <img *ngIf="sidebarOpen" src="/LOGO_WHITE.png" alt="RateOn" class="logo-full">
+        <img *ngIf="!sidebarOpen" src="/LOGO_WHITE_ICON.png" alt="RateOn" class="logo-small">
       </div>
     </div>
 
     <nav class="sidebar-nav">
       <a routerLink="/business/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item">
-        <lucide-icon [img]="LayoutDashboard" [size]="18" class="nav-icon"></lucide-icon>
+        <lucide-icon [img]="LayoutDashboard" [size]="16" class="nav-icon"></lucide-icon>
         <span class="nav-text" *ngIf="sidebarOpen">Dashboard</span>
       </a>
       
@@ -18,11 +18,11 @@
       <span class="nav-section-label" *ngIf="sidebarOpen">PUBLIC</span>
       
       <a routerLink="/explore" class="nav-item">
-        <lucide-icon [img]="Compass" [size]="18" class="nav-icon"></lucide-icon>
+        <lucide-icon [img]="Compass" [size]="16" class="nav-icon"></lucide-icon>
         <span class="nav-text" *ngIf="sidebarOpen">Explore</span>
       </a>
       <a routerLink="/leaderboard" class="nav-item">
-        <lucide-icon [img]="Trophy" [size]="18" class="nav-icon"></lucide-icon>
+        <lucide-icon [img]="Trophy" [size]="16" class="nav-icon"></lucide-icon>
         <span class="nav-text" *ngIf="sidebarOpen">Leaderboard</span>
       </a>
       
@@ -30,32 +30,19 @@
       <span class="nav-section-label" *ngIf="sidebarOpen">MANAGE</span>
       
       <a routerLink="/business/dashboard/items" routerLinkActive="active" class="nav-item">
-        <lucide-icon [img]="ShoppingBag" [size]="18" class="nav-icon"></lucide-icon>
-        <span class="nav-text" *ngIf="sidebarOpen">Menu Items</span>
+        <lucide-icon [img]="ShoppingBag" [size]="16" class="nav-icon"></lucide-icon>
+        <span class="nav-text" *ngIf="sidebarOpen">Items</span>
       </a>
-      <a routerLink="/business/reviews" class="nav-item">
-        <lucide-icon [img]="MessageSquare" [size]="18" class="nav-icon"></lucide-icon>
-        <span class="nav-text" *ngIf="sidebarOpen">Reviews</span>
-      </a>
-      <a routerLink="/business/analytics" class="nav-item">
-        <lucide-icon [img]="BarChart3" [size]="18" class="nav-icon"></lucide-icon>
-        <span class="nav-text" *ngIf="sidebarOpen">Analytics</span>
-      </a>
-      
-      <div class="nav-divider" *ngIf="sidebarOpen"></div>
-      <span class="nav-section-label" *ngIf="sidebarOpen">SETTINGS</span>
-      
       <a routerLink="/business/dashboard/settings" routerLinkActive="active" class="nav-item">
-        <lucide-icon [img]="Settings" [size]="18" class="nav-icon"></lucide-icon>
-        <span class="nav-text" *ngIf="sidebarOpen">Account Settings</span>
+        <lucide-icon [img]="Settings" [size]="16" class="nav-icon"></lucide-icon>
+        <span class="nav-text" *ngIf="sidebarOpen">Settings</span>
       </a>
     </nav>
 
     <div class="sidebar-footer">
       <div class="user-profile">
         <div class="user-avatar">
-          <!-- Try multiple avatar sources -->
-          <img *ngIf="getUserAvatar()" [src]="getUserAvatar()" [alt]="user?.username" 
+          <img *ngIf="getUserAvatar() && !avatarFailed" [src]="getUserAvatar()" [alt]="user?.username" 
                class="avatar-image" crossorigin="anonymous" referrerpolicy="no-referrer"
                (error)="onAvatarError($event)">
           <span *ngIf="!getUserAvatar() || avatarFailed" class="avatar-initial">{{ user?.username?.charAt(0).toUpperCase() }}</span>
@@ -66,7 +53,7 @@
         </div>
       </div>
       <button class="logout-btn" (click)="logout()" [title]="sidebarOpen ? '' : 'Logout'">
-        <lucide-icon [img]="LogOut" [size]="18" class="logout-icon"></lucide-icon>
+        <lucide-icon [img]="LogOut" [size]="16" class="logout-icon"></lucide-icon>
         <span *ngIf="sidebarOpen" class="logout-text">Logout</span>
       </button>
     </div>
@@ -89,128 +76,66 @@
     <!-- Dashboard Content -->
     <router-outlet></router-outlet>
     <div class="dashboard-content" *ngIf="!isChildRouteActive()">
-      <!-- Stats Cards -->
-      <div class="stats-grid">
-        <div class="stat-card primary">
-          <div class="stat-header">
-            <span class="stat-label">Total Reviews</span>
-            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
-            </svg>
+      
+      <!-- Business Info Card -->
+      <div class="welcome-card" *ngIf="business">
+        <div class="welcome-header">
+          <div>
+            <h2>{{ business.name }}</h2>
+            <p class="business-category">{{ business.category || 'Business' }}</p>
           </div>
-          <div class="stat-value">{{ stats.totalReviews }}</div>
-          <div class="stat-footer">
-            <span class="stat-change positive">+12% from last month</span>
-          </div>
+          <a [routerLink]="['/business', business._id]" class="btn-view-public">
+            View Public Profile
+          </a>
         </div>
-
-        <div class="stat-card success">
-          <div class="stat-header">
-            <span class="stat-label">Average Rating</span>
-            <svg class="stat-icon" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-            </svg>
+        <div class="business-quick-stats">
+          <div class="quick-stat">
+            <span class="stat-label">Location</span>
+            <span class="stat-value">{{ business.location?.city || 'Not set' }}</span>
           </div>
-          <div class="stat-value">{{ stats.averageRating }}/5.0</div>
-          <div class="stat-footer">
-            <span class="stat-change positive">+0.3 from last month</span>
+          <div class="quick-stat">
+            <span class="stat-label">Contact</span>
+            <span class="stat-value">{{ business.contactInfo?.phone || 'Not set' }}</span>
           </div>
-        </div>
-
-        <div class="stat-card info">
-          <div class="stat-header">
-            <span class="stat-label">Profile Views</span>
-            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
-            </svg>
-          </div>
-          <div class="stat-value">{{ stats.totalViews | number }}</div>
-          <div class="stat-footer">
-            <span class="stat-change positive">+{{ stats.monthlyViews }} this month</span>
-          </div>
-        </div>
-
-        <div class="stat-card warning">
-          <div class="stat-header">
-            <span class="stat-label">Response Rate</span>
-            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-            </svg>
-          </div>
-          <div class="stat-value">{{ stats.responseRate }}%</div>
-          <div class="stat-footer">
-            <span class="stat-change positive">+5% from last week</span>
+          <div class="quick-stat" *ngIf="business.rating">
+            <span class="stat-label">Rating</span>
+            <span class="stat-value">⭐ {{ business.rating.toFixed(1) }}</span>
           </div>
         </div>
       </div>
 
-      <!-- Charts and Lists -->
-      <div class="content-grid">
-        <!-- Weekly Views Chart -->
-        <div class="card chart-card">
-          <div class="card-header">
-            <h3>Weekly Profile Views</h3>
-          </div>
-          <div class="card-content">
-            <div class="simple-chart">
-              <div class="chart-bars">
-                <div *ngFor="let data of viewsData" class="chart-bar-wrapper">
-                  <div class="chart-bar" [style.height.%]="(data.views / 700) * 100">
-                    <span class="bar-value">{{ data.views }}</span>
-                  </div>
-                  <span class="bar-label">{{ data.day }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <!-- No Business State -->
+      <div class="empty-state" *ngIf="!business && !loadingBusiness">
+        <lucide-icon [img]="ShoppingBag" [size]="48" class="empty-icon"></lucide-icon>
+        <h3>No Business Yet</h3>
+        <p>You haven't created a business yet. Contact support to create your first business profile.</p>
+      </div>
 
-        <!-- Popular Items -->
-        <div class="card">
-          <div class="card-header">
-            <h3>Popular Items</h3>
-          </div>
-          <div class="card-content">
-            <div class="items-list">
-              <div *ngFor="let item of popularItems" class="item-row">
-                <div class="item-info">
-                  <span class="item-name">{{ item.name }}</span>
-                  <span class="item-stats">{{ item.orders }} orders • ⭐ {{ item.rating }}</span>
-                </div>
-                <span class="item-change positive">{{ item.change }}</span>
-              </div>
-            </div>
-          </div>
+      <!-- Loading State -->
+      <div class="loading-state" *ngIf="loadingBusiness">
+        <div class="spinner"></div>
+        <p>Loading business data...</p>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions" *ngIf="business">
+        <h3>Quick Actions</h3>
+        <div class="action-grid">
+          <a routerLink="/business/dashboard/items" class="action-card">
+            <lucide-icon [img]="ShoppingBag" [size]="20"></lucide-icon>
+            <span>Manage Items</span>
+          </a>
+          <a [routerLink]="['/business/dashboard/edit', business._id]" class="action-card">
+            <lucide-icon [img]="Edit" [size]="20"></lucide-icon>
+            <span>Edit Business</span>
+          </a>
+          <a routerLink="/business/dashboard/settings" class="action-card">
+            <lucide-icon [img]="Settings" [size]="20"></lucide-icon>
+            <span>Settings</span>
+          </a>
         </div>
       </div>
 
-      <!-- Recent Reviews -->
-      <div class="card reviews-card">
-        <div class="card-header">
-          <h3>Recent Reviews</h3>
-          <a routerLink="/business/reviews" class="view-all">View All →</a>
-        </div>
-        <div class="card-content">
-          <div class="reviews-list">
-            <div *ngFor="let review of recentReviews" class="review-item">
-              <div class="review-avatar">{{ review.userName.charAt(0) }}</div>
-              <div class="review-content">
-                <div class="review-header">
-                  <div>
-                    <strong>{{ review.userName }}</strong>
-                    <span class="review-item-name">{{ review.itemName }}</span>
-                  </div>
-                  <div class="review-rating">
-                    <span *ngFor="let star of [1,2,3,4,5]" class="star" [class.filled]="star <= review.rating">★</span>
-                  </div>
-                </div>
-                <p class="review-text">{{ review.comment }}</p>
-                <span class="review-time">{{ review.time }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   </main>
 </div>

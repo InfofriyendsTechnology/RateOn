@@ -1,222 +1,390 @@
-// Shared Auth Styles
+// ============================================================================
+// AUTH SHARED STYLES - Silver Metallic Theme
+// Reusable styles for login and signup pages
+// ============================================================================
+
+@use '../../../app/styles/design-system' as *;
+
+// ============================================================================
+// AUTH CONTAINER - Full page layout
+// ============================================================================
 .auth-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #082052 0%, #1e40af 100%);
-  padding: 20px;
+  padding: $space-6;
+  background-color: var(--bg-primary);
+  position: relative;
+  
+  @media (max-width: $breakpoint-sm) {
+    padding: $space-4;
+  }
 }
 
+// ============================================================================
+// AUTH CARD - Card container
+// ============================================================================
 .auth-card {
-  background-color: white;
-  border-radius: 16px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  max-width: 450px;
-  width: 100%;
-  padding: 40px;
+  @include auth-card;
+  position: relative;
+  z-index: 1;
 }
 
+// ============================================================================
+// AUTH HEADER - Logo and heading section
+// ============================================================================
 .auth-header {
   text-align: center;
-  margin-bottom: 30px;
-
+  margin-bottom: $space-8;
+  
   .auth-logo {
-    max-width: 200px;
-    height: auto;
-    margin-bottom: 20px;
+    width: auto;
+    height: 60px;
+    margin-bottom: $space-6;
+    cursor: pointer;
+    transition: transform $transition-base;
+    
+    &:hover {
+      transform: scale(1.05);
+    }
   }
-
-  h2 {
-    color: #082052;
-    font-size: 2rem;
-    margin-bottom: 10px;
-    font-weight: 700;
+  
+  h1 {
+    @include silver-gradient-text;
+    font-size: $text-3xl;
+    font-weight: $font-weight-bold;
+    margin: 0 0 $space-3 0;
+    letter-spacing: -0.5px;
   }
-
+  
   p {
-    color: #6b7280;
-    font-size: 1rem;
+    color: var(--text-tertiary);
+    font-size: $text-base;
+    margin: 0;
   }
 }
 
+// ============================================================================
+// AUTH FORM - Form layout
+// ============================================================================
 .auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: $space-5;
+  
+  // Error and Success Banners
   .error-banner, .success-banner {
-    padding: 12px 16px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    font-size: 0.95rem;
-
+    padding: $space-3 $space-4;
+    border-radius: $radius-md;
+    margin-bottom: $space-4;
+    font-size: $text-sm;
+    display: flex;
+    align-items: center;
+    gap: $space-2;
+    
     p {
       margin: 0;
     }
   }
-
+  
   .error-banner {
-    background-color: #fee;
-    color: #c00;
-    border: 1px solid #fcc;
+    background-color: rgba(239, 68, 68, 0.1);
+    color: var(--color-error);
+    border: 1px solid var(--color-error);
   }
-
+  
   .success-banner {
-    background-color: #efe;
-    color: #060;
-    border: 1px solid #cfc;
+    background-color: rgba(16, 185, 129, 0.1);
+    color: var(--color-success);
+    border: 1px solid var(--color-success);
   }
+}
 
-  .form-group {
-    margin-bottom: 20px;
+// ============================================================================
+// FORM GROUP - Input field wrapper
+// ============================================================================
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2;
+}
 
-    label {
-      display: block;
-      color: #082052;
-      font-weight: 600;
-      margin-bottom: 8px;
-      font-size: 0.95rem;
-    }
+// ============================================================================
+// FORM LABEL - Label typography
+// ============================================================================
+.form-label {
+  font-size: $text-sm;
+  font-weight: $font-weight-medium;
+  color: var(--text-secondary);
+  margin: 0;
+}
 
-    input {
-      width: 100%;
-      padding: 12px 16px;
-      border: 2px solid #e5e7eb;
-      border-radius: 8px;
-      font-size: 1rem;
-      transition: all 0.3s ease;
-      box-sizing: border-box;
-
-      &:focus {
-        outline: none;
-        border-color: #1e40af;
-        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
-      }
-
-      &.error {
-        border-color: #ef4444;
-      }
-
-      &::placeholder {
-        color: #9ca3af;
-      }
-    }
-
-    .error-message {
-      display: block;
-      color: #ef4444;
-      font-size: 0.875rem;
-      margin-top: 6px;
-    }
+// ============================================================================
+// FORM INPUT - Styled input fields
+// ============================================================================
+.form-input {
+  @include form-input;
+  
+  &.error {
+    border-color: var(--color-error);
   }
+}
 
-  .btn-submit {
-    width: 100%;
-    padding: 14px;
-    background-color: #082052;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1.1rem;
-    font-weight: 600;
+// ============================================================================
+// FORM ERROR - Error message styling
+// ============================================================================
+.form-error,
+.error-message {
+  font-size: $text-sm;
+  color: var(--color-error);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: $space-2;
+  
+  lucide-icon {
+    flex-shrink: 0;
+  }
+}
+
+// ============================================================================
+// FORM CHECKBOX - Checkbox styling
+// ============================================================================
+.form-checkbox {
+  display: flex;
+  align-items: center;
+  gap: $space-3;
+  cursor: pointer;
+  
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    margin-top: 10px;
-
-    &:hover:not(:disabled) {
-      background-color: #1e40af;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(8, 32, 82, 0.3);
-    }
-
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
+    accent-color: var(--color-accent);
   }
-
-  .divider {
-    display: flex;
-    align-items: center;
-    text-align: center;
-    margin: 25px 0;
-    color: #6b7280;
-
-    &::before,
-    &::after {
-      content: '';
-      flex: 1;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    span {
-      padding: 0 15px;
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-  }
-
-  .btn-google {
-    width: 100%;
-    padding: 14px;
-    background-color: white;
-    color: #3c4043;
-    border: 2px solid #e5e7eb;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
+  
+  label {
+    font-size: $text-sm;
+    color: var(--text-secondary);
     cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-
-    &:hover {
-      background-color: #f8f9fa;
-      border-color: #dadce0;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    svg {
-      flex-shrink: 0;
+    margin: 0;
+    
+    a {
+      color: var(--color-accent);
+      text-decoration: underline;
+      
+      &:hover {
+        opacity: 0.8;
+      }
     }
   }
 }
 
+// ============================================================================
+// FORGOT PASSWORD LINK
+// ============================================================================
+.forgot-password {
+  text-align: right;
+  margin-top: -$space-3;
+  
+  a {
+    font-size: $text-sm;
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: opacity $transition-base;
+    
+    &:hover {
+      opacity: 0.8;
+      text-decoration: underline;
+    }
+  }
+}
+
+// ============================================================================
+// AUTH DIVIDER - OR divider
+// ============================================================================
+.auth-divider,
+.divider {
+  display: flex;
+  align-items: center;
+  gap: $space-4;
+  margin: $space-6 0;
+  
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: var(--border-color);
+  }
+  
+  span {
+    font-size: $text-sm;
+    color: var(--text-tertiary);
+    font-weight: $font-weight-medium;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+// ============================================================================
+// SUBMIT BUTTON - Primary submit button
+// ============================================================================
+.btn-submit {
+  @include button-base;
+  @include button-md;
+  @include silver-button;
+  width: 100%;
+  justify-content: center;
+  margin-top: $space-2;
+}
+
+// ============================================================================
+// GOOGLE BUTTON - OAuth button
+// ============================================================================
+.google-button,
+.btn-google {
+  @include button-base;
+  @include button-md;
+  width: 100%;
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  justify-content: center;
+  
+  &:hover:not(:disabled) {
+    background-color: var(--bg-hover);
+    border-color: var(--border-color-strong);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+}
+
+// ============================================================================
+// AUTH FOOTER - Links at bottom
+// ============================================================================
 .auth-footer {
   text-align: center;
-  margin-top: 25px;
-  padding-top: 25px;
-  border-top: 1px solid #e5e7eb;
-
+  margin-top: $space-6;
+  padding-top: $space-6;
+  border-top: 1px solid var(--border-color-light);
+  
   p {
-    color: #6b7280;
-    font-size: 0.95rem;
-
+    font-size: $text-sm;
+    color: var(--text-tertiary);
+    margin: 0;
+    
     a {
-      color: #1e40af;
-      font-weight: 600;
+      color: var(--color-accent);
       text-decoration: none;
-      transition: color 0.3s ease;
-
+      font-weight: $font-weight-semibold;
+      transition: opacity $transition-base;
+      
       &:hover {
-        color: #082052;
+        opacity: 0.8;
         text-decoration: underline;
       }
     }
   }
 }
 
+// ============================================================================
+// THEME TOGGLE - Position in top-right
+// ============================================================================
+.theme-toggle-auth {
+  position: fixed;
+  top: $space-6;
+  right: $space-6;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-accent-gradient);
+  border: none;
+  color: var(--button-text-on-silver);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-lg);
+  transition: all $transition-base;
+  z-index: 100;
+  
+  lucide-icon {
+    display: flex;
+  }
+  
+  &:hover {
+    transform: scale(1.1) rotate(15deg);
+    box-shadow: var(--silver-glow-hover);
+  }
+  
+  &:active {
+    transform: scale(0.95);
+  }
+  
+  @media (max-width: $breakpoint-sm) {
+    width: 44px;
+    height: 44px;
+    top: $space-4;
+    right: $space-4;
+  }
+}
+
+// ============================================================================
+// LOADING STATE
+// ============================================================================
+.btn-loading {
+  position: relative;
+  pointer-events: none;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    top: 50%;
+    left: 50%;
+    margin-left: -8px;
+    margin-top: -8px;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: btn-loading-spin 0.6s linear infinite;
+  }
+  
+  span {
+    opacity: 0;
+  }
+}
+
+@keyframes btn-loading-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// ============================================================================
+// RESPONSIVE ADJUSTMENTS
+// ============================================================================
 @media (max-width: 480px) {
   .auth-card {
-    padding: 30px 20px;
+    padding: $space-8;
   }
-
+  
   .auth-header {
     .auth-logo {
-      max-width: 150px;
+      height: 50px;
     }
-
-    h2 {
-      font-size: 1.6rem;
+    
+    h1 {
+      font-size: $text-2xl;
     }
   }
 }

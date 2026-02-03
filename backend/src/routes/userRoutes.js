@@ -7,6 +7,7 @@ import {
     uploadAvatar,
     deleteUserProfile
 } from '../controllers/userController/profile.js';
+import { becomeBusinessOwner } from '../controllers/userController/index.js';
 
 const router = Router();
 
@@ -15,6 +16,9 @@ router.get('/profile', auth, getUserProfile);
 router.put('/profile', auth, uploadSingle('avatar', 'rateon/avatars'), updateUserProfile);
 router.post('/profile/avatar', auth, uploadSingle('avatar', 'rateon/avatars'), uploadAvatar);
 router.delete('/profile', auth, deleteUserProfile);
+
+// Role conversion
+router.post('/become-business-owner', auth, becomeBusinessOwner.handler);
 
 export default router;
 

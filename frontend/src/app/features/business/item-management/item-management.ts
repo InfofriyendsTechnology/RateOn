@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { ItemService, Item } from '../../../core/services/item';
 import { BusinessService } from '../../../core/services/business';
 import { StorageService } from '../../../core/services/storage';
@@ -10,7 +11,7 @@ import { LucideAngularModule, Plus, Edit2, Trash2, Star, MessageSquare, Upload, 
 @Component({
   selector: 'app-item-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule],
   templateUrl: './item-management.html',
   styleUrl: './item-management.scss'
 })
@@ -33,9 +34,6 @@ export class ItemManagementComponent implements OnInit {
   editMode = false;
   currentItem: any = null;
   
-  // Image slider state for each item
-  itemImageIndices: { [key: number]: number } = {};
-  
   itemForm = {
     name: '',
     description: '',
@@ -56,65 +54,33 @@ export class ItemManagementComponent implements OnInit {
 
   ngOnInit() {
     const user = this.storage.getUser();
+    const userId = user?._id || user?.id;
     
-    // Try to get business ID from ALL possible locations (matching account-settings pattern)
-    let businessId = null;
-    
-    if (user?.business?._id) {
-      businessId = user.business._id;
-    } else if (user?.business?.id) {
-      businessId = user.business.id;
-    } else if (typeof user?.business === 'string') {
-      businessId = user.business;
-    } else if (typeof user?.business === 'object' && user.business) {
-      businessId = user.business._id || user.business.id || null;
-    } else if (user?.claimedBusiness?._id) {
-      businessId = user.claimedBusiness._id;
-    } else if (user?.claimedBusiness?.id) {
-      businessId = user.claimedBusiness.id;
-    } else if (typeof user?.claimedBusiness === 'string') {
-      businessId = user.claimedBusiness;
-    } else if (user?.businessId) {
-      businessId = user.businessId;
+    if (!userId) {
+      this.notificationService.showError('User not found. Please log in again.');
+      return;
     }
     
-    // Convert to string if it's still an object
-    if (businessId && typeof businessId === 'object') {
-      businessId = businessId._id || businessId.id || String(businessId);
-    }
-    
-    // Ensure businessId is a valid string
-    if (businessId) {
-      this.businessId = String(businessId);
-      this.loadItems();
-    } else {
-      // Fallback: Try to fetch business from API using owner filter
-      console.warn('Business ID not in user object, fetching from API...');
-      const userId = user?._id || user?.id;
-      if (userId) {
-        this.businessService.getBusinesses({ owner: userId, limit: 1 }).subscribe({
-          next: (response: any) => {
-            const data = response.data || response;
-            const businesses = data.businesses || data || [];
-            
-            if (businesses.length > 0) {
-              this.businessId = businesses[0]._id;
-              this.loadItems();
-            } else {
-              console.error('No business found for user:', user);
-              this.notificationService.showError('No business found. Please ensure you have a business account.');
-            }
-          },
-          error: (err) => {
-            console.error('Error fetching business:', err);
-            this.notificationService.showError('Failed to load business information.');
-          }
-        });
-      } else {
-        console.error('No user ID found:', user);
-        this.notificationService.showError('No business found. Please ensure you have a business account.');
+    // Fetch business from API using owner filter
+    this.loading = true;
+    this.businessService.getBusinesses({ owner: userId, limit: 1 }).subscribe({
+      next: (response: any) => {
+        const data = response.data || response;
+        const businesses = data.businesses || data || [];
+        
+        if (businesses.length > 0) {
+          this.businessId = businesses[0]._id;
+          this.loadItems();
+        } else {
+          // No business found - just show empty state, don't show error
+          this.loading = false;
+        }
+      },
+      error: (err) => {
+        console.error('Error fetching business:', err);
+        this.loading = false;
       }
-    }
+    });
   }
 
   loadItems() {
@@ -129,14 +95,6 @@ export class ItemManagementComponent implements OnInit {
         const data = response.data || response;
         console.log('Extracted data:', data);
         this.items = data.items || [];
-        console.log('Items array:', this.items);
-        console.log('Items count:', this.items.length);
-        
-        // Initialize image indices for all items
-        this.items.forEach((item, index) => {
-          this.itemImageIndices[index] = 0;
-        });
-        
         this.loading = false;
       },
       error: (err) => {
@@ -334,43 +292,5 @@ export class ItemManagementComponent implements OnInit {
         }
       });
     }
-  }
-  
-  // Image slider methods
-  getCurrentItemImage(itemIndex: number): string {
-    const item = this.items[itemIndex];
-    if (!item || !item.images || item.images.length === 0) {
-      return '';
-    }
-    
-    const currentIndex = this.itemImageIndices[itemIndex] || 0;
-    const imageUrl = item.images[currentIndex];
-    
-    // Add cache busting for updated items
-    if (item.updatedAt) {
-      const timestamp = new Date(item.updatedAt).getTime();
-      return `${imageUrl}?t=${timestamp}`;
-    }
-    return imageUrl;
-  }
-  
-  nextImage(itemIndex: number): void {
-    const item = this.items[itemIndex];
-    if (!item || !item.images || item.images.length <= 1) return;
-    
-    const currentIndex = this.itemImageIndices[itemIndex] || 0;
-    this.itemImageIndices[itemIndex] = (currentIndex + 1) % item.images.length;
-  }
-  
-  previousImage(itemIndex: number): void {
-    const item = this.items[itemIndex];
-    if (!item || !item.images || item.images.length <= 1) return;
-    
-    const currentIndex = this.itemImageIndices[itemIndex] || 0;
-    this.itemImageIndices[itemIndex] = currentIndex === 0 ? item.images.length - 1 : currentIndex - 1;
-  }
-  
-  getItemCurrentIndex(itemIndex: number): number {
-    return this.itemImageIndices[itemIndex] || 0;
   }
 }

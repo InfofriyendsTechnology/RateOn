@@ -1,0 +1,214 @@
+@use '../../../../app/styles/design-system' as *;
+
+.admin-login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #000000 0%, #0a0a0a 100%);
+  position: relative;
+  padding: 2rem;
+}
+
+.login-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rem;
+  width: 100%;
+  max-width: 500px;
+}
+
+.brand-logo {
+  text-align: center;
+  
+  img {
+    height: 48px;
+    opacity: 1;
+    filter: drop-shadow(0 4px 12px rgba(255, 255, 255, 0.1));
+  }
+}
+
+.today-date {
+  text-align: center;
+  
+  .date-label {
+    font-size: 0.75rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+  }
+  
+  .date-value {
+    font-size: 1rem;
+    color: $color-silver;
+    font-weight: 500;
+  }
+}
+
+.login-form {
+  width: 100%;
+
+  .form-group {
+    margin-bottom: 2rem;
+  }
+
+  .password-input-wrapper {
+    position: relative;
+    margin-bottom: 0.5rem;
+
+    .password-input {
+      width: 100%;
+      padding: 1.25rem 3.5rem 1.25rem 1.25rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(192, 192, 192, 0.2);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      letter-spacing: 0.5px;
+
+      &::placeholder {
+        color: #666;
+        letter-spacing: normal;
+      }
+
+      &:focus {
+        outline: none;
+        border-color: $color-silver;
+        background: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 0 0 3px rgba(192, 192, 192, 0.1);
+      }
+
+      &.error {
+        border-color: #ff4444;
+        background: rgba(255, 68, 68, 0.05);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    .toggle-password {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #999;
+      cursor: pointer;
+      padding: 0.25rem;
+      transition: all 0.2s ease;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+
+      &:hover {
+        color: $color-silver;
+      }
+
+      &:active {
+        transform: translateY(-50%) scale(0.9);
+      }
+
+      &:focus {
+        outline: none;
+      }
+
+      &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+      }
+
+      lucide-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  }
+
+  .error-message {
+    text-align: center;
+    margin-top: 0.5rem;
+    color: #ff4444;
+    font-size: 0.875rem;
+    animation: fadeIn 0.3s ease;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.btn-submit {
+  width: 100%;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, rgba(192, 192, 192, 0.15), rgba(192, 192, 192, 0.05));
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+  border: 1px solid rgba(192, 192, 192, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 1rem;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, rgba(192, 192, 192, 0.2), rgba(192, 192, 192, 0.1));
+    border-color: $color-silver;
+    box-shadow: 0 4px 16px rgba(192, 192, 192, 0.2);
+    transform: translateY(-2px);
+
+    &::before {
+      width: 400px;
+      height: 400px;
+    }
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .login-content {
+    gap: 3rem;
+  }
+
+  .brand-logo img {
+    height: 40px;
+  }
+
+  .password-input {
+    font-size: 16px !important; // Prevent zoom on iOS
+  }
+}

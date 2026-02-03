@@ -1,0 +1,61 @@
+<div class="admin-login-container">
+  <div class="login-content">
+    <!-- Logo -->
+    <div class="brand-logo">
+      <img src="/LOGO_WHITE.png" alt="RateOn" />
+    </div>
+
+    <!-- Today's Date -->
+    <div class="today-date">
+      <div class="date-label">Today</div>
+      <div class="date-value">{{ todayDate }}</div>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" class="login-form" autocomplete="off" data-lpignore="true" data-1p-ignore="true" data-bwignore="true">
+      <!-- Fake field to trick password managers -->
+      <input type="text" name="fake-username" style="position: absolute; opacity: 0; pointer-events: none; height: 0;" tabindex="-1" autocomplete="off" />
+      
+      <div class="form-group">
+        <div class="password-input-wrapper">
+          <input
+            [type]="showPassword ? 'text' : 'password'"
+            [(ngModel)]="password"
+            name="nope"
+            class="password-input"
+            placeholder="Enter admin password"
+            [class.error]="showError"
+            [disabled]="isLoading"
+            autocomplete="nope"
+            readonly
+            (focus)="onInputFocus($event)"
+          />
+          <button 
+            type="button" 
+            class="toggle-password"
+            (click)="togglePasswordVisibility()"
+            [disabled]="isLoading"
+            title="Toggle password visibility"
+          >
+            <lucide-icon 
+              [img]="showPassword ? EyeOff : Eye" 
+              [size]="18"
+            ></lucide-icon>
+          </button>
+        </div>
+        
+        <div class="error-message" *ngIf="showError">
+          {{ errorMessage }}
+        </div>
+      </div>
+
+      <button 
+        type="submit" 
+        class="btn-submit"
+        [disabled]="isLoading || !password"
+      >
+        <span *ngIf="!isLoading">Login</span>
+        <span *ngIf="isLoading">Authenticating...</span>
+      </button>
+    </form>
+  </div>
+</div>

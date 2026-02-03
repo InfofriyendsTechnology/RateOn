@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import auth from '../middleware/auth.js';
+import authorize from '../middleware/authorize.js';
 import { uploadBusinessImages } from '../middleware/upload.middleware.js';
 import * as businessController from '../controllers/businessController/index.js';
 
@@ -10,8 +11,16 @@ router.get('/', businessController.listBusinesses.handler);
 router.get('/nearby', businessController.getNearbyBusinesses.handler);
 router.get('/:id', businessController.getBusinessById.handler);
 
+// Protected routes - Business Owner only
+router.post('/',
+    auth,
+    authorize(['business_owner']),
+    uploadBusinessImages(),
+    businessController.createBusiness.validator,
+    businessController.createBusiness.handler
+);
+
 // Protected routes (require authentication)
-// Note: Business creation is now done via /api/v1/auth/business/register
 
 router.put('/:id',
     auth,
