@@ -105,6 +105,10 @@ export class ItemManagementComponent implements OnInit {
   }
   
   openAddModal() {
+    if (!this.businessId) {
+      this.notificationService.showError('Please create a business first');
+      return;
+    }
     this.editMode = false;
     this.resetForm();
     this.showModal = true;

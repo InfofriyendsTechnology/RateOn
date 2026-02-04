@@ -8,6 +8,7 @@ import { LandingComponent } from './features/home/landing/landing';
 import { HomeComponent } from './features/user/home/home';
 import { ProfileComponent } from './features/user/profile/profile';
 import { BusinessDashboardComponent } from './features/business/dashboard/dashboard';
+import { BusinessesComponent } from './features/business/businesses/businesses';
 import { ItemManagementComponent } from './features/business/item-management/item-management';
 import { EditBusinessComponent } from './features/business/edit-business/edit-business';
 import { AccountSettingsComponent } from './features/business/account-settings/account-settings';
@@ -49,6 +50,7 @@ export const routes: Routes = [
     component: BusinessDashboardComponent,
     canActivate: [businessOwnerGuard],
     children: [
+      { path: 'businesses', component: BusinessesComponent },
       { path: 'items', component: ItemManagementComponent },
       { path: 'edit/:id', component: EditBusinessComponent },
       { path: 'settings', component: AccountSettingsComponent }

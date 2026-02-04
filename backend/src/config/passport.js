@@ -2,9 +2,11 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { User } from '../models/index.js';
 
+import { BACKEND_URL } from './config.js';
+
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL || 'http://localhost:1126/api/v1/auth/google/callback';
+const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL || `${BACKEND_URL}/api/v1/auth/google/callback`;
 
 if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
     // User Google OAuth Strategy

@@ -1,16 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { StorageService } from '../../../core/services/storage';
 import { AuthService } from '../../../core/services/auth';
 import { BusinessService } from '../../../core/services/business';
-import { LucideAngularModule, LayoutDashboard, Compass, Trophy, ShoppingBag, Settings, Edit, LogOut, Menu } from 'lucide-angular';
+import { ToastService } from '../../../core/services/toast';
+import { LucideAngularModule, LayoutDashboard, Compass, Trophy, ShoppingBag, Settings, Edit, LogOut, Menu, User, Plus, ArrowLeft, X, Star, Sun, Moon } from 'lucide-angular';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-business-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet, LucideAngularModule],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, RouterOutlet, LucideAngularModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
@@ -24,24 +26,61 @@ export class BusinessDashboardComponent implements OnInit {
   readonly Edit = Edit;
   readonly LogOut = LogOut;
   readonly Menu = Menu;
+  readonly User = User;
+  readonly Plus = Plus;
+  readonly ArrowLeft = ArrowLeft;
+  readonly X = X;
+  readonly Star = Star;
+  readonly Sun = Sun;
+  readonly Moon = Moon;
   
   user: any = null;
-  business: any = null;
+  businesses: any[] = [];
+  selectedBusiness: any = null;
   sidebarOpen = true;
   isChildRoute = false;
   avatarFailed = false;
-  loadingBusiness = false;
+  loadingBusinesses = false;
+  
+  // Statistics
+  totalItems = 0;
+  totalReviews = 0;
+  averageRating = 0;
+  
+  // Theme and greeting
+  greeting = '';
+  isDarkMode = true;
+  
+  // Business creation modal
+  showBusinessModal = false;
+  currentBusinessStep = 1;
+  totalBusinessSteps = 3;
+  addingBusiness = false;
+  businessForm = {
+    name: '',
+    type: '',
+    category: '',
+    city: '',
+    state: '',
+    address: '',
+    phone: '',
+    website: '',
+    description: ''
+  };
 
   constructor(
     private storage: StorageService,
     private router: Router,
     private authService: AuthService,
-    private businessService: BusinessService
+    private businessService: BusinessService,
+    private toastService: ToastService
   ) {}
   
   ngOnInit() {
     this.user = this.storage.getUser();
     this.loadBusinessData();
+    this.setGreeting();
+    this.loadTheme();
     
     // Track child route activation
     this.router.events
@@ -55,29 +94,93 @@ export class BusinessDashboardComponent implements OnInit {
   }
   
   loadBusinessData() {
-    this.loadingBusiness = true;
+    this.loadingBusinesses = true;
     const userId = this.user?._id || this.user?.id;
     
     if (!userId) {
-      this.loadingBusiness = false;
+      this.loadingBusinesses = false;
       return;
     }
     
-    this.businessService.getBusinesses({ owner: userId, limit: 1 }).subscribe({
+    // Load all businesses owned by this user
+    this.businessService.getBusinesses({ owner: userId }).subscribe({
       next: (response: any) => {
         const data = response.data || response;
-        const businesses = data.businesses || data || [];
+        this.businesses = data.businesses || data || [];
         
-        if (businesses.length > 0) {
-          this.business = businesses[0];
+        // Select first business by default if available
+        if (this.businesses.length > 0 && !this.selectedBusiness) {
+          this.selectedBusiness = this.businesses[0];
         }
-        this.loadingBusiness = false;
+        
+        // Calculate statistics
+        this.calculateStatistics();
+        
+        this.loadingBusinesses = false;
       },
       error: (err) => {
-        console.error('Failed to load business:', err);
-        this.loadingBusiness = false;
+        console.error('Failed to load businesses:', err);
+        this.loadingBusinesses = false;
       }
     });
+  }
+  
+  calculateStatistics() {
+    // Calculate total items across all businesses
+    this.totalItems = this.businesses.reduce((sum, business) => {
+      return sum + (business.itemCount || 0);
+    }, 0);
+    
+    // Calculate total reviews across all businesses
+    this.totalReviews = this.businesses.reduce((sum, business) => {
+      return sum + (business.reviewCount || 0);
+    }, 0);
+    
+    // Calculate average rating across all businesses
+    const businessesWithRating = this.businesses.filter(b => b.rating && b.rating > 0);
+    if (businessesWithRating.length > 0) {
+      const totalRating = businessesWithRating.reduce((sum, business) => sum + business.rating, 0);
+      this.averageRating = totalRating / businessesWithRating.length;
+    } else {
+      this.averageRating = 0;
+    }
+  }
+  
+  selectBusiness(business: any) {
+    this.selectedBusiness = business;
+  }
+  
+  setGreeting() {
+    const hour = new Date().getHours();
+    if (hour < 12) {
+      this.greeting = 'Good Morning';
+    } else if (hour < 18) {
+      this.greeting = 'Good Afternoon';
+    } else {
+      this.greeting = 'Good Evening';
+    }
+  }
+  
+  loadTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    this.isDarkMode = savedTheme !== 'light';
+    this.applyTheme();
+  }
+  
+  toggleTheme() {
+    this.isDarkMode = !this.isDarkMode;
+    localStorage.setItem('theme', this.isDarkMode ? 'dark' : 'light');
+    this.applyTheme();
+  }
+  
+  applyTheme() {
+    if (this.isDarkMode) {
+      document.documentElement.classList.remove('light-mode');
+      document.documentElement.classList.add('dark-mode');
+    } else {
+      document.documentElement.classList.remove('dark-mode');
+      document.documentElement.classList.add('light-mode');
+    }
   }
   
 
@@ -119,5 +222,103 @@ export class BusinessDashboardComponent implements OnInit {
   onAvatarError(event: any) {
     this.avatarFailed = true;
     event.target.style.display = 'none';
+  }
+  
+  // Business creation methods
+  openBusinessModal() {
+    this.showBusinessModal = true;
+    this.currentBusinessStep = 1;
+    this.resetBusinessForm();
+  }
+  
+  closeBusinessModal() {
+    this.showBusinessModal = false;
+    this.resetBusinessForm();
+  }
+  
+  resetBusinessForm() {
+    this.businessForm = {
+      name: '',
+      type: '',
+      category: '',
+      city: '',
+      state: '',
+      address: '',
+      phone: '',
+      website: '',
+      description: ''
+    };
+    this.currentBusinessStep = 1;
+  }
+  
+  nextBusinessStep() {
+    if (this.currentBusinessStep === 1) {
+      if (!this.businessForm.name || !this.businessForm.type) {
+        this.toastService.error('Please fill in all required fields');
+        return;
+      }
+    }
+    
+    if (this.currentBusinessStep === 2) {
+      if (!this.businessForm.city || !this.businessForm.state || !this.businessForm.address) {
+        this.toastService.error('Please fill in all required location fields');
+        return;
+      }
+    }
+    
+    if (this.currentBusinessStep < this.totalBusinessSteps) {
+      this.currentBusinessStep++;
+    }
+  }
+  
+  previousBusinessStep() {
+    if (this.currentBusinessStep > 1) {
+      this.currentBusinessStep--;
+    }
+  }
+  
+  addBusiness() {
+    if (!this.businessForm.name || !this.businessForm.type || !this.businessForm.city || !this.businessForm.state || !this.businessForm.address) {
+      this.toastService.error('Please fill in all required fields');
+      return;
+    }
+    
+    this.addingBusiness = true;
+    
+    const businessData = {
+      name: this.businessForm.name,
+      type: this.businessForm.type,
+      category: this.businessForm.category || this.businessForm.type, // Use type as category if not provided
+      location: {
+        address: this.businessForm.address,
+        city: this.businessForm.city,
+        state: this.businessForm.state,
+        country: 'India',
+        coordinates: {
+          coordinates: [0, 0] // Default coordinates, can be updated later
+        }
+      },
+      contact: {
+        phone: this.businessForm.phone || '',
+        website: this.businessForm.website || ''
+      },
+      description: this.businessForm.description || ''
+    };
+    
+    this.businessService.createBusiness(businessData).subscribe({
+      next: (response: any) => {
+        this.toastService.success('Business created successfully!');
+        this.closeBusinessModal();
+        this.loadBusinessData(); // Reload all businesses
+      },
+      error: (err) => {
+        console.error('Failed to create business:', err);
+        this.toastService.error('Failed to create business. Please try again.');
+        this.addingBusiness = false;
+      },
+      complete: () => {
+        this.addingBusiness = false;
+      }
+    });
   }
 }

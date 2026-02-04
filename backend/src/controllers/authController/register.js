@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { User } from "../../models/index.js";
 import validator from "../../utils/validator.js";
-import { JWT_SECRET } from "../../config/config.js";
+import { JWT_SECRET, BACKEND_URL } from "../../config/config.js";
 import responseHandler from "../../utils/responseHandler.js";
 
 export default {
@@ -82,7 +82,7 @@ export default {
             delete userResponse.password;
             delete userResponse.verificationToken;
 
-            const verificationLink = `http://localhost:1126/api/v1/auth/verify-email?token=${verificationToken}`;
+            const verificationLink = `${BACKEND_URL}/api/v1/auth/verify-email?token=${verificationToken}`;
 
             return responseHandler.success(
                 res, 

@@ -10,7 +10,9 @@ const authorize = (roles = []) => {
             return responseHandler.error(res, 'Unauthorized: User not authenticated');
         }
 
-        const userRole = req.user.role || req.userData?.role;
+        // Prioritize database role (req.userData.role) over JWT token role (req.user.role)
+        // This ensures real-time role updates are respected
+        const userRole = req.userData?.role || req.user.role;
 
         if (!userRole) {
             return responseHandler.error(res, 'Unauthorized: Role not found');

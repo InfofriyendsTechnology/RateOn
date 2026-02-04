@@ -63,19 +63,6 @@ export class HomeComponent implements OnInit {
   
   // Business owner upgrade
   showBusinessOwnerModal = false;
-  showBusinessInfoModal = false;
-  businessInfoForm: any = {
-    name: '',
-    description: '',
-    category: '',
-    address: '',
-    city: '',
-    phone: '',
-    website: ''
-  };
-  addingBusiness = false;
-  currentBusinessStep = 1;
-  totalBusinessSteps = 3;
 
   constructor(
     private storage: StorageService,
@@ -290,113 +277,47 @@ export class HomeComponent implements OnInit {
   }
   
   becomeBusinessOwner() {
-    // Don't upgrade yet - just show the business form
-    this.closeBusinessOwnerModal();
-    setTimeout(() => {
-      this.showBusinessInfoModal = true;
-    }, 300);
-  }
-  
-  closeBusinessInfoModal() {
-    this.showBusinessInfoModal = false;
-    this.currentBusinessStep = 1;
-    this.resetBusinessInfoForm();
-  }
-  
-  resetBusinessInfoForm() {
-    this.businessInfoForm = {
-      name: '',
-      description: '',
-      category: '',
-      address: '',
-      city: '',
-      phone: '',
-      website: ''
-    };
-  }
-  
-  nextBusinessStep() {
-    if (this.currentBusinessStep === 1) {
-      if (!this.businessInfoForm.name || !this.businessInfoForm.category) {
-        this.toastService.error('Please fill in business name and category');
-        return;
-      }
-    }
-    
-    if (this.currentBusinessStep === 2) {
-      if (!this.businessInfoForm.city) {
-        this.toastService.error('Please enter your city');
-        return;
-      }
-    }
-    
-    if (this.currentBusinessStep < this.totalBusinessSteps) {
-      this.currentBusinessStep++;
-    }
-  }
-  
-  previousBusinessStep() {
-    if (this.currentBusinessStep > 1) {
-      this.currentBusinessStep--;
-    }
-  }
-  
-  addBusiness() {
-    // Validate required fields
-    if (!this.businessInfoForm.name || !this.businessInfoForm.category || !this.businessInfoForm.city) {
-      this.toastService.error('Please fill in all required fields');
-      return;
-    }
-    
-    this.addingBusiness = true;
-    
-    // Upgrade account to business owner after completing form
-    this.userService.becomeBusinessOwner().subscribe({
-      next: (response: any) => {
-        const userData = response.data?.user || response.user;
-        
-        // Update storage with new user data
-        this.storage.saveUser(userData);
-        
-        this.toastService.success('Business information saved!');
-        this.isBusinessOwner = true;
-        this.addingBusiness = false;
-        this.closeBusinessInfoModal();
-        
-        setTimeout(() => {
-          this.router.navigate(['/business/dashboard']);
-        }, 1000);
-      },
-      error: (error) => {
-        this.toastService.error(error?.message || 'Failed to upgrade account');
-        this.addingBusiness = false;
-      }
-    });
-  }
-  
-  skipBusinessInfo() {
-    // Only upgrade and redirect if user skips
+    // Upgrade to business owner and go directly to dashboard
     this.converting = true;
     
     this.userService.becomeBusinessOwner().subscribe({
       next: (response: any) => {
         const userData = response.data?.user || response.user;
+        const token = response.data?.token || response.token;
         
-        // Update storage with new user data
+        // Save the new token with updated role
+        if (token) {
+          this.storage.saveToken(token);
+        }
+        
         this.storage.saveUser(userData);
         
         this.isBusinessOwner = true;
         this.converting = false;
-        this.closeBusinessInfoModal();
+        this.closeBusinessOwnerModal();
         
-        this.router.navigate(['/business/dashboard']);
+        this.toastService.success('You are now a business owner!');
+        
+        setTimeout(() => {
+          this.router.navigate(['/business/dashboard']);
+        }, 500);
       },
       error: (error) => {
-        this.toastService.error(error?.message || 'Failed to upgrade account');
-        this.converting = false;
+        // If already business owner, just redirect to dashboard
+        if (error?.error?.message?.includes('already a business owner')) {
+          this.isBusinessOwner = true;
+          this.converting = false;
+          this.closeBusinessOwnerModal();
+          this.router.navigate(['/business/dashboard']);
+        } else {
+          this.toastService.error(error?.message || 'Failed to upgrade account');
+          this.converting = false;
+        }
       }
     });
   }
+  
+  
   
   logout() {
     this.storage.clearAuth();

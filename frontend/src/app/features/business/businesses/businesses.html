@@ -1,0 +1,68 @@
+<div class="businesses-page">
+  <div class="page-header">
+    <h2>My Businesses</h2>
+    <a routerLink="/business/dashboard" class="btn-add-business">
+      <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
+      <span>Add Business</span>
+    </a>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="loadingBusinesses">
+    <div class="spinner"></div>
+    <p>Loading businesses...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!loadingBusinesses && businesses.length === 0">
+    <lucide-icon [img]="ShoppingBag" [size]="64" class="empty-icon"></lucide-icon>
+    <h3>No Businesses Yet</h3>
+    <p>Create your first business to get started with managing your items and reviews.</p>
+    <a routerLink="/business/dashboard" class="btn-primary">
+      <lucide-icon [img]="Plus" [size]="16"></lucide-icon>
+      Create Your First Business
+    </a>
+  </div>
+
+  <!-- Business Cards Grid -->
+  <div class="businesses-grid" *ngIf="!loadingBusinesses && businesses.length > 0">
+    <div class="business-card" *ngFor="let business of businesses">
+      <div class="card-header">
+        <div class="business-icon">
+          <lucide-icon [img]="ShoppingBag" [size]="24"></lucide-icon>
+        </div>
+        <div class="business-info">
+          <h3 class="business-name">{{ business.name }}</h3>
+          <span class="business-type">{{ business.type }}</span>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="info-item" *ngIf="business.location?.city">
+          <lucide-icon [img]="MapPin" [size]="16"></lucide-icon>
+          <span>{{ business.location.city }}, {{ business.location.state }}</span>
+        </div>
+
+        <div class="info-item" *ngIf="business.contact?.phone">
+          <lucide-icon [img]="Phone" [size]="16"></lucide-icon>
+          <span>{{ business.contact.phone }}</span>
+        </div>
+
+        <div class="info-item" *ngIf="business.rating">
+          <lucide-icon [img]="Star" [size]="16"></lucide-icon>
+          <span>{{ business.rating.toFixed(1) }} Rating</span>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <a [routerLink]="['/business/dashboard/edit', business._id]" class="btn-action">
+          <lucide-icon [img]="Edit" [size]="16"></lucide-icon>
+          <span>Edit</span>
+        </a>
+        <a [routerLink]="['/business', business._id]" class="btn-action btn-primary">
+          <span>View Profile</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

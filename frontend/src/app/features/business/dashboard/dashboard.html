@@ -14,6 +14,11 @@
         <span class="nav-text" *ngIf="sidebarOpen">Dashboard</span>
       </a>
       
+      <a routerLink="/business/dashboard/businesses" routerLinkActive="active" class="nav-item">
+        <lucide-icon [img]="ShoppingBag" [size]="16" class="nav-icon"></lucide-icon>
+        <span class="nav-text" *ngIf="sidebarOpen">Businesses</span>
+      </a>
+      
       <div class="nav-divider" *ngIf="sidebarOpen"></div>
       <span class="nav-section-label" *ngIf="sidebarOpen">PUBLIC</span>
       
@@ -36,6 +41,14 @@
       <a routerLink="/business/dashboard/settings" routerLinkActive="active" class="nav-item">
         <lucide-icon [img]="Settings" [size]="16" class="nav-icon"></lucide-icon>
         <span class="nav-text" *ngIf="sidebarOpen">Settings</span>
+      </a>
+      
+      <div class="nav-divider" *ngIf="sidebarOpen"></div>
+      <span class="nav-section-label" *ngIf="sidebarOpen">ACCOUNT</span>
+      
+      <a routerLink="/profile" class="nav-item">
+        <lucide-icon [img]="User" [size]="16" class="nav-icon"></lucide-icon>
+        <span class="nav-text" *ngIf="sidebarOpen">Profile</span>
       </a>
     </nav>
 
@@ -68,8 +81,11 @@
       </button>
       <div class="top-bar-content">
         <div class="page-title">
-          <h1>Dashboard</h1>
+          <h1>{{ greeting }}, {{ user?.username || user?.firstName || 'User' }}!</h1>
         </div>
+        <button class="theme-toggle" (click)="toggleTheme()" [title]="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+          <lucide-icon [img]="isDarkMode ? Sun : Moon" [size]="20"></lucide-icon>
+        </button>
       </div>
     </div>
 
@@ -77,65 +93,206 @@
     <router-outlet></router-outlet>
     <div class="dashboard-content" *ngIf="!isChildRouteActive()">
       
-      <!-- Business Info Card -->
-      <div class="welcome-card" *ngIf="business">
-        <div class="welcome-header">
-          <div>
-            <h2>{{ business.name }}</h2>
-            <p class="business-category">{{ business.category || 'Business' }}</p>
+      <!-- Statistics Cards -->
+      <div class="stats-grid" *ngIf="businesses.length > 0">
+        <div class="stat-card">
+          <div class="stat-icon businesses">
+            <lucide-icon [img]="ShoppingBag" [size]="24"></lucide-icon>
           </div>
-          <a [routerLink]="['/business', business._id]" class="btn-view-public">
-            View Public Profile
-          </a>
+          <div class="stat-content">
+            <h3 class="stat-value">{{ businesses.length }}</h3>
+            <p class="stat-label">Total Businesses</p>
+          </div>
         </div>
-        <div class="business-quick-stats">
-          <div class="quick-stat">
-            <span class="stat-label">Location</span>
-            <span class="stat-value">{{ business.location?.city || 'Not set' }}</span>
+        
+        <div class="stat-card">
+          <div class="stat-icon items">
+            <lucide-icon [img]="ShoppingBag" [size]="24"></lucide-icon>
           </div>
-          <div class="quick-stat">
-            <span class="stat-label">Contact</span>
-            <span class="stat-value">{{ business.contactInfo?.phone || 'Not set' }}</span>
+          <div class="stat-content">
+            <h3 class="stat-value">{{ totalItems }}</h3>
+            <p class="stat-label">Total Items</p>
           </div>
-          <div class="quick-stat" *ngIf="business.rating">
-            <span class="stat-label">Rating</span>
-            <span class="stat-value">⭐ {{ business.rating.toFixed(1) }}</span>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon reviews">
+            <lucide-icon [img]="Star" [size]="24"></lucide-icon>
+          </div>
+          <div class="stat-content">
+            <h3 class="stat-value">{{ totalReviews }}</h3>
+            <p class="stat-label">Total Reviews</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon rating">
+            <lucide-icon [img]="Star" [size]="24"></lucide-icon>
+          </div>
+          <div class="stat-content">
+            <h3 class="stat-value">{{ averageRating.toFixed(1) }}</h3>
+            <p class="stat-label">Avg Rating</p>
           </div>
         </div>
       </div>
 
       <!-- No Business State -->
-      <div class="empty-state" *ngIf="!business && !loadingBusiness">
+      <div class="empty-state" *ngIf="businesses.length === 0 && !loadingBusinesses">
         <lucide-icon [img]="ShoppingBag" [size]="48" class="empty-icon"></lucide-icon>
         <h3>No Business Yet</h3>
-        <p>You haven't created a business yet. Contact support to create your first business profile.</p>
-      </div>
-
-      <!-- Loading State -->
-      <div class="loading-state" *ngIf="loadingBusiness">
-        <div class="spinner"></div>
-        <p>Loading business data...</p>
-      </div>
-
-      <!-- Quick Actions -->
-      <div class="quick-actions" *ngIf="business">
-        <h3>Quick Actions</h3>
-        <div class="action-grid">
-          <a routerLink="/business/dashboard/items" class="action-card">
-            <lucide-icon [img]="ShoppingBag" [size]="20"></lucide-icon>
-            <span>Manage Items</span>
-          </a>
-          <a [routerLink]="['/business/dashboard/edit', business._id]" class="action-card">
-            <lucide-icon [img]="Edit" [size]="20"></lucide-icon>
-            <span>Edit Business</span>
-          </a>
-          <a routerLink="/business/dashboard/settings" class="action-card">
-            <lucide-icon [img]="Settings" [size]="20"></lucide-icon>
-            <span>Settings</span>
+        <p>You're a business owner! Create your first business to get started.</p>
+        <div class="empty-actions">
+          <button (click)="openBusinessModal()" class="btn-primary">
+            <lucide-icon [img]="Plus" [size]="16"></lucide-icon>
+            Create Business
+          </button>
+          <a routerLink="/home" class="btn-secondary">
+            <lucide-icon [img]="User" [size]="16"></lucide-icon>
+            Go to User Dashboard
           </a>
         </div>
       </div>
 
+      <!-- Loading State -->
+      <div class="loading-state" *ngIf="loadingBusinesses">
+        <div class="spinner"></div>
+        <p>Loading businesses...</p>
+      </div>
+
     </div>
   </main>
+</div>
+
+<!-- Business Creation Modal -->
+<div *ngIf="showBusinessModal" class="modal-overlay" (click)="closeBusinessModal()">
+  <div class="modal-content business-modal" (click)="$event.stopPropagation()">
+    <button *ngIf="currentBusinessStep > 1" class="btn-back-modal" (click)="previousBusinessStep()" aria-label="Back">
+      <lucide-icon [img]="ArrowLeft" [size]="20"></lucide-icon>
+    </button>
+    
+    <button class="btn-close-modal" (click)="closeBusinessModal()" aria-label="Close">
+      <lucide-icon [img]="X" [size]="20"></lucide-icon>
+    </button>
+    
+    <div class="modal-header">
+      <h3>Create Business</h3>
+      <p>Step {{ currentBusinessStep }} of {{ totalBusinessSteps }}</p>
+    </div>
+    
+    <div class="modal-body business-form">
+      <!-- Step 1: Business Name & Type -->
+      <div *ngIf="currentBusinessStep === 1">
+        <div class="form-group">
+          <label>Business Name <span class="required">*</span></label>
+          <input 
+            type="text" 
+            [(ngModel)]="businessForm.name" 
+            placeholder="Enter business name"
+            class="form-input"
+            autofocus
+          />
+        </div>
+        
+        <div class="form-group">
+          <label>Business Type <span class="required">*</span></label>
+          <select [(ngModel)]="businessForm.type" class="form-input">
+            <option value="">Select type</option>
+            <option value="restaurant">Restaurant</option>
+            <option value="cafe">Café</option>
+            <option value="shop">Shop</option>
+            <option value="service">Service</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- Step 2: Location -->
+      <div *ngIf="currentBusinessStep === 2">
+        <div class="form-group">
+          <label>Address <span class="required">*</span></label>
+          <input 
+            type="text" 
+            [(ngModel)]="businessForm.address" 
+            placeholder="Street address"
+            class="form-input"
+            autofocus
+          />
+        </div>
+        
+        <div class="form-group">
+          <label>City <span class="required">*</span></label>
+          <input 
+            type="text" 
+            [(ngModel)]="businessForm.city" 
+            placeholder="City name"
+            class="form-input"
+          />
+        </div>
+        
+        <div class="form-group">
+          <label>State <span class="required">*</span></label>
+          <input 
+            type="text" 
+            [(ngModel)]="businessForm.state" 
+            placeholder="State/Province"
+            class="form-input"
+          />
+        </div>
+      </div>
+      
+      <!-- Step 3: Contact & Description -->
+      <div *ngIf="currentBusinessStep === 3">
+        <div class="form-group">
+          <label>Phone</label>
+          <input 
+            type="tel" 
+            [(ngModel)]="businessForm.phone" 
+            placeholder="+1 234 567 8900"
+            class="form-input"
+            autofocus
+          />
+        </div>
+        
+        <div class="form-group">
+          <label>Website</label>
+          <input 
+            type="url" 
+            [(ngModel)]="businessForm.website" 
+            placeholder="https://example.com"
+            class="form-input"
+          />
+        </div>
+        
+        <div class="form-group">
+          <label>Description</label>
+          <textarea 
+            [(ngModel)]="businessForm.description" 
+            placeholder="Brief description (optional)"
+            rows="3"
+            class="form-input"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modal-actions">
+      <div class="btn-group" *ngIf="currentBusinessStep === 1">
+        <button class="btn-modal-primary" (click)="nextBusinessStep()">
+          Continue
+        </button>
+      </div>
+      
+      <div class="btn-group" *ngIf="currentBusinessStep === 2">
+        <button class="btn-modal-primary" (click)="nextBusinessStep()">
+          Continue
+        </button>
+      </div>
+      
+      <div class="btn-group" *ngIf="currentBusinessStep === 3">
+        <button class="btn-modal-primary" (click)="addBusiness()" [disabled]="addingBusiness">
+          {{ addingBusiness ? 'Creating...' : 'Create Business' }}
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
