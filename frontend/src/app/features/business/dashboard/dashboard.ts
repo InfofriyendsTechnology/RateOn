@@ -6,6 +6,7 @@ import { StorageService } from '../../../core/services/storage';
 import { AuthService } from '../../../core/services/auth';
 import { BusinessService } from '../../../core/services/business';
 import { ToastService } from '../../../core/services/toast';
+import { ThemeService } from '../../../core/services/theme';
 import { LucideAngularModule, LayoutDashboard, Compass, Trophy, ShoppingBag, Settings, Edit, LogOut, Menu, User, Plus, ArrowLeft, X, Star, Sun, Moon } from 'lucide-angular';
 import { filter } from 'rxjs/operators';
 
@@ -73,7 +74,8 @@ export class BusinessDashboardComponent implements OnInit {
     private router: Router,
     private authService: AuthService,
     private businessService: BusinessService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private themeService: ThemeService
   ) {}
   
   ngOnInit() {
@@ -162,25 +164,14 @@ export class BusinessDashboardComponent implements OnInit {
   }
   
   loadTheme() {
-    const savedTheme = localStorage.getItem('theme');
-    this.isDarkMode = savedTheme !== 'light';
-    this.applyTheme();
+    this.isDarkMode = this.themeService.isDarkMode();
+    this.themeService.isDarkMode$.subscribe(isDark => {
+      this.isDarkMode = isDark;
+    });
   }
   
   toggleTheme() {
-    this.isDarkMode = !this.isDarkMode;
-    localStorage.setItem('theme', this.isDarkMode ? 'dark' : 'light');
-    this.applyTheme();
-  }
-  
-  applyTheme() {
-    if (this.isDarkMode) {
-      document.documentElement.classList.remove('light-mode');
-      document.documentElement.classList.add('dark-mode');
-    } else {
-      document.documentElement.classList.remove('dark-mode');
-      document.documentElement.classList.add('light-mode');
-    }
+    this.themeService.toggleTheme();
   }
   
 

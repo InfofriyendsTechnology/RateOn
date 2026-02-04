@@ -4,5 +4,5 @@ export const environment = {
   appName: 'RateOn',
   tokenKey: 'rateon_token',
   userKey: 'rateon_user',
-  googleClientId: 'YOUR_GOOGLE_CLIENT_ID_HERE'
+  googleClientId: '220493468580-tbqo351rf8f6bbirco5icbdhqjb4s1hn.apps.googleusercontent.com'
 };

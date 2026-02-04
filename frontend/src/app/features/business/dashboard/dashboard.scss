@@ -8,17 +8,21 @@
 // Sidebar
 .sidebar {
   width: 240px;
-  background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
+  background: var(--bg-secondary);
   display: flex;
   flex-direction: column;
   transition: width 0.3s ease;
-  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid var(--border-color);
   position: relative;
   z-index: 100;
 
   .sidebar-header {
     padding: 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--border-color);
+    height: 64px;
+    min-height: 64px;
+    display: flex;
+    align-items: center;
     
     .logo {
       display: flex;
@@ -45,7 +49,7 @@
       display: block;
       font-size: 0.6875rem;
       font-weight: 600;
-      color: rgba(255, 255, 255, 0.4);
+      color: var(--text-tertiary);
       padding: 0.75rem 0.75rem 0.5rem;
       letter-spacing: 0.05em;
       text-transform: uppercase;
@@ -53,7 +57,7 @@
 
     .nav-divider {
       height: 1px;
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--border-color);
       margin: 0.75rem 0.5rem;
     }
 
@@ -63,7 +67,7 @@
       gap: 0.75rem;
       padding: 0.625rem 0.75rem;
       margin-bottom: 0.25rem;
-      color: rgba(255, 255, 255, 0.7);
+      color: var(--text-secondary);
       text-decoration: none;
       border-radius: 6px;
       transition: all 0.2s ease;
@@ -80,8 +84,8 @@
       }
 
       &:hover {
-        background: rgba(255, 255, 255, 0.05);
-        color: #fff;
+        background: var(--bg-hover);
+        color: var(--text-primary);
 
         .nav-icon {
           opacity: 1;
@@ -90,7 +94,7 @@
 
       &.active {
         background: var(--color-accent-gradient);
-        color: #000;
+        color: var(--button-text-on-silver);
         font-weight: 600;
 
         .nav-icon {
@@ -103,7 +107,7 @@
 
   .sidebar-footer {
     padding: 1rem 0.5rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid var(--border-color);
 
     .user-profile {
       display: flex;
@@ -132,7 +136,7 @@
         .avatar-initial {
           font-size: 0.875rem;
           font-weight: 700;
-          color: #000;
+          color: var(--button-text-on-silver);
         }
       }
 
@@ -143,7 +147,7 @@
         .user-name {
           font-size: 0.875rem;
           font-weight: 600;
-          color: #fff;
+          color: var(--text-primary);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -151,7 +155,7 @@
 
         .user-role {
           font-size: 0.75rem;
-          color: rgba(255, 255, 255, 0.5);
+          color: var(--text-tertiary);
         }
       }
     }
@@ -223,6 +227,8 @@
   padding: 1rem 1.5rem;
   background: var(--bg-primary);
   border-bottom: 1px solid var(--border-color);
+  height: 64px;
+  min-height: 64px;
 
   .sidebar-toggle {
     width: 40px;
@@ -236,6 +242,7 @@
     cursor: pointer;
     color: var(--text-primary);
     transition: all 0.2s ease;
+    flex-shrink: 0;
 
     &:hover {
       background: var(--bg-hover);
@@ -243,15 +250,57 @@
     }
   }
 
-  .top-bar-content {
+  .page-title {
     flex: 1;
+    
+    h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+      line-height: 1.2;
+    }
   }
 
-  .page-title h1 {
-    font-size: 1.25rem;
-    font-weight: 700;
+  .theme-toggle {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
     color: var(--text-primary);
-    margin: 0;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+
+    &:hover {
+      background: var(--bg-hover);
+      border-color: var(--accent-primary);
+      transform: rotate(15deg);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 0.75rem 1rem;
+    height: 56px;
+    min-height: 56px;
+
+    .page-title h1 {
+      font-size: 1rem;
+    }
+
+    .sidebar-toggle,
+    .theme-toggle {
+      width: 36px;
+      height: 36px;
+    }
   }
 }
 
@@ -289,8 +338,8 @@
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: #fbbf24;
-    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.1);
+    border-color: var(--accent-primary);
+    box-shadow: var(--silver-glow);
     transform: translateY(-2px);
   }
 
@@ -379,7 +428,7 @@
     .btn-view-public {
       padding: 0.5rem 1rem;
       background: var(--color-accent-gradient);
-      color: #000;
+      color: var(--button-text-on-silver);
       text-decoration: none;
       border-radius: 6px;
       font-size: 0.875rem;
@@ -521,7 +570,7 @@
   
   .btn-primary {
     background: var(--color-accent-gradient);
-    color: #000;
+    color: var(--button-text-on-silver);
     border: none;
 
     &:hover {
@@ -713,10 +762,10 @@
     color: var(--text-primary);
     z-index: 10;
     
-    &:hover {
-      background: var(--bg-hover);
-      border-color: #fbbf24;
-    }
+      &:hover {
+        background: var(--bg-hover);
+        border-color: var(--accent-primary);
+      }
   }
   
   .modal-header {
@@ -770,8 +819,8 @@
       
       &:focus {
         outline: none;
-        border-color: #fbbf24;
-        box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 3px var(--accent-primary-alpha);
       }
       
       &::placeholder {
@@ -842,7 +891,7 @@
     
     &:hover {
       background: var(--bg-hover);
-      border-color: #fbbf24;
+      border-color: var(--accent-primary);
     }
     
     &:active {
@@ -855,13 +904,13 @@
   }
   
   .btn-modal-primary {
-    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-    color: #000;
-    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+    background: var(--color-accent-gradient);
+    color: var(--button-text-on-silver);
+    box-shadow: var(--silver-glow);
     
     &:hover:not(:disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(251, 191, 36, 0.4);
+      box-shadow: var(--silver-glow-hover);
     }
     
     &:disabled {
