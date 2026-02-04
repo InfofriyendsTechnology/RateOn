@@ -6,7 +6,18 @@ import { BACKEND_URL } from './config.js';
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
-const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL || `${BACKEND_URL}/api/v1/auth/google/callback`;
+
+// Build a robust default callback URL that never falls back to localhost in production
+const inferBackendBase = () => {
+  // 1) Explicit env wins
+  if (process.env.BACKEND_URL) return process.env.BACKEND_URL;
+  // 2) Vercel provides VERCEL_URL (no protocol)
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  // 3) As a last resort use configured BACKEND_URL import (may be localhost in dev)
+  return BACKEND_URL;
+};
+
+const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL || `${inferBackendBase()}/api/v1/auth/google/callback`;
 
 if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
     // User Google OAuth Strategy
