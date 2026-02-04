@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/services/auth';
 import { StorageService } from '../../../core/services/storage';
 import { ThemeService } from '../../../core/services/theme';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-register',
@@ -90,7 +91,7 @@ export class RegisterComponent implements OnInit {
     // Clear any existing auth data before Google OAuth
     this.storage.clearAuth();
     // Redirect to backend Google OAuth endpoint
-    window.location.href = 'http://localhost:1126/api/v1/auth/google';
+    window.location.href = `${environment.apiUrl}/auth/google`;
   }
 
   togglePasswordVisibility() {

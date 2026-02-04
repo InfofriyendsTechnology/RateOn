@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth';
 import { ToastService } from '../../../core/services/toast';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-auth-modal',
@@ -31,7 +32,7 @@ export class AuthModalComponent {
   continueWithGoogle() {
     this.isLoading = true;
     // Redirect to Google OAuth
-    window.location.href = 'http://localhost:1126/api/v1/auth/google';
+    window.location.href = `${environment.apiUrl}/auth/google`;
   }
 
   showEmailLogin() {
