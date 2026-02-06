@@ -2,15 +2,14 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { User } from '../models/index.js';
 
-import { BACKEND_URL } from './config.js';
-
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
-// Smart callback URL detection - ignore GOOGLE_CALLBACK_URL env var
-const GOOGLE_CALLBACK_URL = BACKEND_URL?.includes('localhost') 
-  ? 'http://localhost:1126/api/v1/auth/google/callback'
-  : 'https://rateon-backend.vercel.app/api/v1/auth/google/callback';
+// Detect environment - use localhost only in development
+const isProduction = process.env.VERCEL || process.env.NODE_ENV === 'production';
+const GOOGLE_CALLBACK_URL = isProduction
+  ? 'https://rateon-backend.vercel.app/api/v1/auth/google/callback'
+  : 'http://localhost:1126/api/v1/auth/google/callback';
 
 console.log('🔍 GOOGLE_CALLBACK_URL configured as:', GOOGLE_CALLBACK_URL);
 
