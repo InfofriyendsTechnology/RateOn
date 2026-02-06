@@ -1,4 +1,4 @@
-<div class="dashboard-layout" [class.sidebar-collapsed]="!sidebarOpen">
+<div class="dashboard-layout">
   <!-- Mobile Backdrop -->
   <div class="mobile-backdrop" [class.show]="sidebarOpen" (click)="toggleSidebar()"></div>
   
@@ -89,6 +89,9 @@
     <!-- Top Bar -->
     <div class="top-bar">
       <div class="top-bar-left">
+        <button class="sidebar-toggle mobile-only" (click)="toggleSidebar()">
+          <lucide-icon [img]="Menu" [size]="20"></lucide-icon>
+        </button>
         <button class="theme-toggle" (click)="toggleTheme()" [title]="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
           <lucide-icon [img]="isDarkMode ? Sun : Moon" [size]="20"></lucide-icon>
         </button>
@@ -97,8 +100,9 @@
         <h1>{{ getPageTitle() }}</h1>
       </div>
       <div class="top-bar-right">
-        <button class="sidebar-toggle" (click)="toggleSidebar()">
-          <lucide-icon [img]="Menu" [size]="20"></lucide-icon>
+        <button *ngIf="isOnBusinessesPage()" class="btn-add-business" (click)="openBusinessModal()">
+          <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
+          <span>Add Business</span>
         </button>
       </div>
     </div>

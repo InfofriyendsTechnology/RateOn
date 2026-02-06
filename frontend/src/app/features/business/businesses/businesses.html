@@ -1,11 +1,4 @@
 <div class="businesses-page">
-  <div class="page-header">
-    <button (click)="openBusinessModal()" class="btn-add-business">
-      <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
-      <span>Add Business</span>
-    </button>
-  </div>
-
   <!-- Loading State -->
   <div class="loading-state" *ngIf="loadingBusinesses">
     <div class="spinner"></div>

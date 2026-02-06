@@ -206,6 +206,10 @@ export class BusinessDashboardComponent implements OnInit {
     
     return 'Dashboard';
   }
+  
+  isOnBusinessesPage(): boolean {
+    return this.router.url.includes('/businesses');
+  }
 
   logout() {
     this.authService.logout().subscribe({
