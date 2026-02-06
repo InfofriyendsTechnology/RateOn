@@ -661,13 +661,14 @@
       
       &.btn-items {
         grid-column: 1 / -1;
-        background: var(--color-accent-gradient);
-        border: none;
-        color: var(--button-text-on-silver);
+        background: var(--bg-secondary);
+        border: 2px solid var(--accent-primary);
+        color: var(--accent-primary);
         font-weight: 700;
 
         &:hover {
-          opacity: 0.9;
+          background: var(--bg-hover);
+          border-color: var(--accent-primary);
           transform: translateY(-1px);
         }
       }
