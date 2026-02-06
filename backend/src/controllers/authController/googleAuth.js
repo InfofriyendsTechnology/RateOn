@@ -5,13 +5,25 @@ import responseHandler from '../../utils/responseHandler.js';
 export default {
     callback: async (req, res) => {
         try {
-            // Debug logging
-            console.log('🔍 DEBUG - FRONTEND_URL:', FRONTEND_URL);
-            console.log('🔍 DEBUG - process.env.FRONTEND_URL:', process.env.FRONTEND_URL);
-            console.log('🔍 DEBUG - process.env.VERCEL_URL:', process.env.VERCEL_URL);
+            // Dynamically determine frontend URL based on environment
+            let frontendUrl;
+            
+            // Check if we're on production by looking at the host
+            const host = req.get('host') || '';
+            
+            if (host.includes('vercel.app') || host.includes('rateon')) {
+                // Production - use production frontend URL
+                frontendUrl = 'https://rateon.vercel.app';
+            } else {
+                // Local development
+                frontendUrl = 'http://localhost:5300';
+            }
+            
+            console.log('🔍 DEBUG - Host:', host);
+            console.log('🔍 DEBUG - Using Frontend URL:', frontendUrl);
             
             if (!req.user) {
-                return res.redirect(`${FRONTEND_URL}/auth/login?error=authentication_failed`);
+                return res.redirect(`${frontendUrl}/auth/login?error=authentication_failed`);
             }
 
             const user = req.user;
@@ -36,10 +48,15 @@ export default {
                 userType: 'user'
             }));
 
-            return res.redirect(`${FRONTEND_URL}/auth/callback?data=${userData}`);
+            return res.redirect(`${frontendUrl}/auth/callback?data=${userData}`);
 
         } catch (error) {
-            return res.redirect(`${FRONTEND_URL}/auth/login?error=${encodeURIComponent(error?.message || 'authentication_failed')}`);
+            // Use same logic for error redirect
+            const host = req.get('host') || '';
+            const frontendUrl = (host.includes('vercel.app') || host.includes('rateon')) 
+                ? 'https://rateon.vercel.app' 
+                : 'http://localhost:5300';
+            return res.redirect(`${frontendUrl}/auth/login?error=${encodeURIComponent(error?.message || 'authentication_failed')}`);
         }
     }
 };
