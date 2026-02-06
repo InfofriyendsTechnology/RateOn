@@ -1,6 +1,12 @@
+import { isDevMode } from '@angular/core';
+
+const isProduction = !isDevMode();
+
 export const environment = {
-  production: false,
-  apiUrl: 'http://localhost:1126/api/v1',
+  production: isProduction,
+  apiUrl: isProduction 
+    ? 'https://rateon-backend.vercel.app/api/v1'
+    : 'http://localhost:1126/api/v1',
   appName: 'RateOn',
   tokenKey: 'rateon_token',
   userKey: 'rateon_user',
