@@ -10,8 +10,14 @@ export default {
             
             // Check if we're on production by looking at the host
             const host = req.get('host') || '';
+            const referer = req.get('referer') || '';
             
-            if (host.includes('vercel.app') || host.includes('rateon')) {
+            // Check if request is from production
+            const isProduction = host.includes('vercel.app') || 
+                                host.includes('rateon-backend') || 
+                                referer.includes('rateon.vercel.app');
+            
+            if (isProduction) {
                 // Production - use production frontend URL
                 frontendUrl = 'https://rateon.vercel.app';
             } else {
@@ -20,6 +26,8 @@ export default {
             }
             
             console.log('🔍 DEBUG - Host:', host);
+            console.log('🔍 DEBUG - Referer:', referer);
+            console.log('🔍 DEBUG - Is Production:', isProduction);
             console.log('🔍 DEBUG - Using Frontend URL:', frontendUrl);
             
             if (!req.user) {
@@ -53,9 +61,11 @@ export default {
         } catch (error) {
             // Use same logic for error redirect
             const host = req.get('host') || '';
-            const frontendUrl = (host.includes('vercel.app') || host.includes('rateon')) 
-                ? 'https://rateon.vercel.app' 
-                : 'http://localhost:5300';
+            const referer = req.get('referer') || '';
+            const isProduction = host.includes('vercel.app') || 
+                                host.includes('rateon-backend') || 
+                                referer.includes('rateon.vercel.app');
+            const frontendUrl = isProduction ? 'https://rateon.vercel.app' : 'http://localhost:5300';
             return res.redirect(`${frontendUrl}/auth/login?error=${encodeURIComponent(error?.message || 'authentication_failed')}`);
         }
     }
