@@ -85,14 +85,14 @@
   </aside>
 
   <!-- Main Content -->
-  <main class="main-content" (click)="closeSidebarOnMobile()">
+  <main class="main-content">
     <!-- Top Bar -->
     <div class="top-bar">
       <div class="top-bar-left">
-        <button class="sidebar-toggle mobile-only" (click)="toggleSidebar()">
+        <button class="sidebar-toggle mobile-only" (click)="toggleSidebar(); $event.stopPropagation()">
           <lucide-icon [img]="Menu" [size]="20"></lucide-icon>
         </button>
-        <button class="theme-toggle" (click)="toggleTheme()" [title]="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+        <button class="theme-toggle" (click)="toggleTheme(); $event.stopPropagation()">
           <lucide-icon [img]="isDarkMode ? Sun : Moon" [size]="20"></lucide-icon>
         </button>
       </div>
