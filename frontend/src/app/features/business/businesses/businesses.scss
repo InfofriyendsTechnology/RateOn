@@ -669,16 +669,18 @@
 
         &:hover {
           opacity: 0.9;
+          transform: translateY(-1px);
         }
       }
       
       &.btn-view {
-        background: var(--accent-primary);
+        background: #3b82f6;
         border: none;
         color: white;
 
         &:hover {
-          opacity: 0.9;
+          background: #2563eb;
+          transform: translateY(-1px);
         }
       }
       
