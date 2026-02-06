@@ -306,6 +306,7 @@
 .top-bar {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 1rem;
   padding: 1rem 1.5rem;
   background: var(--bg-primary);
@@ -313,23 +314,52 @@
   height: 64px;
   min-height: 64px;
 
-  .sidebar-toggle {
-    width: 40px;
-    height: 40px;
+  .top-bar-left {
     display: flex;
     align-items: center;
-    justify-content: center;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    cursor: pointer;
-    color: var(--text-primary);
-    transition: all 0.2s ease;
-    flex-shrink: 0;
+    gap: 1rem;
+    flex: 1;
+    
+    .logo-header {
+      display: flex;
+      align-items: center;
+      
+      @media (max-width: 768px) {
+        display: none;
+      }
+      
+      .logo-img {
+        height: 36px;
+        width: auto;
+      }
+    }
+    
+    .sidebar-toggle {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--text-primary);
+      transition: all 0.2s ease;
+      flex-shrink: 0;
 
-    &:hover {
-      background: var(--bg-hover);
-      border-color: var(--accent-primary);
+      &:hover {
+        background: var(--bg-hover);
+        border-color: var(--accent-primary);
+      }
+      
+      &.mobile-only {
+        display: none;
+        
+        @media (max-width: 768px) {
+          display: flex;
+        }
+      }
     }
   }
 
@@ -346,27 +376,35 @@
     }
   }
   
-  .theme-toggle {
-    width: 40px;
-    height: 40px;
+  .top-bar-right {
     display: flex;
     align-items: center;
-    justify-content: center;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    cursor: pointer;
-    color: var(--text-primary);
-    transition: all 0.2s ease;
-    flex-shrink: 0;
+    gap: 1rem;
+    flex: 1;
+    justify-content: flex-end;
+    
+    .theme-toggle {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--text-primary);
+      transition: all 0.2s ease;
+      flex-shrink: 0;
 
-    &:hover {
-      background: var(--bg-hover);
-      border-color: var(--accent-primary);
-    }
+      &:hover {
+        background: var(--bg-hover);
+        border-color: var(--accent-primary);
+      }
 
-    &:active {
-      transform: scale(0.95);
+      &:active {
+        transform: scale(0.95);
+      }
     }
   }
 

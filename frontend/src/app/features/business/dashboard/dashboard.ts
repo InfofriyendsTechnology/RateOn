@@ -179,6 +179,12 @@ export class BusinessDashboardComponent implements OnInit {
     this.sidebarOpen = !this.sidebarOpen;
   }
   
+  closeSidebarOnMobile() {
+    if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+      this.sidebarOpen = false;
+    }
+  }
+  
   isChildRouteActive(): boolean {
     return this.isChildRoute;
   }
