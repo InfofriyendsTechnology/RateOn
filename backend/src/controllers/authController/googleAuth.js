@@ -5,30 +5,17 @@ import responseHandler from '../../utils/responseHandler.js';
 export default {
     callback: async (req, res) => {
         try {
-            // Dynamically determine frontend URL based on environment
-            let frontendUrl;
-            
-            // Check if we're on production by looking at the host
+            // Determine frontend URL - check for localhost, otherwise use production
             const host = req.get('host') || '';
             const referer = req.get('referer') || '';
             
-            // Check if request is from production
-            const isProduction = host.includes('vercel.app') || 
-                                host.includes('rateon-backend') || 
-                                referer.includes('rateon.vercel.app');
-            
-            if (isProduction) {
-                // Production - use production frontend URL
-                frontendUrl = 'https://rateon.vercel.app';
-            } else {
-                // Local development
-                frontendUrl = 'http://localhost:5300';
-            }
+            // Only use localhost if explicitly on localhost
+            const isLocalhost = host.includes('localhost') || host.includes('127.0.0.1');
+            const frontendUrl = isLocalhost ? 'http://localhost:5300' : 'https://rateon.vercel.app';
             
             console.log('🔍 DEBUG - Host:', host);
-            console.log('🔍 DEBUG - Referer:', referer);
-            console.log('🔍 DEBUG - Is Production:', isProduction);
-            console.log('🔍 DEBUG - Using Frontend URL:', frontendUrl);
+            console.log('🔍 DEBUG - Is Localhost:', isLocalhost);
+            console.log('🔍 DEBUG - Frontend URL:', frontendUrl);
             
             if (!req.user) {
                 return res.redirect(`${frontendUrl}/auth/login?error=authentication_failed`);
@@ -61,11 +48,8 @@ export default {
         } catch (error) {
             // Use same logic for error redirect
             const host = req.get('host') || '';
-            const referer = req.get('referer') || '';
-            const isProduction = host.includes('vercel.app') || 
-                                host.includes('rateon-backend') || 
-                                referer.includes('rateon.vercel.app');
-            const frontendUrl = isProduction ? 'https://rateon.vercel.app' : 'http://localhost:5300';
+            const isLocalhost = host.includes('localhost') || host.includes('127.0.0.1');
+            const frontendUrl = isLocalhost ? 'http://localhost:5300' : 'https://rateon.vercel.app';
             return res.redirect(`${frontendUrl}/auth/login?error=${encodeURIComponent(error?.message || 'authentication_failed')}`);
         }
     }
