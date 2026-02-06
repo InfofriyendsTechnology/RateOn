@@ -38,7 +38,7 @@ export class BusinessDashboardComponent implements OnInit {
   user: any = null;
   businesses: any[] = [];
   selectedBusiness: any = null;
-  sidebarOpen = true;
+  sidebarOpen = typeof window !== 'undefined' ? window.innerWidth > 768 : true;
   isChildRoute = false;
   avatarFailed = false;
   loadingBusinesses = false;
@@ -181,6 +181,24 @@ export class BusinessDashboardComponent implements OnInit {
   
   isChildRouteActive(): boolean {
     return this.isChildRoute;
+  }
+  
+  getPageTitle(): string {
+    const url = this.router.url;
+    
+    if (url.includes('/businesses')) {
+      return 'Businesses';
+    } else if (url.includes('/items/')) {
+      return 'Item Management';
+    } else if (url.includes('/edit/')) {
+      return 'Edit Business';
+    } else if (url.includes('/settings')) {
+      return 'Settings';
+    } else if (url === '/business/dashboard') {
+      return 'Dashboard';
+    }
+    
+    return 'Dashboard';
   }
 
   logout() {

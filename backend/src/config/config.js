@@ -13,7 +13,19 @@ export const TIMEZONE = process.env.TIMEZONE || 'UTC';
 export const JWT_SECRET = process.env.JWT_SECRET;
 export const CLIENT_URL = process.env.CLIENT_URL;
 export const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY;
-export const FRONTEND_URL = process.env.FRONTEND_URL;
+// Infer frontend URL dynamically
+const inferFrontendURL = () => {
+  // 1) Explicit env wins
+  if (process.env.FRONTEND_URL) return process.env.FRONTEND_URL;
+  
+  // 2) If deployed on Vercel, use production frontend URL
+  if (process.env.VERCEL_URL) return 'https://rateon-frontend.vercel.app';
+  
+  // 3) Otherwise use localhost for local development
+  return 'http://localhost:5300';
+};
+
+export const FRONTEND_URL = inferFrontendURL();
 export const MONGODB_URI = process.env.MONGODB_URI;
 
 export const OTP_CONFIG = {

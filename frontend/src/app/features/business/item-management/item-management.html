@@ -1,12 +1,15 @@
 <div class="items-container">
   <!-- Header -->
   <div class="page-header">
-    <div>
-      <h1>Items</h1>
-      <p>Manage your menu items</p>
+    <button (click)="goBack()" class="btn-back" title="Back to businesses">
+      <lucide-icon [img]="ArrowLeft" [size]="20"></lucide-icon>
+    </button>
+    <div class="header-content">
+      <h1>{{ business?.name || 'Items' }}</h1>
+      <p>Manage menu items for this business</p>
     </div>
     <button *ngIf="businessId" (click)="openAddModal()" class="btn-add">
-      <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
+      <lucide-icon [img]="Plus" [size]="20"></lucide-icon>
       <span>Add Item</span>
     </button>
   </div>

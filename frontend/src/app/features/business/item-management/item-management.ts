@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { ItemService, Item } from '../../../core/services/item';
 import { BusinessService } from '../../../core/services/business';
 import { StorageService } from '../../../core/services/storage';
 import { NotificationService } from '../../../core/services/notification.service';
-import { LucideAngularModule, Plus, Edit2, Trash2, Star, MessageSquare, Upload, X, IndianRupee, ImageIcon } from 'lucide-angular';
+import { LucideAngularModule, Plus, Edit2, Trash2, Star, MessageSquare, Upload, X, IndianRupee, ImageIcon, ArrowLeft } from 'lucide-angular';
 
 @Component({
   selector: 'app-item-management',
@@ -26,8 +26,10 @@ export class ItemManagementComponent implements OnInit {
   readonly X = X;
   readonly IndianRupee = IndianRupee;
   readonly ImageIcon = ImageIcon;
+  readonly ArrowLeft = ArrowLeft;
 
   items: Item[] = [];
+  business: any = null;
   loading = false;
   businessId = '';
   showModal = false;
@@ -49,36 +51,33 @@ export class ItemManagementComponent implements OnInit {
     private itemService: ItemService,
     private businessService: BusinessService,
     private storage: StorageService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private route: ActivatedRoute,
+    private router: Router
   ) {}
 
   ngOnInit() {
-    const user = this.storage.getUser();
-    const userId = user?._id || user?.id;
-    
-    if (!userId) {
-      this.notificationService.showError('User not found. Please log in again.');
-      return;
-    }
-    
-    // Fetch business from API using owner filter
-    this.loading = true;
-    this.businessService.getBusinesses({ owner: userId, limit: 1 }).subscribe({
+    // Get businessId from route parameter
+    this.route.params.subscribe(params => {
+      this.businessId = params['businessId'];
+      if (this.businessId) {
+        this.loadBusiness();
+        this.loadItems();
+      } else {
+        this.notificationService.showError('Business ID not found');
+        this.router.navigate(['/business/dashboard/businesses']);
+      }
+    });
+  }
+  
+  loadBusiness() {
+    this.businessService.getBusinessById(this.businessId).subscribe({
       next: (response: any) => {
-        const data = response.data || response;
-        const businesses = data.businesses || data || [];
-        
-        if (businesses.length > 0) {
-          this.businessId = businesses[0]._id;
-          this.loadItems();
-        } else {
-          // No business found - just show empty state, don't show error
-          this.loading = false;
-        }
+        this.business = response.data || response;
       },
       error: (err) => {
         console.error('Error fetching business:', err);
-        this.loading = false;
+        this.notificationService.showError('Failed to load business');
       }
     });
   }
@@ -187,9 +186,8 @@ export class ItemManagementComponent implements OnInit {
     this.imagePreviewUrls.splice(index, 1);
   }
   
-  setBusinessId(id: string) {
-    this.businessId = id;
-    this.loadItems();
+  goBack() {
+    this.router.navigate(['/business/dashboard/businesses']);
   }
 
   getItemImage(item: Item): string {

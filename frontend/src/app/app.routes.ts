@@ -51,7 +51,7 @@ export const routes: Routes = [
     canActivate: [businessOwnerGuard],
     children: [
       { path: 'businesses', component: BusinessesComponent },
-      { path: 'items', component: ItemManagementComponent },
+      { path: 'items/:businessId', component: ItemManagementComponent },
       { path: 'edit/:id', component: EditBusinessComponent },
       { path: 'settings', component: AccountSettingsComponent }
     ]
