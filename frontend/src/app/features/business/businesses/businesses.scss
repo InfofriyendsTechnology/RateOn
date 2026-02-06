@@ -649,14 +649,13 @@
       font-weight: 600;
       text-decoration: none;
       transition: all 0.2s ease;
-      background: var(--bg-primary);
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
+      background: var(--color-accent-gradient);
+      border: none;
+      color: var(--button-text-on-silver);
       white-space: nowrap;
 
       &:hover {
-        border-color: var(--border-color-strong);
-        background: var(--bg-hover);
+        opacity: 0.9;
         transform: translateY(-1px);
       }
       
