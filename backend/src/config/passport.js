@@ -11,8 +11,8 @@ const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const inferBackendBase = () => {
   // 1) Explicit env wins
   if (process.env.BACKEND_URL) return process.env.BACKEND_URL;
-  // 2) Vercel provides VERCEL_URL (no protocol)
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  // 2) If on Vercel, use fixed production URL (not dynamic VERCEL_URL which changes per preview)
+  if (process.env.VERCEL_URL) return 'https://rateon-backend.vercel.app';
   // 3) As a last resort use configured BACKEND_URL import (may be localhost in dev)
   return BACKEND_URL;
 };
