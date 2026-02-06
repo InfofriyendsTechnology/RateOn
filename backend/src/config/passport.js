@@ -5,8 +5,17 @@ import { User } from '../models/index.js';
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
-// Detect environment - use localhost only in development
-const isProduction = process.env.VERCEL || process.env.NODE_ENV === 'production';
+// Detect environment - check multiple Vercel indicators
+const isVercel = process.env.VERCEL === '1' || process.env.VERCEL_ENV || process.env.VERCEL_URL;
+const isProduction = isVercel || process.env.NODE_ENV === 'production';
+
+console.log('🔍 Environment Detection:');
+console.log('  - VERCEL:', process.env.VERCEL);
+console.log('  - VERCEL_ENV:', process.env.VERCEL_ENV);
+console.log('  - VERCEL_URL:', process.env.VERCEL_URL);
+console.log('  - NODE_ENV:', process.env.NODE_ENV);
+console.log('  - isProduction:', isProduction);
+
 const GOOGLE_CALLBACK_URL = isProduction
   ? 'https://rateon-backend.vercel.app/api/v1/auth/google/callback'
   : 'http://localhost:1126/api/v1/auth/google/callback';
