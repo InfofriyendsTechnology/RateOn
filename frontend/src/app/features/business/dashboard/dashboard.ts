@@ -182,6 +182,7 @@ export class BusinessDashboardComponent implements OnInit {
 
   toggleSidebar() {
     this.sidebarOpen = !this.sidebarOpen;
+    console.log('Sidebar toggled:', this.sidebarOpen);
   }
   
   closeSidebarOnMobile() {
