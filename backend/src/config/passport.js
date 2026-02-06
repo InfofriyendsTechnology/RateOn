@@ -7,17 +7,13 @@ import { BACKEND_URL } from './config.js';
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
-// Build a robust default callback URL that never falls back to localhost in production
-const inferBackendBase = () => {
-  // 1) Explicit env wins
-  if (process.env.BACKEND_URL) return process.env.BACKEND_URL;
-  // 2) If on Vercel, use fixed production URL (not dynamic VERCEL_URL which changes per preview)
-  if (process.env.VERCEL_URL) return 'https://rateon-backend.vercel.app';
-  // 3) As a last resort use configured BACKEND_URL import (may be localhost in dev)
-  return BACKEND_URL;
-};
+// Hardcoded production callback URL - only use localhost if explicitly set
+const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL || 
+  (process.env.NODE_ENV === 'development' || BACKEND_URL?.includes('localhost') 
+    ? 'http://localhost:1126/api/v1/auth/google/callback'
+    : 'https://rateon-backend.vercel.app/api/v1/auth/google/callback');
 
-const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL || `${inferBackendBase()}/api/v1/auth/google/callback`;
+console.log('🔍 GOOGLE_CALLBACK_URL configured as:', GOOGLE_CALLBACK_URL);
 
 if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
     // User Google OAuth Strategy
