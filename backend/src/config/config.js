@@ -19,7 +19,7 @@ const inferFrontendURL = () => {
   if (process.env.FRONTEND_URL) return process.env.FRONTEND_URL;
   
   // 2) If deployed on Vercel, use production frontend URL
-  if (process.env.VERCEL_URL) return 'https://rateon-frontend.vercel.app';
+  if (process.env.VERCEL_URL) return 'https://rateon.vercel.app';
   
   // 3) Otherwise use localhost for local development
   return 'http://localhost:5300';
