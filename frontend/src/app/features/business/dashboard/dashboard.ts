@@ -38,7 +38,7 @@ export class BusinessDashboardComponent implements OnInit {
   user: any = null;
   businesses: any[] = [];
   selectedBusiness: any = null;
-  sidebarOpen = typeof window !== 'undefined' ? window.innerWidth > 768 : true;
+  sidebarOpen = true; // Always start open
   isChildRoute = false;
   avatarFailed = false;
   loadingBusinesses = false;
@@ -83,6 +83,11 @@ export class BusinessDashboardComponent implements OnInit {
     this.loadBusinessData();
     this.setGreeting();
     this.loadTheme();
+    
+    // Set initial sidebar state - closed on mobile, open on desktop
+    if (typeof window !== 'undefined') {
+      this.sidebarOpen = window.innerWidth > 768;
+    }
     
     // Track child route activation
     this.router.events
