@@ -89,20 +89,16 @@
     <!-- Top Bar -->
     <div class="top-bar">
       <div class="top-bar-left">
-        <button class="sidebar-toggle mobile-only" (click)="toggleSidebar()">
-          <lucide-icon [img]="Menu" [size]="20"></lucide-icon>
+        <button class="theme-toggle" (click)="toggleTheme()" [title]="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
+          <lucide-icon [img]="isDarkMode ? Sun : Moon" [size]="20"></lucide-icon>
         </button>
-        <div class="logo-header">
-          <img *ngIf="isDarkMode" src="/LOGO_WHITE.png" alt="RateOn" class="logo-img">
-          <img *ngIf="!isDarkMode" src="/LOGO_BLACK.png" alt="RateOn" class="logo-img">
-        </div>
       </div>
       <div class="page-title">
         <h1>{{ getPageTitle() }}</h1>
       </div>
       <div class="top-bar-right">
-        <button class="theme-toggle" (click)="toggleTheme()" [title]="isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'">
-          <lucide-icon [img]="isDarkMode ? Sun : Moon" [size]="20"></lucide-icon>
+        <button class="sidebar-toggle" (click)="toggleSidebar()">
+          <lucide-icon [img]="Menu" [size]="20"></lucide-icon>
         </button>
       </div>
     </div>
