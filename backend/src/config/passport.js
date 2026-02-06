@@ -7,11 +7,10 @@ import { BACKEND_URL } from './config.js';
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 
-// Hardcoded production callback URL - only use localhost if explicitly set
-const GOOGLE_CALLBACK_URL = process.env.GOOGLE_CALLBACK_URL || 
-  (process.env.NODE_ENV === 'development' || BACKEND_URL?.includes('localhost') 
-    ? 'http://localhost:1126/api/v1/auth/google/callback'
-    : 'https://rateon-backend.vercel.app/api/v1/auth/google/callback');
+// Smart callback URL detection - ignore GOOGLE_CALLBACK_URL env var
+const GOOGLE_CALLBACK_URL = BACKEND_URL?.includes('localhost') 
+  ? 'http://localhost:1126/api/v1/auth/google/callback'
+  : 'https://rateon-backend.vercel.app/api/v1/auth/google/callback';
 
 console.log('🔍 GOOGLE_CALLBACK_URL configured as:', GOOGLE_CALLBACK_URL);
 
