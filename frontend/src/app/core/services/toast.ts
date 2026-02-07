@@ -4,9 +4,10 @@ import { BehaviorSubject } from 'rxjs';
 export interface Toast {
   id: string;
   type: 'success' | 'error' | 'warning' | 'info';
-  title: string;
+  title: string; // message text
   message?: string;
   duration?: number;
+  minimal?: boolean; // if true, show message-only, no status labels/icons
 }
 
 @Injectable({
@@ -33,20 +34,26 @@ export class ToastService {
     }, newToast.duration);
   }
 
+  // Message-only helpers (no status labels/icons). Use everywhere for short posts.
   success(title: string, message?: string, duration?: number): void {
-    this.show({ type: 'success', title, message, duration });
+    this.show({ type: 'success', title, message, duration, minimal: true });
   }
 
   error(title: string, message?: string, duration?: number): void {
-    this.show({ type: 'error', title, message, duration });
+    this.show({ type: 'error', title, message, duration, minimal: true });
   }
 
   warning(title: string, message?: string, duration?: number): void {
-    this.show({ type: 'warning', title, message, duration });
+    this.show({ type: 'warning', title, message, duration, minimal: true });
   }
 
   info(title: string, message?: string, duration?: number): void {
-    this.show({ type: 'info', title, message, duration });
+    this.show({ type: 'info', title, message, duration, minimal: true });
+  }
+
+  // Generic short message
+  message(text: string, duration: number = 2200): void {
+    this.show({ type: 'info', title: text, duration, minimal: true });
   }
 
   remove(id: string): void {

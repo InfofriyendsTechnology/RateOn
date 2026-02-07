@@ -10,7 +10,7 @@ import { ToastService, Toast } from '../../../core/services/toast';
     <div class="toast-container">
       <div *ngFor="let toast of toasts" 
            class="toast" 
-           [ngClass]="'toast-' + toast.type"
+           [ngClass]="[toast.minimal ? 'toast-minimal' : ('toast-' + toast.type)]"
            [@slideIn]>
         <div class="toast-icon">
           <!-- Success Icon -->
@@ -43,7 +43,7 @@ import { ToastService, Toast } from '../../../core/services/toast';
         
         <div class="toast-content">
           <div class="toast-title">{{ toast.title }}</div>
-          <div *ngIf="toast.message" class="toast-message">{{ toast.message }}</div>
+          <div *ngIf="!toast.minimal && toast.message" class="toast-message">{{ toast.message }}</div>
         </div>
         
         <button class="toast-close" (click)="remove(toast.id)">
@@ -67,17 +67,21 @@ import { ToastService, Toast } from '../../../core/services/toast';
       max-width: 400px;
     }
 
-    .toast {
+.toast {
       display: flex;
       align-items: flex-start;
       gap: 12px;
-      padding: 16px;
-      background-color: white;
-      border-radius: 12px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-      border-left: 4px solid;
-      animation: slideIn 0.3s ease-out;
-      min-width: 300px;
+      padding: 12px 14px;
+      background: var(--bg-secondary);
+      border-radius: 10px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      border: 1px solid var(--border-color);
+      animation: slideIn 0.25s ease-out;
+      min-width: 280px;
+    }
+
+    .toast-minimal {
+      border-left: none;
     }
 
     @keyframes slideIn {
@@ -133,17 +137,18 @@ import { ToastService, Toast } from '../../../core/services/toast';
       min-width: 0;
     }
 
-    .toast-title {
+.toast-title {
       font-weight: 600;
-      font-size: 0.95rem;
-      color: #111827;
-      margin-bottom: 4px;
+      font-size: 0.925rem;
+      color: var(--text-primary);
+      margin: 0;
     }
 
-    .toast-message {
-      font-size: 0.875rem;
-      color: #6b7280;
+.toast-message {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
       line-height: 1.4;
+      margin-top: 2px;
     }
 
     .toast-close {
