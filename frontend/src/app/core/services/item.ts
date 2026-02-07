@@ -63,6 +63,10 @@ export class ItemService {
     return this.http.patch(`${this.apiUrl}/${id}/availability`, { status, note });
   }
 
+  deleteItem(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+
   searchItems(query: string, filters?: any): Observable<any> {
     let params = new HttpParams().set('search', query);
     if (filters) {

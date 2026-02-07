@@ -240,6 +240,26 @@ export class ItemManagementComponent implements OnInit, OnDestroy {
     `);
   }
   
+  deleteItem(item: Item) {
+    this.notificationService.confirm(
+      'Delete Item',
+      `Are you sure you want to delete "${item.name}"? This action cannot be undone.`
+    ).then(confirmed => {
+      if (confirmed) {
+        this.itemService.deleteItem(item._id).subscribe({
+          next: () => {
+            this.notificationService.showSuccess('Item deleted');
+            this.loadItems();
+          },
+          error: (err) => {
+            const message = err.error?.message || err.message || 'Delete failed';
+            this.notificationService.showError(message);
+          }
+        });
+      }
+    });
+  }
+
   saveItem() {
     if (!this.businessId) {
       this.notificationService.showError('Please set business ID first');
