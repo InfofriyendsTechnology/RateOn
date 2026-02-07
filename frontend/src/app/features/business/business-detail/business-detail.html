@@ -1,11 +1,10 @@
 <div class="business-detail-container" *ngIf="!loading && business">
-  <!-- Back Button -->
-  <div class="back-button-wrapper">
-    <button class="back-btn" (click)="goBack()">
-      <lucide-icon [img]="ArrowLeft" [size]="18"></lucide-icon>
-      <span>Back to Businesses</span>
-    </button>
-  </div>
+  <!-- Breadcrumbs -->
+  <app-breadcrumbs [crumbs]="[
+    { label: 'Dashboard', link: '/business/dashboard' },
+    { label: 'Businesses', link: '/business/dashboard/businesses' },
+    { label: 'Business' }
+  ]"></app-breadcrumbs>
   
   <!-- Business Info Header -->
   <div class="business-info-header">

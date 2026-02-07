@@ -2,12 +2,13 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { LucideAngularModule, MapPin, Phone, Globe, Star, ArrowLeft, Clock, Building, Edit, Package, ImageIcon, ChevronUp, Info, MessageSquare } from 'lucide-angular';
+import { BreadcrumbsComponent } from '../../../shared/components/breadcrumbs/breadcrumbs';
 import { BusinessService } from '../../../core/services/business';
 
 @Component({
   selector: 'app-business-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink, LucideAngularModule],
+imports: [CommonModule, RouterLink, LucideAngularModule, BreadcrumbsComponent],
   templateUrl: './business-detail.html',
   styleUrl: './business-detail.scss',
 })

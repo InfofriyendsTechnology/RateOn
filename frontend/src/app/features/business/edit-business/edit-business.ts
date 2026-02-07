@@ -5,11 +5,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { BusinessService } from '../../../core/services/business';
 import { ToastService } from '../../../core/services/toast';
 import { LucideAngularModule, ArrowLeft, Save, Building, MapPin, Phone, Globe, Clock, Image, X, Plus } from 'lucide-angular';
+import { BreadcrumbsComponent } from '../../../shared/components/breadcrumbs/breadcrumbs';
 
 @Component({
   selector: 'app-edit-business',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, LucideAngularModule],
+imports: [CommonModule, FormsModule, ReactiveFormsModule, LucideAngularModule, BreadcrumbsComponent],
   templateUrl: './edit-business.html',
   styleUrl: './edit-business.scss'
 })

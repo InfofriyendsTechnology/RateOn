@@ -1,10 +1,11 @@
 <div class="edit-business-container">
   <!-- Page Header -->
   <div class="page-header">
-    <button class="back-btn" (click)="goBack()">
-      <lucide-icon [img]="ArrowLeft" [size]="18"></lucide-icon>
-      <span>Back to Businesses</span>
-    </button>
+    <app-breadcrumbs [crumbs]="[
+      { label: 'Dashboard', link: '/business/dashboard' },
+      { label: 'Businesses', link: '/business/dashboard/businesses' },
+      { label: 'Edit Business' }
+    ]"></app-breadcrumbs>
   </div>
 
   <!-- Loading State -->
