@@ -104,6 +104,10 @@
           <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
           <span>Add Business</span>
         </button>
+        <button *ngIf="isOnItemsPage()" class="btn-add-business" (click)="openAddItem()">
+          <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
+          <span>Add Item</span>
+        </button>
       </div>
     </div>
 

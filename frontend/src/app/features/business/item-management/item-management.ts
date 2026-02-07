@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
@@ -15,7 +15,7 @@ import { LucideAngularModule, Plus, Edit2, Trash2, Star, MessageSquare, Upload, 
   templateUrl: './item-management.html',
   styleUrl: './item-management.scss'
 })
-export class ItemManagementComponent implements OnInit {
+export class ItemManagementComponent implements OnInit, OnDestroy {
   // Lucide icons
   readonly Plus = Plus;
   readonly Edit2 = Edit2;
@@ -57,8 +57,14 @@ export class ItemManagementComponent implements OnInit {
     private router: Router
   ) {}
 
+  private onOpenAddItem = () => this.openAddModal();
+
   ngOnInit() {
     // Get businessId from route parameter
+    if (typeof window !== 'undefined') {
+      window.addEventListener('open-add-item', this.onOpenAddItem);
+    }
+
     this.route.params.subscribe(params => {
       this.businessId = params['businessId'];
       if (this.businessId) {
@@ -69,6 +75,12 @@ export class ItemManagementComponent implements OnInit {
         this.router.navigate(['/business/dashboard/businesses']);
       }
     });
+  }
+  
+  ngOnDestroy() {
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('open-add-item', this.onOpenAddItem);
+    }
   }
   
   loadBusiness() {

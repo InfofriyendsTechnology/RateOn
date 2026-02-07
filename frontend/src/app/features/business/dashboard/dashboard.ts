@@ -216,6 +216,16 @@ export class BusinessDashboardComponent implements OnInit {
     return this.router.url.includes('/businesses');
   }
 
+  isOnItemsPage(): boolean {
+    return this.router.url.includes('/items/');
+  }
+
+  openAddItem() {
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('open-add-item'));
+    }
+  }
+
   logout() {
     this.authService.logout().subscribe({
       next: () => {
