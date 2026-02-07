@@ -1,0 +1,12 @@
+<nav class="breadcrumbs" aria-label="Breadcrumb">
+  <a *ngFor="let crumb of crumbs; let last = last" 
+     [routerLink]="!last && crumb.link ? crumb.link : null" 
+     class="crumb" 
+     [class.current]="last">
+    <ng-container *ngIf="crumb.icon">
+      <lucide-icon [img]="crumb.icon" [size]="14"></lucide-icon>
+    </ng-container>
+    <span>{{ crumb.label }}</span>
+    <lucide-icon *ngIf="!last" [img]="ChevronRight" [size]="14" class="sep"></lucide-icon>
+  </a>
+</nav>

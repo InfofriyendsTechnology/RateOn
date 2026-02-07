@@ -1,6 +1,11 @@
 <div class="items-page">
   <!-- Header -->
   <div class="page-header">
+    <app-breadcrumbs [crumbs]="[
+      { label: 'Dashboard', link: '/business/dashboard' },
+      { label: 'Businesses', link: '/business/dashboard/businesses' },
+      { label: 'Items' }
+    ]"></app-breadcrumbs>
     <div class="row-top">
       <button (click)="goBack()" class="back-link" title="Back to Businesses">
         <lucide-icon [img]="ArrowLeft" [size]="18"></lucide-icon>

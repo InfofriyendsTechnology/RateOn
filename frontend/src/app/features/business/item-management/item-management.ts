@@ -7,11 +7,12 @@ import { BusinessService } from '../../../core/services/business';
 import { StorageService } from '../../../core/services/storage';
 import { NotificationService } from '../../../core/services/notification.service';
 import { LucideAngularModule, Plus, Edit2, Trash2, Star, MessageSquare, Upload, X, IndianRupee, ImageIcon, ArrowLeft, Package } from 'lucide-angular';
+import { BreadcrumbsComponent, Crumb } from '../../../shared/components/breadcrumbs/breadcrumbs';
 
 @Component({
   selector: 'app-item-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule],
+  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule, BreadcrumbsComponent],
   templateUrl: './item-management.html',
   styleUrl: './item-management.scss'
 })
