@@ -4,6 +4,12 @@
   padding: 2rem;
 }
 
+.page-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
 .back-btn {
   display: inline-flex;
   align-items: center;

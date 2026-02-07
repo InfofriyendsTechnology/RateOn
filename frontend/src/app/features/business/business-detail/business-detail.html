@@ -1,10 +1,12 @@
 <div class="business-detail-container" *ngIf="!loading && business">
   <!-- Breadcrumbs -->
-  <app-breadcrumbs [crumbs]="[
-    { label: 'Dashboard', link: '/business/dashboard' },
-    { label: 'Businesses', link: '/business/dashboard/businesses' },
-    { label: 'Business' }
-  ]"></app-breadcrumbs>
+  <div class="page-header">
+    <app-breadcrumbs [crumbs]="[
+      { label: 'Dashboard', link: '/business/dashboard' },
+      { label: 'Businesses', link: '/business/dashboard/businesses' },
+      { label: 'Business' }
+    ]"></app-breadcrumbs>
+  </div>
   
   <!-- Business Info Header -->
   <div class="business-info-header">

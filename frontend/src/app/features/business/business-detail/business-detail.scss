@@ -7,6 +7,13 @@
   }
 }
 
+.page-header {
+  margin: 1.25rem auto 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  max-width: 1200px;
+}
+
 // Back Button Wrapper
 .back-button-wrapper {
   padding: 2rem 0 1rem;

@@ -1,10 +1,12 @@
 <div class="business-detail-container" *ngIf="business">
   <!-- Breadcrumbs -->
-  <app-breadcrumbs [crumbs]="[
-    { label: 'Home', link: '/home' },
-    { label: 'Explore', link: '/explore' },
-    { label: 'Business' }
-  ]"></app-breadcrumbs>
+  <div class="page-header">
+    <app-breadcrumbs [crumbs]="[
+      { label: 'Home', link: '/home' },
+      { label: 'Explore', link: '/explore' },
+      { label: 'Business' }
+    ]"></app-breadcrumbs>
+  </div>
 
   <!-- Business Header -->
   <div class="business-header">
