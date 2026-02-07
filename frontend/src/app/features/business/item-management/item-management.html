@@ -1,14 +1,17 @@
 <div class="items-page">
   <!-- Header -->
   <div class="page-header">
-    <button (click)="goBack()" class="btn-back" title="Back">
-      <lucide-icon [img]="ArrowLeft" [size]="20"></lucide-icon>
-    </button>
+    <div class="row-top">
+      <button (click)="goBack()" class="back-link" title="Back to Businesses">
+        <lucide-icon [img]="ArrowLeft" [size]="18"></lucide-icon>
+        <span>Back to Businesses</span>
+      </button>
+      <button *ngIf="businessId" (click)="openAddModal()" class="btn-add-item">
+        <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
+        <span>Add Item</span>
+      </button>
+    </div>
     <h2 class="page-title">{{ business?.name || '' }}</h2>
-    <button *ngIf="businessId" (click)="openAddModal()" class="btn-add-item">
-      <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
-      <span>Add Item</span>
-    </button>
   </div>
   
   <!-- Loading -->
