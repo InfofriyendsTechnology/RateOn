@@ -217,6 +217,7 @@
 <!-- Delete Confirmation Modal -->
 <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDeleteModal()">
   <div class="modal-content delete-modal" (click)="$event.stopPropagation()">
+    <div class="modal-handle"></div>
     <button class="btn-close-modal" (click)="closeDeleteModal()" aria-label="Close">
       <lucide-icon [img]="X" [size]="20"></lucide-icon>
     </button>
