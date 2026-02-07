@@ -18,11 +18,16 @@
 
   <!-- Business Cards Grid -->
   <div class="businesses-grid" *ngIf="!loadingBusinesses && businesses.length > 0">
-    <div class="business-card" *ngFor="let business of businesses">
+    <div class="business-card" *ngFor="let business of businesses" [routerLink]="['/business/dashboard/view', business._id]">
       <div class="card-header">
-        <div class="business-icon">
-          <lucide-icon [img]="ShoppingBag" [size]="24"></lucide-icon>
+        <div class="business-icon" *ngIf="business.logo; else iconFallback">
+          <img [src]="business.logo" [alt]="business.name" class="business-logo" />
         </div>
+        <ng-template #iconFallback>
+          <div class="business-icon">
+            <lucide-icon [img]="ShoppingBag" [size]="24"></lucide-icon>
+          </div>
+        </ng-template>
         <div class="business-info">
           <h3 class="business-name">{{ business.name }}</h3>
           <span class="business-type">{{ business.type }}</span>
@@ -57,18 +62,14 @@
         </div>
       </div>
 
-      <div class="card-actions">
+      <div class="card-actions" (click)="$event.stopPropagation()">
         <a [routerLink]="['/business/dashboard/items', business._id]" class="btn-action btn-items">
           <lucide-icon [img]="Package" [size]="16"></lucide-icon>
           <span>Manage Items</span>
         </a>
-        <a [routerLink]="['/business/dashboard/edit', business._id]" class="btn-action">
+        <a [routerLink]="['/business/dashboard/edit', business._id]" class="btn-action btn-edit">
           <lucide-icon [img]="Edit" [size]="16"></lucide-icon>
           <span>Edit</span>
-        </a>
-        <a [routerLink]="['/business', business._id]" class="btn-action btn-view">
-          <lucide-icon [img]="Eye" [size]="16"></lucide-icon>
-          <span>View</span>
         </a>
         <button (click)="openDeleteModal(business)" class="btn-action btn-delete">
           <lucide-icon [img]="Trash2" [size]="16"></lucide-icon>

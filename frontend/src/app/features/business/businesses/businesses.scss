@@ -536,10 +536,12 @@
   border-radius: 12px;
   padding: 1.5rem;
   transition: all 0.2s ease;
+  cursor: pointer;
 
   &:hover {
     border-color: var(--accent-primary);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 
   .card-header {
@@ -560,6 +562,13 @@
       justify-content: center;
       flex-shrink: 0;
       color: var(--button-text-on-silver);
+      overflow: hidden;
+      
+      .business-logo {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
     }
 
     .business-info {
@@ -635,7 +644,7 @@
 
   .card-actions {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.5rem;
 
     .btn-action {
@@ -649,56 +658,64 @@
       font-weight: 600;
       text-decoration: none;
       transition: all 0.2s ease;
-      background: var(--color-accent-gradient);
-      border: none;
-      color: var(--button-text-on-silver);
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
       white-space: nowrap;
 
       &:hover {
-        opacity: 0.9;
+        border-color: var(--border-color-strong);
+        background: var(--bg-hover);
         transform: translateY(-1px);
       }
-      
+
       &.btn-items {
         grid-column: 1 / -1;
-        background: var(--bg-secondary);
-        border: 2px solid var(--accent-primary);
-        color: var(--accent-primary);
+        background: var(--color-accent-gradient);
+        border: none;
+        color: var(--button-text-on-silver);
         font-weight: 700;
+        
+        &:hover {
+          opacity: 0.9;
+          transform: translateY(-1px);
+        }
+      }
+
+      &.btn-edit {
+        background: var(--bg-primary);
+        border: 1px solid var(--accent-primary);
+        color: var(--accent-primary);
 
         &:hover {
           background: var(--bg-hover);
-          border-color: var(--accent-primary);
-          transform: translateY(-1px);
         }
       }
-      
+
       &.btn-view {
-        background: #3b82f6;
-        border: none;
-        color: white;
+        background: var(--bg-primary);
+        border: 1px solid #3b82f6;
+        color: #3b82f6;
 
         &:hover {
-          background: #2563eb;
-          transform: translateY(-1px);
+          background: rgba(59, 130, 246, 0.08);
         }
       }
-      
+
       &.btn-delete {
-        background: #dc2626;
-        border: none;
-        color: white;
+        background: var(--bg-primary);
+        border: 1px solid #dc2626;
+        color: #dc2626;
 
         &:hover {
-          background: #b91c1c;
-          opacity: 0.9;
+          background: rgba(220, 38, 38, 0.08);
         }
       }
     }
-    
+
     @media (max-width: 480px) {
       grid-template-columns: 1fr;
-      
+
       .btn-action.btn-items {
         grid-column: 1;
       }

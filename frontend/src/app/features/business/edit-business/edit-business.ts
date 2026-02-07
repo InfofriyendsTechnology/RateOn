@@ -4,7 +4,7 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { ActivatedRoute, Router } from '@angular/router';
 import { BusinessService } from '../../../core/services/business';
 import { ToastService } from '../../../core/services/toast';
-import { LucideAngularModule, ArrowLeft, Save, Building, MapPin, Phone, Globe, Clock, Image, X } from 'lucide-angular';
+import { LucideAngularModule, ArrowLeft, Save, Building, MapPin, Phone, Globe, Clock, Image, X, Plus } from 'lucide-angular';
 
 @Component({
   selector: 'app-edit-business',
@@ -51,6 +51,7 @@ export class EditBusinessComponent implements OnInit {
   readonly Clock = Clock;
   readonly Image = Image;
   readonly X = X;
+  readonly Plus = Plus;
   
   constructor(
     private fb: FormBuilder,
@@ -98,10 +99,10 @@ export class EditBusinessComponent implements OnInit {
       city: ['', Validators.required],
       state: ['', Validators.required],
       country: ['India'],
-      pincode: ['', [Validators.pattern(/^\d{6}$/)]],
-      phone: ['', [Validators.pattern(/^\d{10}$/)]],
-      whatsapp: ['', [Validators.pattern(/^\d{10}$/)]],
-      email: ['', [Validators.email]],
+      pincode: [''],
+      phone: [''],
+      whatsapp: [''],
+      email: [''],
       website: [''],
       businessHours: this.fb.array(defaultHours.map(hour => this.fb.group({
         day: [hour.day],
@@ -171,9 +172,18 @@ export class EditBusinessComponent implements OnInit {
   }
   
   onSubmit() {
-    if (this.businessForm.invalid) {
+    // Validate required fields
+    if (!this.canSave()) {
       this.markFormGroupTouched(this.businessForm);
-      this.toast.error('Please fill all required fields correctly');
+      this.toast.error('Please fill all required fields: Name, Category, Address, City, and State');
+      return;
+    }
+    
+    // Validate optional fields format if they have values
+    const email = this.businessForm.get('email')?.value;
+    
+    if (email && email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      this.toast.error('Please enter a valid email address');
       return;
     }
     
@@ -231,13 +241,19 @@ export class EditBusinessComponent implements OnInit {
         isClosed: false
       }));
     
-    formData.append('businessHours', JSON.stringify(businessHours));
+    // Add each business hour as separate FormData entries
+    businessHours.forEach((hour: any, index: number) => {
+      formData.append(`businessHours[${index}][day]`, hour.day);
+      formData.append(`businessHours[${index}][open]`, hour.open);
+      formData.append(`businessHours[${index}][close]`, hour.close);
+      formData.append(`businessHours[${index}][isClosed]`, hour.isClosed.toString());
+    });
     
     this.businessService.updateBusinessWithFiles(this.businessId, formData).subscribe({
       next: () => {
         this.toast.success('Business details updated successfully!');
         this.submitting = false;
-        this.router.navigate(['/business/dashboard/settings']);
+        this.router.navigate(['/business/dashboard/businesses']);
       },
       error: (err: any) => {
         this.submitting = false;
@@ -254,7 +270,7 @@ export class EditBusinessComponent implements OnInit {
   }
   
   goBack() {
-    this.router.navigate(['/business/dashboard/settings']);
+    this.router.navigate(['/business/dashboard/businesses']);
   }
   
   isFieldInvalid(fieldName: string): boolean {
@@ -329,6 +345,17 @@ export class EditBusinessComponent implements OnInit {
     return this.daysOfWeek.find(d => d.value === day)?.label || day;
   }
   
+  canSave(): boolean {
+    const name = this.businessForm.get('name')?.value;
+    const category = this.businessForm.get('category')?.value;
+    const address = this.businessForm.get('address')?.value;
+    const city = this.businessForm.get('city')?.value;
+    const state = this.businessForm.get('state')?.value;
+    
+    // Check if all required fields have values
+    return !!(name && category && address && city && state);
+  }
+  
   // Image upload handlers
   onLogoSelect(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -360,22 +387,16 @@ export class EditBusinessComponent implements OnInit {
   
   onCoverImagesSelect(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (input.files) {
-      const files = Array.from(input.files);
-      
-      // Check total count
-      if (this.coverImagePreviews.length + files.length > 5) {
-        this.toast.error('Maximum 5 cover images allowed');
-        return;
-      }
-      
-      files.forEach(file => {
-        // Validate file size
+    if (input.files && input.files.length > 0) {
+      // Process all selected files
+      Array.from(input.files).forEach(file => {
+        // Validate file size (5MB)
         if (file.size > 5 * 1024 * 1024) {
-          this.toast.error(`${file.name} is too large. Maximum 5MB per image.`);
+          this.toast.error(`${file.name} is too large. Maximum size is 5MB`);
           return;
         }
         
+        // Add to files array
         this.coverImageFiles.push(file);
         
         // Create preview
@@ -385,6 +406,9 @@ export class EditBusinessComponent implements OnInit {
         };
         reader.readAsDataURL(file);
       });
+      
+      // Reset input to allow re-uploading same file
+      input.value = '';
     }
   }
   

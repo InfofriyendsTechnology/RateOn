@@ -11,6 +11,7 @@ import { BusinessDashboardComponent } from './features/business/dashboard/dashbo
 import { BusinessesComponent } from './features/business/businesses/businesses';
 import { ItemManagementComponent } from './features/business/item-management/item-management';
 import { EditBusinessComponent } from './features/business/edit-business/edit-business';
+import { BusinessDetail as BusinessOwnerDetail } from './features/business/business-detail/business-detail';
 import { AccountSettingsComponent } from './features/business/account-settings/account-settings';
 import { BusinessList } from './features/explore/business-list/business-list';
 import { BusinessDetail } from './features/explore/business-detail/business-detail';
@@ -51,6 +52,7 @@ export const routes: Routes = [
     canActivate: [businessOwnerGuard],
     children: [
       { path: 'businesses', component: BusinessesComponent },
+      { path: 'view/:id', component: BusinessOwnerDetail },
       { path: 'items/:businessId', component: ItemManagementComponent },
       { path: 'edit/:id', component: EditBusinessComponent },
       { path: 'settings', component: AccountSettingsComponent }

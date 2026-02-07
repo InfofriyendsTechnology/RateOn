@@ -3,15 +3,8 @@
   <div class="page-header">
     <button class="back-btn" (click)="goBack()">
       <lucide-icon [img]="ArrowLeft" [size]="18"></lucide-icon>
-      <span>Back to Settings</span>
+      <span>Back to Businesses</span>
     </button>
-    <div class="header-content">
-      <h1>
-        <lucide-icon [img]="Building" [size]="24"></lucide-icon>
-        Edit Business Details
-      </h1>
-      <p class="subtitle">Update your business information</p>
-    </div>
   </div>
 
   <!-- Loading State -->
@@ -96,7 +89,7 @@
             Business Logo
           </label>
           <div class="image-upload-section">
-            <div class="image-preview" *ngIf="logoPreview">
+            <div class="image-preview logo-preview" *ngIf="logoPreview">
               <img [src]="logoPreview" alt="Logo preview" />
               <button type="button" class="remove-image-btn" (click)="removeLogo()">
                 <lucide-icon [img]="X" [size]="16"></lucide-icon>
@@ -105,7 +98,7 @@
             <div class="upload-area" *ngIf="!logoPreview" (click)="logoInput.click()">
               <lucide-icon [img]="Image" [size]="32" class="upload-icon"></lucide-icon>
               <p class="upload-text">Click to upload logo</p>
-              <small>PNG, JPG up to 5MB</small>
+              <small>PNG, JPG up to 5MB • Recommended: 512x512px or 1:1 ratio</small>
             </div>
             <input 
               #logoInput
@@ -122,29 +115,31 @@
         <div class="form-group full-width">
           <label>
             <lucide-icon [img]="Image" [size]="18"></lucide-icon>
-            Cover Images
+            Business Photos
           </label>
-          <div class="cover-images-grid">
-            <div *ngFor="let img of coverImagePreviews; let i = index" class="image-preview">
-              <img [src]="img" alt="Cover image" />
-              <button type="button" class="remove-image-btn" (click)="removeCoverImage(i)">
-                <lucide-icon [img]="X" [size]="16"></lucide-icon>
-              </button>
+          <div class="image-upload-section">
+            <div class="photos-grid">
+              <div class="photo-item" *ngFor="let preview of coverImagePreviews; let i = index">
+                <img [src]="preview" alt="Business photo" />
+                <button type="button" class="remove-photo-btn" (click)="removeCoverImage(i)">
+                  <lucide-icon [img]="X" [size]="16"></lucide-icon>
+                </button>
+              </div>
+              <div class="upload-photo-box" (click)="coverInput.click()">
+                <lucide-icon [img]="Plus" [size]="32" class="upload-icon"></lucide-icon>
+                <p class="upload-text">Add Photos</p>
+              </div>
             </div>
-            <div class="upload-area" (click)="coverInput.click()" *ngIf="coverImagePreviews.length < 5">
-              <lucide-icon [img]="Image" [size]="28" class="upload-icon"></lucide-icon>
-              <p class="upload-text">Add cover image</p>
-            </div>
+            <small class="upload-hint">Upload photos of your business, products, team, or workspace • PNG, JPG up to 5MB each</small>
+            <input 
+              #coverInput
+              type="file" 
+              accept="image/*"
+              multiple
+              (change)="onCoverImagesSelect($event)"
+              style="display: none;"
+            />
           </div>
-          <input 
-            #coverInput
-            type="file" 
-            accept="image/*"
-            multiple
-            (change)="onCoverImagesSelect($event)"
-            style="display: none;"
-          />
-          <small class="help-text">Upload up to 5 cover images for your business</small>
         </div>
       </div>
     </div>
@@ -204,18 +199,13 @@
 
       <div class="form-row">
         <div class="form-group">
-          <label for="pincode">Pincode</label>
+          <label for="pincode">Pincode / Postal Code</label>
           <input 
             type="text" 
             id="pincode" 
             formControlName="pincode"
-            [class.invalid]="isFieldInvalid('pincode')"
-            placeholder="6-digit pincode"
-            maxlength="6"
+            placeholder="e.g., 110001 or 12345"
           />
-          <span class="error-message" *ngIf="isFieldInvalid('pincode')">
-            {{getFieldError('pincode')}}
-          </span>
         </div>
 
         <div class="form-group">
@@ -245,13 +235,8 @@
             type="tel" 
             id="phone" 
             formControlName="phone"
-            [class.invalid]="isFieldInvalid('phone')"
-            placeholder="10-digit mobile number"
-            maxlength="10"
+            placeholder="e.g., +1 234 567 8900 or 1234567890"
           />
-          <span class="error-message" *ngIf="isFieldInvalid('phone')">
-            {{getFieldError('phone')}}
-          </span>
         </div>
 
         <div class="form-group">
@@ -260,13 +245,8 @@
             type="tel" 
             id="whatsapp" 
             formControlName="whatsapp"
-            [class.invalid]="isFieldInvalid('whatsapp')"
-            placeholder="10-digit WhatsApp number"
-            maxlength="10"
+            placeholder="e.g., +1 234 567 8900 or 1234567890"
           />
-          <span class="error-message" *ngIf="isFieldInvalid('whatsapp')">
-            {{getFieldError('whatsapp')}}
-          </span>
         </div>
       </div>
 
@@ -352,7 +332,7 @@
       <button 
         type="submit" 
         class="save-btn" 
-        [disabled]="submitting || businessForm.invalid"
+        [disabled]="submitting || !canSave()"
       >
         <lucide-icon [img]="Save" [size]="18"></lucide-icon>
         <span *ngIf="!submitting">Save Changes</span>
