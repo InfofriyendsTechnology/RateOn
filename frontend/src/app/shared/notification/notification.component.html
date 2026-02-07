@@ -1,7 +1,8 @@
 <div class="notification-container">
-  <div *ngFor="let notification of notifications" 
-       [class]="'notification notification-' + notification.type + (notification.show ? ' show' : '')">
-    
+  <div *ngFor="let notification of notifications"
+       [class]="'notification notification-' + notification.type + (notification.show ? ' show' : '')"
+       (click)="notification.type === 'confirm' ? onCancel(notification) : null">
+
     <!-- Toast notifications (success, error, warning, info) -->
     <ng-container *ngIf="notification.type !== 'confirm'">
       <div class="notification-icon">
@@ -39,7 +40,7 @@
 
     <!-- Confirm dialog -->
     <ng-container *ngIf="notification.type === 'confirm'">
-      <div class="confirm-dialog">
+      <div class="confirm-dialog" (click)="$event.stopPropagation()">
         <div class="confirm-icon">
           <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"></circle>
