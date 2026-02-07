@@ -53,27 +53,23 @@
 
 // Delete Modal
 .delete-modal {
+  background: var(--bg-secondary);
+  border-radius: 16px;
+  padding: 2rem;
   max-width: 500px;
   width: 100%;
-  background: var(--bg-primary);
-  border-radius: 16px;
   border: 1px solid var(--border-color);
-  position: relative;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-  margin: auto;
-  animation: scaleIn 0.2s ease-out;
   
   @media (max-width: 768px) {
     max-width: 100%;
-    width: 100%;
-    max-height: 90vh;
-    border-radius: 20px 20px 0 0;
+    height: 100vh;
+    height: 100dvh;
+    border-radius: 0;
     border: none;
-    margin: 0;
-    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
-    animation: slideUp 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0;
     display: flex;
     flex-direction: column;
+    background: var(--bg-primary);
   }
   
   .btn-close-modal {
@@ -109,25 +105,20 @@
   
   .modal-handle {
     display: none;
-    
-    @media (max-width: 768px) {
-      display: block;
-      width: 48px;
-      height: 5px;
-      background: var(--text-tertiary);
-      opacity: 0.3;
-      border-radius: 3px;
-      margin: 1rem auto 0.5rem;
-      flex-shrink: 0;
-    }
   }
   
   .modal-header {
     text-align: center;
-    padding: 2rem 2rem 1.5rem;
+    margin-bottom: 1.5rem;
     
     @media (max-width: 768px) {
-      padding: 1rem 1.5rem;
+      position: sticky;
+      top: 0;
+      background: var(--bg-primary);
+      padding: 1.5rem 1.5rem 1rem;
+      margin: 0;
+      border-bottom: 1px solid var(--border-color);
+      z-index: 10;
     }
     
     .warning-icon {
@@ -154,21 +145,30 @@
       margin: 0 0 0.625rem;
       color: var(--text-primary);
       letter-spacing: -0.02em;
+      
+      @media (max-width: 768px) {
+        font-size: 1.25rem;
+      }
     }
     
     .danger-text {
       color: #dc2626;
       font-weight: 600;
       font-size: 0.9375rem;
+      margin: 0;
+      
+      @media (max-width: 768px) {
+        font-size: 0.875rem;
+      }
     }
   }
   
   .modal-body {
-    padding: 0 2rem 2rem;
-    flex-shrink: 0;
-    
     @media (max-width: 768px) {
-      padding: 0 1.5rem 1.5rem;
+      padding: 1.5rem;
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
   }
   
@@ -270,14 +270,17 @@
   .modal-actions {
     display: flex;
     gap: 0.75rem;
-    padding: 1.5rem 2rem 2rem;
-    border-top: 1px solid var(--border-color);
-    flex-shrink: 0;
+    margin-top: 1.5rem;
     
     @media (max-width: 768px) {
       flex-direction: column-reverse;
-      padding: 1.25rem 1.5rem;
+      position: sticky;
+      bottom: 0;
+      background: var(--bg-primary);
+      padding: 1rem 1.5rem 1.5rem;
       padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+      border-top: 1px solid var(--border-color);
+      margin: 0;
     }
     
     button {
@@ -440,13 +443,10 @@
   z-index: 9999;
   backdrop-filter: blur(4px);
   padding: 1rem;
-  overflow-y: auto;
-  animation: fadeIn 0.2s ease-out;
   
   @media (max-width: 768px) {
     padding: 0;
-    align-items: flex-end;
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--bg-primary);
   }
 }
 
