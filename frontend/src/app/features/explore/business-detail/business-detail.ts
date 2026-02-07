@@ -10,9 +10,10 @@ import { ItemDetailModal } from '../item-detail-modal/item-detail-modal';
 import { ItemCard } from '../../../shared/components/item-card/item-card';
 import { RatingStars } from '../../../shared/components/rating-stars/rating-stars';
 import { LucideAngularModule, ArrowLeft, MapPin, Phone, Clock, CheckCircle, Star, ChevronLeft, ChevronRight, ChevronDown, Edit, X } from 'lucide-angular';
+import { BreadcrumbsComponent } from '../../../shared/components/breadcrumbs/breadcrumbs';
 @Component({
   selector: 'app-business-detail',
-  imports: [CommonModule, FormsModule, RouterLink, ItemCard, RatingStars, LucideAngularModule],
+imports: [CommonModule, FormsModule, RouterLink, ItemCard, RatingStars, LucideAngularModule, BreadcrumbsComponent],
   templateUrl: './business-detail.html',
   styleUrl: './business-detail.scss',
 })
