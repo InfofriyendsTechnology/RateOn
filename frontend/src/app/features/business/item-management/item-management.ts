@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink, ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ItemService, Item } from '../../../core/services/item';
 import { BusinessService } from '../../../core/services/business';
 import { StorageService } from '../../../core/services/storage';
@@ -12,7 +12,7 @@ import { BreadcrumbsComponent, Crumb } from '../../../shared/components/breadcru
 @Component({
   selector: 'app-item-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule, BreadcrumbsComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, BreadcrumbsComponent],
   templateUrl: './item-management.html',
   styleUrl: './item-management.scss'
 })
@@ -243,9 +243,9 @@ export class ItemManagementComponent implements OnInit, OnDestroy {
   deleteItem(item: Item) {
     this.notificationService.confirm(
       'Delete Item',
-      `Are you sure you want to delete "${item.name}"? This action cannot be undone.`
-    ).then(confirmed => {
-      if (confirmed) {
+      `Are you sure you want to delete "${item.name}"? This action cannot be undone.`,
+      () => {
+        // onConfirm
         this.itemService.deleteItem(item._id).subscribe({
           next: () => {
             this.notificationService.showSuccess('Item deleted');
@@ -257,7 +257,7 @@ export class ItemManagementComponent implements OnInit, OnDestroy {
           }
         });
       }
-    });
+    );
   }
 
   saveItem() {
