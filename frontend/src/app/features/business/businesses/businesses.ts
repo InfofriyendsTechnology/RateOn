@@ -6,11 +6,12 @@ import { StorageService } from '../../../core/services/storage';
 import { BusinessService } from '../../../core/services/business';
 import { ToastService } from '../../../core/services/toast';
 import { LucideAngularModule, ShoppingBag, MapPin, Phone, Star, Plus, Edit, X, ArrowLeft, Package, MessageSquare, Eye, Trash2, AlertTriangle, Image as ImageIcon } from 'lucide-angular';
+import { BreadcrumbsComponent } from '../../../shared/components/breadcrumbs/breadcrumbs';
 
 @Component({
   selector: 'app-businesses',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule],
+  imports: [CommonModule, FormsModule, RouterLink, LucideAngularModule, BreadcrumbsComponent],
   templateUrl: './businesses.html',
   styleUrl: './businesses.scss'
 })

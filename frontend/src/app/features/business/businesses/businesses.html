@@ -1,4 +1,10 @@
 <div class="businesses-page">
+  <div class="page-header">
+    <app-breadcrumbs [crumbs]="[
+      { label: 'Dashboard', link: '/business/dashboard' },
+      { label: 'Businesses' }
+    ]"></app-breadcrumbs>
+  </div>
   <!-- Loading State -->
   <div class="loading-state" *ngIf="loadingBusinesses">
     <div class="spinner"></div>
