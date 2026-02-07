@@ -217,8 +217,14 @@ export class ItemManagementComponent implements OnInit, OnDestroy {
     return '';
   }
 
-  onItemImageError(event: any): void {
-    event.target.src = this.getDefaultItemImage();
+  imageLoadFailed: Record<string, boolean> = {};
+
+  onItemImageError(item: Item): void {
+    this.imageLoadFailed[item._id] = true;
+  }
+
+  hasImage(item: Item): boolean {
+    return Array.isArray(item.images) && item.images.length > 0 && !!item.images[0];
   }
 
   getDefaultItemImage(): string {

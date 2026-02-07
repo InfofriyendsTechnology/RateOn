@@ -29,11 +29,20 @@
   <div class="items-grid" *ngIf="!loading && items.length > 0">
     <div *ngFor="let item of items" class="item-card">
       <div class="item-image">
-        <img 
-          [src]="getItemImage(item) || getDefaultItemImage()" 
-          [alt]="item.name"
-          (error)="onItemImageError($event)"
-        >
+        <ng-container *ngIf="hasImage(item) && !imageLoadFailed[item._id]; else noImageTpl">
+          <img 
+            [src]="getItemImage(item)"
+            [alt]="item.name"
+          
+            (error)="onItemImageError(item)"
+          >
+        </ng-container>
+        <ng-template #noImageTpl>
+          <div class="no-image">
+            <lucide-icon [img]="ImageIcon" [size]="28"></lucide-icon>
+            <span>No image</span>
+          </div>
+        </ng-template>
       </div>
       
       <div class="item-info">
