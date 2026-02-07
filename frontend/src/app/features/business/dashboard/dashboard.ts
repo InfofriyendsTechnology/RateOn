@@ -200,7 +200,7 @@ export class BusinessDashboardComponent implements OnInit {
     if (url.includes('/businesses')) {
       return 'Businesses';
     } else if (url.includes('/items/')) {
-      return 'Item Management';
+      return 'Items';
     } else if (url.includes('/edit/')) {
       return 'Edit Business';
     } else if (url.includes('/settings')) {
