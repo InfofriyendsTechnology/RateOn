@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
+import { ToastService } from './toast';
 
 export interface Notification {
   type: 'success' | 'error' | 'warning' | 'info' | 'confirm';
@@ -17,22 +18,26 @@ export class NotificationService {
   private notificationSubject = new Subject<Notification>();
   public notification$ = this.notificationSubject.asObservable();
 
-  success(title: string, message: string, duration = 3000) {
-    this.show({ type: 'success', title, message, duration });
+  constructor(private toast: ToastService) {}
+
+  // Route standard notices to minimal toast (message-only)
+  success(title: string, message: string, duration = 2200) {
+    this.toast.message(message || title, duration);
   }
 
-  error(title: string, message: string, duration = 4000) {
-    this.show({ type: 'error', title, message, duration });
+  error(title: string, message: string, duration = 2200) {
+    this.toast.message(message || title, duration);
   }
 
-  warning(title: string, message: string, duration = 3500) {
-    this.show({ type: 'warning', title, message, duration });
+  warning(title: string, message: string, duration = 2200) {
+    this.toast.message(message || title, duration);
   }
 
-  info(title: string, message: string, duration = 3000) {
-    this.show({ type: 'info', title, message, duration });
+  info(title: string, message: string, duration = 2200) {
+    this.toast.message(message || title, duration);
   }
 
+  // Keep confirm dialog using NotificationComponent
   confirm(title: string, message: string, onConfirm: () => void, onCancel?: () => void) {
     this.show({
       type: 'confirm',
@@ -47,20 +52,20 @@ export class NotificationService {
     this.notificationSubject.next(notification);
   }
 
-  // Helper methods for simple messages
-  showSuccess(message: string, duration = 3000) {
-    this.success('Success', message, duration);
+  // Helper shortcuts
+  showSuccess(message: string, duration = 2200) {
+    this.toast.message(message, duration);
   }
 
-  showError(message: string, duration = 4000) {
-    this.error('Error', message, duration);
+  showError(message: string, duration = 2200) {
+    this.toast.message(message, duration);
   }
 
-  showWarning(message: string, duration = 3500) {
-    this.warning('Warning', message, duration);
+  showWarning(message: string, duration = 2200) {
+    this.toast.message(message, duration);
   }
 
-  showInfo(message: string, duration = 3000) {
-    this.info('Info', message, duration);
+  showInfo(message: string, duration = 2200) {
+    this.toast.message(message, duration);
   }
 }
