@@ -163,19 +163,13 @@
 
       <!-- No Business State -->
       <div class="empty-state" *ngIf="businesses.length === 0 && !loadingBusinesses">
-        <lucide-icon [img]="ShoppingBag" [size]="48" class="empty-icon"></lucide-icon>
-        <h3>No Business Yet</h3>
-        <p>You're a business owner! Create your first business to get started.</p>
-        <div class="empty-actions">
-          <button (click)="openBusinessModal()" class="btn-primary">
-            <lucide-icon [img]="Plus" [size]="16"></lucide-icon>
-            Create Business
-          </button>
-          <a routerLink="/home" class="btn-secondary">
-            <lucide-icon [img]="User" [size]="16"></lucide-icon>
-            Go to User Dashboard
-          </a>
-        </div>
+        <lucide-icon [img]="ShoppingBag" [size]="64" class="empty-icon"></lucide-icon>
+        <h3>No Businesses Yet</h3>
+        <p>Get started by creating your first business.</p>
+        <button (click)="openBusinessModal()" class="btn-primary">
+          <lucide-icon [img]="Plus" [size]="16"></lucide-icon>
+          Create Business
+        </button>
       </div>
 
       <!-- Loading State -->
