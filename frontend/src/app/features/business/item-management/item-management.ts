@@ -6,7 +6,7 @@ import { ItemService, Item } from '../../../core/services/item';
 import { BusinessService } from '../../../core/services/business';
 import { StorageService } from '../../../core/services/storage';
 import { NotificationService } from '../../../core/services/notification.service';
-import { LucideAngularModule, Plus, Edit2, Trash2, Star, MessageSquare, Upload, X, IndianRupee, ImageIcon, ArrowLeft } from 'lucide-angular';
+import { LucideAngularModule, Plus, Edit2, Trash2, Star, MessageSquare, Upload, X, IndianRupee, ImageIcon, ArrowLeft, Package } from 'lucide-angular';
 
 @Component({
   selector: 'app-item-management',
@@ -27,6 +27,7 @@ export class ItemManagementComponent implements OnInit {
   readonly IndianRupee = IndianRupee;
   readonly ImageIcon = ImageIcon;
   readonly ArrowLeft = ArrowLeft;
+  readonly Package = Package;
 
   items: Item[] = [];
   business: any = null;
