@@ -10,21 +10,15 @@
 
 // Header
 .page-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
   align-items: center;
-  justify-content: space-between;
+  gap: 1rem;
   margin-bottom: 2rem;
   
   @media (max-width: 768px) {
+    grid-template-columns: 36px 1fr auto;
     margin-bottom: 1.5rem;
-  }
-  
-  .header-left {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    flex: 1;
-    min-width: 0;
   }
   
   .btn-back {
@@ -52,19 +46,15 @@
     }
   }
 
-  .header-content {
-    flex: 1;
-    min-width: 0;
+  .page-title {
+    text-align: center;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
     
-    h2 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin: 0;
-      
-      @media (max-width: 768px) {
-        font-size: 1.5rem;
-      }
+    @media (max-width: 768px) {
+      font-size: 1.5rem;
     }
   }
   
