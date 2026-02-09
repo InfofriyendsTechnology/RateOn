@@ -61,7 +61,7 @@ export class LoginComponent implements OnInit {
             let targetUrl = this.returnUrl;
             if (this.returnUrl === '/home') {
               const user = this.storage.getUser();
-              targetUrl = user?.role === 'business_owner' ? '/business/dashboard' : '/home';
+              targetUrl = user?.role === 'business_owner' ? '/owner' : '/home';
             }
             this.router.navigate([targetUrl]);
           } else {

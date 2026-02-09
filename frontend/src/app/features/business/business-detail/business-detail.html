@@ -2,9 +2,9 @@
   <!-- Breadcrumbs -->
   <div class="page-header">
     <app-breadcrumbs [crumbs]="[
-      { label: 'Dashboard', link: '/business/dashboard' },
-      { label: 'Businesses', link: '/business/dashboard/businesses' },
-      { label: 'Business' }
+      { label: 'Dashboard', link: '/owner' },
+      { label: 'My Businesses', link: '/owner/businesses' },
+      { label: 'Business Details' }
     ]"></app-breadcrumbs>
   </div>
   
@@ -137,11 +137,11 @@
 
   <!-- Action Buttons -->
   <div class="action-buttons">
-    <a [routerLink]="['/business/dashboard/edit', business._id]" class="action-btn btn-secondary">
+    <a [routerLink]="['/owner/businesses', business._id, 'edit']" class="action-btn btn-secondary">
       <lucide-icon [img]="Edit" [size]="20"></lucide-icon>
       <span>Edit Business</span>
     </a>
-    <a [routerLink]="['/business/dashboard/items', business._id]" class="action-btn btn-primary">
+    <a [routerLink]="['/owner/businesses', business._id, 'items']" class="action-btn btn-primary">
       <lucide-icon [img]="Package" [size]="20"></lucide-icon>
       <span>Manage Items</span>
     </a>

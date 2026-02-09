@@ -1,8 +1,8 @@
 <div class="businesses-page">
   <div class="page-header">
     <app-breadcrumbs [crumbs]="[
-      { label: 'Dashboard', link: '/business/dashboard' },
-      { label: 'Businesses' }
+      { label: 'Dashboard', link: '/owner' },
+      { label: 'My Businesses' }
     ]"></app-breadcrumbs>
   </div>
   <!-- Loading State -->
@@ -24,7 +24,7 @@
 
   <!-- Business Cards Grid -->
   <div class="businesses-grid" *ngIf="!loadingBusinesses && businesses.length > 0">
-    <div class="business-card" *ngFor="let business of businesses" [routerLink]="['/business/dashboard/view', business._id]">
+    <div class="business-card" *ngFor="let business of businesses" [routerLink]="['/owner/businesses', business._id]">
       <div class="card-header">
         <div class="business-icon" *ngIf="business.logo; else iconFallback">
           <img [src]="business.logo" [alt]="business.name" class="business-logo" />
@@ -69,11 +69,11 @@
       </div>
 
       <div class="card-actions" (click)="$event.stopPropagation()">
-        <a [routerLink]="['/business/dashboard/items', business._id]" class="btn-action btn-items">
+        <a [routerLink]="['/owner/businesses', business._id, 'items']" class="btn-action btn-items">
           <lucide-icon [img]="Package" [size]="16"></lucide-icon>
           <span>Manage Items</span>
         </a>
-        <a [routerLink]="['/business/dashboard/edit', business._id]" class="btn-action btn-edit">
+        <a [routerLink]="['/owner/businesses', business._id, 'edit']" class="btn-action btn-edit">
           <lucide-icon [img]="Edit" [size]="16"></lucide-icon>
           <span>Edit</span>
         </a>

@@ -73,7 +73,7 @@ export class ItemManagementComponent implements OnInit, OnDestroy {
         this.loadItems();
       } else {
         this.notificationService.showError('Business ID not found');
-        this.router.navigate(['/business/dashboard/businesses']);
+        this.router.navigate(['/owner/businesses']);
       }
     });
   }
@@ -201,7 +201,7 @@ export class ItemManagementComponent implements OnInit, OnDestroy {
   }
   
   goBack() {
-    this.router.navigate(['/business/dashboard/businesses']);
+    this.router.navigate(['/owner/businesses']);
   }
 
   getItemImage(item: Item): string {

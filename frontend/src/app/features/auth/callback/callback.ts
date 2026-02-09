@@ -145,7 +145,7 @@ export class CallbackComponent implements OnInit {
           
           // Redirect based on user role
           const redirectUrl = authData.user.role === 'business_owner' 
-            ? '/business/dashboard' 
+            ? '/owner' 
             : '/home';
           
           setTimeout(() => {

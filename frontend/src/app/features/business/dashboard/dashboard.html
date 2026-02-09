@@ -22,32 +22,20 @@
     </div>
 
     <nav class="sidebar-nav">
-      <a routerLink="/business/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item" (click)="closeSidebarOnMobile()">
+      <a routerLink="/owner" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-item" (click)="closeSidebarOnMobile()">
         <lucide-icon [img]="LayoutDashboard" [size]="16" class="nav-icon"></lucide-icon>
         <span class="nav-text" *ngIf="sidebarOpen">Dashboard</span>
       </a>
       
-      <a routerLink="/business/dashboard/businesses" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
+      <a routerLink="/owner/businesses" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
         <lucide-icon [img]="ShoppingBag" [size]="16" class="nav-icon"></lucide-icon>
         <span class="nav-text" *ngIf="sidebarOpen">Businesses</span>
       </a>
       
       <div class="nav-divider" *ngIf="sidebarOpen"></div>
-      <span class="nav-section-label" *ngIf="sidebarOpen">PUBLIC</span>
-      
-      <a routerLink="/explore" class="nav-item" (click)="closeSidebarOnMobile()">
-        <lucide-icon [img]="Compass" [size]="16" class="nav-icon"></lucide-icon>
-        <span class="nav-text" *ngIf="sidebarOpen">Explore</span>
-      </a>
-      <a routerLink="/leaderboard" class="nav-item" (click)="closeSidebarOnMobile()">
-        <lucide-icon [img]="Trophy" [size]="16" class="nav-icon"></lucide-icon>
-        <span class="nav-text" *ngIf="sidebarOpen">Leaderboard</span>
-      </a>
-      
-      <div class="nav-divider" *ngIf="sidebarOpen"></div>
       <span class="nav-section-label" *ngIf="sidebarOpen">SETTINGS</span>
       
-      <a routerLink="/business/dashboard/settings" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
+      <a routerLink="/owner/settings" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
         <lucide-icon [img]="Settings" [size]="16" class="nav-icon"></lucide-icon>
         <span class="nav-text" *ngIf="sidebarOpen">Settings</span>
       </a>
@@ -55,7 +43,7 @@
       <div class="nav-divider" *ngIf="sidebarOpen"></div>
       <span class="nav-section-label" *ngIf="sidebarOpen">ACCOUNT</span>
       
-      <a routerLink="/profile" class="nav-item" (click)="closeSidebarOnMobile()">
+      <a routerLink="/owner/profile" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
         <lucide-icon [img]="User" [size]="16" class="nav-icon"></lucide-icon>
         <span class="nav-text" *ngIf="sidebarOpen">Profile</span>
       </a>

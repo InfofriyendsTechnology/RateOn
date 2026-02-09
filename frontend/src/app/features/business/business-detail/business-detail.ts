@@ -55,7 +55,7 @@ export class BusinessDetail implements OnInit {
   }
   
   goBack() {
-    this.router.navigate(['/business/dashboard/businesses']);
+    this.router.navigate(['/owner/businesses']);
   }
   
   getStarFill(starPosition: number, rating: number): string {

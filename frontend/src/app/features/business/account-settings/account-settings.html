@@ -1,496 +1,283 @@
 <div class="settings-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1>Account Settings</h1>
+    <p class="subtitle">Manage your personal preferences and account settings</p>
+  </div>
+
   <!-- Loading State -->
   <div *ngIf="loading" class="loading-state">
     <div class="spinner"></div>
-    <p>Loading account details...</p>
+    <p>Loading settings...</p>
   </div>
 
   <!-- Settings Content -->
   <div *ngIf="!loading" class="settings-content">
-    <!-- Profile Header -->
-    <div class="profile-header">
-      <!-- View Mode -->
-      <ng-container *ngIf="!isEditingProfile">
-        <div class="profile-avatar">
-          <img *ngIf="user?.profile?.avatar && !avatarFailed" [src]="user.profile.avatar" [alt]="user.username" 
-               crossorigin="anonymous" referrerpolicy="no-referrer" (error)="onAvatarError($event)" />
-          <div *ngIf="!user?.profile?.avatar || avatarFailed" class="avatar-placeholder">
-            {{ user?.username?.charAt(0).toUpperCase() }}
+    
+    <!-- Profile Section -->
+    <div class="settings-section">
+      <div class="section-header">
+        <lucide-icon [img]="User" [size]="20"></lucide-icon>
+        <h2>Profile</h2>
+      </div>
+      <div class="settings-card">
+        <div class="setting-item">
+          <div class="setting-info">
+            <h3>Your Profile</h3>
+            <p>View and edit your profile information, avatar, and personal details</p>
           </div>
+          <a routerLink="/owner/profile" class="action-btn">
+            <lucide-icon [img]="User" [size]="16"></lucide-icon>
+            Go to Profile
+          </a>
         </div>
-        <div class="profile-info">
-          <div class="profile-name-row">
-            <h1 *ngIf="user?.profile?.firstName || user?.profile?.lastName">
-              {{ user.profile.firstName }} {{ user.profile.lastName }}
-            </h1>
-            <h1 *ngIf="!user?.profile?.firstName && !user?.profile?.lastName">
-              {{ user?.username }}
-            </h1>
-            <button class="edit-icon-btn" (click)="startEditProfile()" title="Edit Profile">
-              <lucide-icon [img]="Edit" [size]="16"></lucide-icon>
+      </div>
+    </div>
+
+    <!-- Appearance Section -->
+    <div class="settings-section">
+      <div class="section-header">
+        <lucide-icon [img]="Palette" [size]="20"></lucide-icon>
+        <h2>Appearance</h2>
+      </div>
+      <div class="settings-card">
+        <div class="setting-item">
+          <div class="setting-info">
+            <h3>Theme</h3>
+            <p>Choose between light and dark theme</p>
+          </div>
+          <div class="theme-toggle">
+            <button 
+              class="theme-btn" 
+              [class.active]="!isDarkMode" 
+              (click)="setTheme('light')"
+            >
+              <lucide-icon [img]="Sun" [size]="16"></lucide-icon>
+              Light
             </button>
-          </div>
-          <p class="user-email">{{ user?.email }}</p>
-        </div>
-      </ng-container>
-      
-      <!-- Edit Mode -->
-      <ng-container *ngIf="isEditingProfile">
-        <div class="profile-avatar edit-mode">
-          <img *ngIf="avatarPreview" [src]="avatarPreview" alt="Avatar" />
-          <div *ngIf="!avatarPreview" class="avatar-placeholder">
-            {{ user?.username?.charAt(0).toUpperCase() }}
-          </div>
-          <label class="avatar-upload-btn" for="avatarInput">
-            <lucide-icon [img]="Camera" [size]="20"></lucide-icon>
-          </label>
-          <input 
-            #avatarInput
-            id="avatarInput"
-            type="file" 
-            accept="image/*"
-            (change)="onAvatarSelect($event)"
-            style="display: none;"
-          />
-        </div>
-        <div class="profile-info edit-mode">
-          <div class="edit-form">
-            <div class="form-row">
-              <div class="form-group">
-                <label>First Name</label>
-                <input type="text" [(ngModel)]="editedProfile.firstName" placeholder="Enter first name" />
-              </div>
-              <div class="form-group">
-                <label>Last Name</label>
-                <input type="text" [(ngModel)]="editedProfile.lastName" placeholder="Enter last name" />
-              </div>
-            </div>
-            <div class="edit-actions">
-              <button class="cancel-btn" (click)="cancelEditProfile()" [disabled]="savingProfile">
-                <lucide-icon [img]="X" [size]="16"></lucide-icon>
-                Cancel
-              </button>
-              <button class="save-btn" (click)="saveProfile()" [disabled]="savingProfile">
-                <lucide-icon [img]="Save" [size]="16"></lucide-icon>
-                {{ savingProfile ? 'Saving...' : 'Save Changes' }}
-              </button>
-            </div>
-          </div>
-          <p class="user-email">{{ user?.email }}</p>
-        </div>
-      </ng-container>
-    </div>
-
-    <!-- Divider -->
-    <div class="section-divider"></div>
-
-    <!-- Business Section -->
-    <div class="business-section" *ngIf="business">
-      <!-- View Mode -->
-      <ng-container *ngIf="!isEditingBusiness">
-        <!-- Business Profile Card -->
-        <div class="business-profile-card">
-          <!-- Cover Image -->
-          <div class="business-cover">
-            <img *ngIf="business.coverImages && business.coverImages.length > 0" 
-                 [src]="business.coverImages[0]" 
-                 [alt]="business.name" />
-            <div *ngIf="!business.coverImages || business.coverImages.length === 0" class="cover-placeholder">
-              <lucide-icon [img]="Building" [size]="64"></lucide-icon>
-            </div>
-            <button class="edit-icon-btn cover-edit-btn" (click)="startEditBusiness()" title="Edit Business">
-              <lucide-icon [img]="Edit" [size]="16"></lucide-icon>
-            </button>
-          </div>
-          
-          <!-- Logo overlaying cover -->
-          <div class="business-logo-overlay">
-            <div class="logo-container">
-              <img *ngIf="business.logo" [src]="business.logo" [alt]="business.name" />
-              <div *ngIf="!business.logo" class="logo-placeholder">
-                <lucide-icon [img]="Building" [size]="48"></lucide-icon>
-              </div>
-            </div>
-          </div>
-          
-          <!-- Business Info -->
-          <div class="business-info">
-            <div class="business-header">
-              <div>
-                <h2>{{ business.name }}</h2>
-                <p class="business-category">{{ business.category }}</p>
-              </div>
-            </div>
-            
-            <!-- About Business Section -->
-            <div class="about-business-section" *ngIf="business.description">
-              <h3>About Business</h3>
-              <p class="business-description">{{ business.description }}</p>
-            </div>
-            
-            <!-- Business Details Grid -->
-            <div class="business-details-grid">
-              <div class="detail-card" *ngIf="business.type">
-                <lucide-icon [img]="Building" [size]="20"></lucide-icon>
-                <div>
-                  <label>Business Type</label>
-                  <p>{{ business.type | titlecase }}</p>
-                </div>
-              </div>
-              
-              <div class="detail-card" *ngIf="business.subcategory">
-                <lucide-icon [img]="Building" [size]="20"></lucide-icon>
-                <div>
-                  <label>Subcategory</label>
-                  <p>{{ business.subcategory }}</p>
-                </div>
-              </div>
-              
-              <div class="detail-card" *ngIf="business.location">
-                <lucide-icon [img]="MapPin" [size]="18"></lucide-icon>
-                <div>
-                  <label>Location</label>
-                  <p>{{ getFullAddress() }}</p>
-                </div>
-              </div>
-              
-              <div class="detail-card" *ngIf="business.contact?.phone">
-                <lucide-icon [img]="Phone" [size]="18"></lucide-icon>
-                <div>
-                  <label>Phone</label>
-                  <p>{{ business.contact.phone }}</p>
-                </div>
-              </div>
-              
-              <div class="detail-card" *ngIf="business.contact?.whatsapp">
-                <lucide-icon [img]="MessageCircle" [size]="18" class="whatsapp-icon"></lucide-icon>
-                <div>
-                  <label>WhatsApp</label>
-                  <p>{{ business.contact.whatsapp }}</p>
-                </div>
-              </div>
-              
-              <div class="detail-card" *ngIf="business.contact?.email">
-                <lucide-icon [img]="Mail" [size]="18"></lucide-icon>
-                <div>
-                  <label>Email</label>
-                  <p>{{ business.contact.email }}</p>
-                </div>
-              </div>
-              
-              <div class="detail-card" *ngIf="business.contact?.website">
-                <lucide-icon [img]="Globe" [size]="18"></lucide-icon>
-                <div>
-                  <label>Website</label>
-                  <a [href]="business.contact.website" target="_blank">{{ business.contact.website }}</a>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Business Hours Section -->
-            <div class="business-hours-section" *ngIf="business.businessHours && business.businessHours.length > 0">
-              <h3>Operating Hours</h3>
-              <div class="hours-grid">
-                <div class="hour-row" *ngFor="let hour of business.businessHours">
-                  <span class="day-name">{{ hour.day | titlecase }}</span>
-                  <span class="hours-time" *ngIf="!hour.isClosed">{{ formatTime12Hour(hour.open) }} - {{ formatTime12Hour(hour.close) }}</span>
-                  <span class="hours-closed" *ngIf="hour.isClosed">Closed</span>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Additional Cover Images -->
-            <div class="additional-images" *ngIf="business.coverImages && business.coverImages.length > 1">
-              <label>Gallery ({{ business.coverImages.length }} images)</label>
-              <div class="images-gallery">
-                <img *ngFor="let img of business.coverImages" [src]="img" [alt]="business.name" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </ng-container>
-
-      <!-- Edit Mode -->
-      <ng-container *ngIf="isEditingBusiness">
-        <div class="business-profile-card edit-mode">
-          <!-- Cover Image with Upload -->
-          <div class="business-cover">
-            <img *ngIf="coverPreviews.length > 0" [src]="coverPreviews[0]" alt="Cover preview" />
-            <div *ngIf="coverPreviews.length === 0" class="cover-placeholder">
-              <lucide-icon [img]="Building" [size]="64"></lucide-icon>
-            </div>
-            <label class="upload-cover-btn" for="coverInput">
-              <lucide-icon [img]="Camera" [size]="18"></lucide-icon>
-              Change Cover
-            </label>
-            <input id="coverInput" type="file" accept="image/*" multiple (change)="onCoverImagesSelect($event)" style="display: none;" />
-          </div>
-          
-          <!-- Logo overlaying cover with Upload -->
-          <div class="business-logo-overlay">
-            <div class="logo-container edit-logo">
-              <img *ngIf="logoPreview" [src]="logoPreview" alt="Logo preview" />
-              <div *ngIf="!logoPreview" class="logo-placeholder">
-                <lucide-icon [img]="Building" [size]="48"></lucide-icon>
-              </div>
-              <label class="logo-upload-btn" for="logoInput">
-                <lucide-icon [img]="Camera" [size]="16"></lucide-icon>
-              </label>
-              <input id="logoInput" type="file" accept="image/*" (change)="onLogoSelect($event)" style="display: none;" />
-            </div>
-          </div>
-          
-          <!-- Business Info Edit -->
-          <div class="business-info">
-            <div class="business-header-edit">
-              <div class="form-group-inline">
-                <input type="text" [(ngModel)]="editedBusiness.name" placeholder="Business Name" class="input-name" />
-                <input type="text" [(ngModel)]="editedBusiness.category" placeholder="Category" class="input-category" />
-              </div>
-            </div>
-            
-            <textarea [(ngModel)]="editedBusiness.description" placeholder="Business Description" class="textarea-description" rows="3"></textarea>
-            
-            <!-- Comprehensive Edit Form -->
-            <div class="business-edit-details">
-              <!-- Basic Info Section -->
-              <div class="edit-section">
-                <h4>Basic Information</h4>
-                <div class="edit-grid">
-                  <div class="edit-field">
-                    <label>Business Type</label>
-                    <select [(ngModel)]="editedBusiness.type">
-                      <option value="restaurant">Restaurant</option>
-                      <option value="cafe">Cafe</option>
-                      <option value="shop">Shop</option>
-                      <option value="service">Service</option>
-                      <option value="other">Other</option>
-                    </select>
-                  </div>
-                  <div class="edit-field">
-                    <label>Subcategory</label>
-                    <input type="text" [(ngModel)]="editedBusiness.subcategory" placeholder="e.g., Fast Food, Italian" />
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Location Section -->
-              <div class="edit-section">
-                <h4><lucide-icon [img]="MapPin" [size]="18"></lucide-icon> Location</h4>
-                <div class="edit-grid">
-                  <div class="edit-field full-width">
-                    <label>Address</label>
-                    <input type="text" [(ngModel)]="editedBusiness.location.address" placeholder="Street address" />
-                  </div>
-                  <div class="edit-field">
-                    <label>City</label>
-                    <input type="text" [(ngModel)]="editedBusiness.location.city" placeholder="City" />
-                  </div>
-                  <div class="edit-field">
-                    <label>State</label>
-                    <input type="text" [(ngModel)]="editedBusiness.location.state" placeholder="State" />
-                  </div>
-                  <div class="edit-field">
-                    <label>Country</label>
-                    <input type="text" [(ngModel)]="editedBusiness.location.country" placeholder="Country" />
-                  </div>
-                  <div class="edit-field">
-                    <label>Pincode</label>
-                    <input type="text" [(ngModel)]="editedBusiness.location.pincode" placeholder="Pincode" />
-                  </div>
-                  <div class="edit-field">
-                    <label>Latitude</label>
-                    <input type="number" step="any" [(ngModel)]="editedBusiness.location.latitude" placeholder="e.g., 23.0225" />
-                  </div>
-                  <div class="edit-field">
-                    <label>Longitude</label>
-                    <input type="number" step="any" [(ngModel)]="editedBusiness.location.longitude" placeholder="e.g., 72.5714" />
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Contact Section -->
-              <div class="edit-section">
-                <h4><lucide-icon [img]="Phone" [size]="18"></lucide-icon> Contact Details</h4>
-                <div class="edit-grid">
-                  <div class="edit-field">
-                    <label>Phone</label>
-                    <input type="tel" [(ngModel)]="editedBusiness.contact.phone" placeholder="+91 1234567890" />
-                  </div>
-                  <div class="edit-field">
-                    <label>WhatsApp</label>
-                    <input type="tel" [(ngModel)]="editedBusiness.contact.whatsapp" placeholder="+91 1234567890" />
-                  </div>
-                  <div class="edit-field">
-                    <label>Email</label>
-                    <input type="email" [(ngModel)]="editedBusiness.contact.email" placeholder="business@example.com" />
-                  </div>
-                  <div class="edit-field">
-                    <label>Website</label>
-                    <input type="url" [(ngModel)]="editedBusiness.contact.website" placeholder="https://example.com" />
-                  </div>
-                </div>
-              </div>
-              
-              <!-- Business Hours Section -->
-              <div class="edit-section" *ngIf="editedBusiness.businessHours">
-                <h4><lucide-icon [img]="Clock" [size]="18"></lucide-icon> Operating Hours</h4>
-                <div class="hours-edit-grid">
-                  <div class="hour-edit-row" *ngFor="let hour of editedBusiness.businessHours; let i = index">
-                    <span class="day-name">{{ hour.day | titlecase }}</span>
-                    <label class="checkbox-label">
-                      <input type="checkbox" [(ngModel)]="hour.isClosed" />
-                      Closed
-                    </label>
-                    <div class="time-picker" [class.disabled]="hour.isClosed">
-                      <select [(ngModel)]="hour.open" [disabled]="hour.isClosed">
-                        <option value="">Open</option>
-                        <option value="00:00">12:00 AM</option>
-                        <option value="01:00">1:00 AM</option>
-                        <option value="02:00">2:00 AM</option>
-                        <option value="03:00">3:00 AM</option>
-                        <option value="04:00">4:00 AM</option>
-                        <option value="05:00">5:00 AM</option>
-                        <option value="06:00">6:00 AM</option>
-                        <option value="07:00">7:00 AM</option>
-                        <option value="08:00">8:00 AM</option>
-                        <option value="09:00">9:00 AM</option>
-                        <option value="10:00">10:00 AM</option>
-                        <option value="11:00">11:00 AM</option>
-                        <option value="12:00">12:00 PM</option>
-                        <option value="13:00">1:00 PM</option>
-                        <option value="14:00">2:00 PM</option>
-                        <option value="15:00">3:00 PM</option>
-                        <option value="16:00">4:00 PM</option>
-                        <option value="17:00">5:00 PM</option>
-                        <option value="18:00">6:00 PM</option>
-                        <option value="19:00">7:00 PM</option>
-                        <option value="20:00">8:00 PM</option>
-                        <option value="21:00">9:00 PM</option>
-                        <option value="22:00">10:00 PM</option>
-                        <option value="23:00">11:00 PM</option>
-                      </select>
-                      <span class="time-separator">to</span>
-                      <select [(ngModel)]="hour.close" [disabled]="hour.isClosed">
-                        <option value="">Close</option>
-                        <option value="00:00">12:00 AM</option>
-                        <option value="01:00">1:00 AM</option>
-                        <option value="02:00">2:00 AM</option>
-                        <option value="03:00">3:00 AM</option>
-                        <option value="04:00">4:00 AM</option>
-                        <option value="05:00">5:00 AM</option>
-                        <option value="06:00">6:00 AM</option>
-                        <option value="07:00">7:00 AM</option>
-                        <option value="08:00">8:00 AM</option>
-                        <option value="09:00">9:00 AM</option>
-                        <option value="10:00">10:00 AM</option>
-                        <option value="11:00">11:00 AM</option>
-                        <option value="12:00">12:00 PM</option>
-                        <option value="13:00">1:00 PM</option>
-                        <option value="14:00">2:00 PM</option>
-                        <option value="15:00">3:00 PM</option>
-                        <option value="16:00">4:00 PM</option>
-                        <option value="17:00">5:00 PM</option>
-                        <option value="18:00">6:00 PM</option>
-                        <option value="19:00">7:00 PM</option>
-                        <option value="20:00">8:00 PM</option>
-                        <option value="21:00">9:00 PM</option>
-                        <option value="22:00">10:00 PM</option>
-                        <option value="23:00">11:00 PM</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Cover Images Preview (if multiple) -->
-            <div class="cover-previews-edit" *ngIf="coverPreviews.length > 1">
-              <label>Gallery ({{ coverPreviews.length }} images)</label>
-              <div class="images-gallery">
-                <div class="cover-preview-item" *ngFor="let preview of coverPreviews; let i = index">
-                  <img [src]="preview" alt="Cover preview" />
-                  <button class="remove-btn" (click)="removeCoverPreview(i)" type="button">
-                    <lucide-icon [img]="X" [size]="16"></lucide-icon>
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            <!-- Action Buttons -->
-            <div class="edit-actions">
-              <button class="cancel-btn" (click)="cancelEditBusiness()" [disabled]="savingBusiness">
-                <lucide-icon [img]="X" [size]="16"></lucide-icon>
-                Cancel
-              </button>
-              <button class="save-btn" (click)="saveBusiness()" [disabled]="savingBusiness">
-                <lucide-icon [img]="Save" [size]="16"></lucide-icon>
-                {{ savingBusiness ? 'Saving...' : 'Save Changes' }}
-              </button>
-            </div>
-          </div>
-        </div>
-      </ng-container>
-    </div>
-
-    <!-- No Business Section -->
-    <div class="no-business" *ngIf="!business">
-      <h2>
-        <lucide-icon [img]="Building" [size]="22"></lucide-icon>
-        Business Information
-      </h2>
-      <p>No business associated with this account</p>
-    </div>
-
-    <!-- Danger Zone Section -->
-    <div class="danger-zone-section" *ngIf="business && !isEditingBusiness">
-      <div class="section-divider danger-divider"></div>
-      <div class="danger-zone">
-        <div class="danger-zone-header">
-          <lucide-icon [img]="AlertTriangle" [size]="22" class="danger-icon"></lucide-icon>
-          <h3>Danger Zone</h3>
-        </div>
-        <div class="danger-zone-content">
-          <div class="danger-action-card">
-            <div>
-              <h4>Delete Business Account</h4>
-              <p>Permanently delete your business account and all associated data including items, reviews, and images. This action cannot be undone.</p>
-            </div>
-            <button class="delete-btn" (click)="showDeleteConfirmation()" [disabled]="deletingAccount">
-              <lucide-icon [img]="Trash2" [size]="16"></lucide-icon>
-              Delete Account
+            <button 
+              class="theme-btn" 
+              [class.active]="isDarkMode" 
+              (click)="setTheme('dark')"
+            >
+              <lucide-icon [img]="Moon" [size]="16"></lucide-icon>
+              Dark
             </button>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- Notifications Section -->
+    <div class="settings-section">
+      <div class="section-header">
+        <lucide-icon [img]="Bell" [size]="20"></lucide-icon>
+        <h2>Notifications</h2>
+      </div>
+      <div class="settings-card">
+        <div class="setting-item">
+          <div class="setting-info">
+            <h3>Email Notifications</h3>
+            <p>Receive notifications about your businesses via email</p>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" [(ngModel)]="notificationSettings.email" (change)="updateNotificationSettings()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info">
+            <h3>New Review Alerts</h3>
+            <p>Get notified when customers leave reviews</p>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" [(ngModel)]="notificationSettings.newReviews" (change)="updateNotificationSettings()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info">
+            <h3>Business Updates</h3>
+            <p>Receive updates about your business performance</p>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" [(ngModel)]="notificationSettings.businessUpdates" (change)="updateNotificationSettings()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security Section -->
+    <div class="settings-section">
+      <div class="section-header">
+        <lucide-icon [img]="Shield" [size]="20"></lucide-icon>
+        <h2>Security</h2>
+      </div>
+      <div class="settings-card">
+        <div class="setting-item">
+          <div class="setting-info">
+            <h3>Password</h3>
+            <p>Update your account password</p>
+          </div>
+          <button class="action-btn" (click)="openChangePasswordModal()">
+            <lucide-icon [img]="Key" [size]="16"></lucide-icon>
+            Change Password
+          </button>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info">
+            <h3>Two-Factor Authentication</h3>
+            <p>Add an extra layer of security to your account</p>
+          </div>
+          <button class="action-btn" [class.enabled]="twoFactorEnabled">
+            <lucide-icon [img]="twoFactorEnabled ? CheckCircle : Shield" [size]="16"></lucide-icon>
+            {{ twoFactorEnabled ? 'Enabled' : 'Enable 2FA' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Privacy Section -->
+    <div class="settings-section">
+      <div class="section-header">
+        <lucide-icon [img]="Eye" [size]="20"></lucide-icon>
+        <h2>Privacy</h2>
+      </div>
+      <div class="settings-card">
+        <div class="setting-item">
+          <div class="setting-info">
+            <h3>Profile Visibility</h3>
+            <p>Control who can see your profile information</p>
+          </div>
+          <select [(ngModel)]="privacySettings.profileVisibility" (change)="updatePrivacySettings()" class="select-input">
+            <option value="public">Public</option>
+            <option value="business-only">Business Customers Only</option>
+            <option value="private">Private</option>
+          </select>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info">
+            <h3>Show Email</h3>
+            <p>Display your email address on public business profiles</p>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" [(ngModel)]="privacySettings.showEmail" (change)="updatePrivacySettings()">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Business Management Section -->
+    <div class="settings-section">
+      <div class="section-header">
+        <lucide-icon [img]="Building" [size]="20"></lucide-icon>
+        <h2>Business Management</h2>
+      </div>
+      <div class="settings-card">
+        <div class="setting-item">
+          <div class="setting-info">
+            <h3>My Businesses</h3>
+            <p>View and manage all your businesses</p>
+          </div>
+          <a routerLink="/owner/businesses" class="action-btn">
+            <lucide-icon [img]="ExternalLink" [size]="16"></lucide-icon>
+            Manage Businesses
+          </a>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info">
+            <h3>Business Analytics</h3>
+            <p>View performance metrics and insights</p>
+          </div>
+          <button class="action-btn" disabled>
+            <lucide-icon [img]="BarChart3" [size]="16"></lucide-icon>
+            Coming Soon
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="settings-section danger-zone">
+      <div class="section-header">
+        <lucide-icon [img]="AlertTriangle" [size]="20" class="danger-icon"></lucide-icon>
+        <h2>Danger Zone</h2>
+      </div>
+      <div class="settings-card danger-card">
+        <div class="setting-item">
+          <div class="setting-info">
+            <h3>Delete Account</h3>
+            <p>Permanently delete your account and all associated data. This action cannot be undone.</p>
+          </div>
+          <button class="danger-btn" (click)="showDeleteConfirmation()">
+            <lucide-icon [img]="Trash2" [size]="16"></lucide-icon>
+            Delete Account
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
+<!-- Change Password Modal -->
+<div class="modal-overlay" *ngIf="showChangePasswordModal" (click)="closeChangePasswordModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Change Password</h3>
+      <button class="close-btn" (click)="closeChangePasswordModal()">
+        <lucide-icon [img]="X" [size]="20"></lucide-icon>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Current Password</label>
+        <input type="password" [(ngModel)]="passwordForm.currentPassword" placeholder="Enter current password" />
+      </div>
+      <div class="form-group">
+        <label>New Password</label>
+        <input type="password" [(ngModel)]="passwordForm.newPassword" placeholder="Enter new password" />
+      </div>
+      <div class="form-group">
+        <label>Confirm New Password</label>
+        <input type="password" [(ngModel)]="passwordForm.confirmPassword" placeholder="Confirm new password" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="cancel-btn" (click)="closeChangePasswordModal()" [disabled]="changingPassword">Cancel</button>
+      <button class="save-btn" (click)="changePassword()" [disabled]="changingPassword">
+        {{ changingPassword ? 'Changing...' : 'Change Password' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Account Modal -->
 <div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
   <div class="modal-content delete-modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
       <lucide-icon [img]="AlertTriangle" [size]="24" class="danger-icon"></lucide-icon>
-      <h2>Delete Business Account</h2>
-      <button class="close-modal-btn" (click)="closeDeleteModal()">
+      <h2>Delete Account</h2>
+      <button class="close-btn" (click)="closeDeleteModal()">
         <lucide-icon [img]="X" [size]="20"></lucide-icon>
       </button>
     </div>
     <div class="modal-body">
       <p class="warning-text">This action is <strong>permanent and irreversible</strong>. The following will be deleted:</p>
       <ul class="deletion-list">
-        <li><lucide-icon [img]="CheckCircle" [size]="16"></lucide-icon> Business profile and information</li>
-        <li><lucide-icon [img]="CheckCircle" [size]="16"></lucide-icon> All items associated with this business</li>
-        <li><lucide-icon [img]="CheckCircle" [size]="16"></lucide-icon> All reviews on your items</li>
-        <li><lucide-icon [img]="CheckCircle" [size]="16"></lucide-icon> All images (logo, cover, item images, review images)</li>
+        <li><lucide-icon [img]="CheckCircle" [size]="16"></lucide-icon> Your user account and profile</li>
+        <li><lucide-icon [img]="CheckCircle" [size]="16"></lucide-icon> All your businesses and their data</li>
+        <li><lucide-icon [img]="CheckCircle" [size]="16"></lucide-icon> All items, reviews, and images</li>
+        <li><lucide-icon [img]="CheckCircle" [size]="16"></lucide-icon> All account preferences and settings</li>
       </ul>
-      <p class="confirmation-prompt">Type <strong>{{ business?.name }}</strong> to confirm deletion:</p>
+      <p class="confirmation-prompt">Type <strong>DELETE</strong> to confirm account deletion:</p>
       <input 
         type="text" 
         class="confirmation-input" 
         [(ngModel)]="deleteConfirmationText" 
-        placeholder="Enter business name"
+        placeholder="Type DELETE to confirm"
         [disabled]="deletingAccount"
       />
     </div>
@@ -499,12 +286,12 @@
         Cancel
       </button>
       <button 
-        class="confirm-delete-btn" 
+        class="danger-btn" 
         (click)="confirmDeleteAccount()" 
-        [disabled]="deleteConfirmationText !== business?.name || deletingAccount"
+        [disabled]="deleteConfirmationText !== 'DELETE' || deletingAccount"
       >
         <lucide-icon [img]="Trash2" [size]="16"></lucide-icon>
-        {{ deletingAccount ? 'Deleting...' : 'Delete Permanently' }}
+        {{ deletingAccount ? 'Deleting...' : 'Delete Account' }}
       </button>
     </div>
   </div>

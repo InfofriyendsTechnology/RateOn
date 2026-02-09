@@ -93,11 +93,11 @@ export class BusinessDashboardComponent implements OnInit {
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
-        this.isChildRoute = event.url !== '/business/dashboard';
+        this.isChildRoute = event.url !== '/owner' && !event.url.endsWith('/owner');
       });
     
     // Set initial state
-    this.isChildRoute = this.router.url !== '/business/dashboard';
+    this.isChildRoute = this.router.url !== '/owner' && !this.router.url.endsWith('/owner');
   }
   
   loadBusinessData() {
@@ -197,15 +197,21 @@ export class BusinessDashboardComponent implements OnInit {
   getPageTitle(): string {
     const url = this.router.url;
     
-    if (url.includes('/businesses')) {
-      return 'Businesses';
-    } else if (url.includes('/items/')) {
-      return 'Items';
-    } else if (url.includes('/edit/')) {
+    // Check for specific routes first (more specific to less specific)
+    if (url.includes('/businesses/') && url.includes('/edit')) {
       return 'Edit Business';
+    } else if (url.includes('/businesses/') && url.includes('/items')) {
+      return 'Manage Items';
+    } else if (url.match(/\/businesses\/[^\/]+$/)) {
+      // Matches /owner/businesses/:id (business detail page)
+      return 'Business Details';
+    } else if (url.includes('/businesses')) {
+      return 'My Businesses';
     } else if (url.includes('/settings')) {
       return 'Settings';
-    } else if (url === '/business/dashboard') {
+    } else if (url.includes('/profile')) {
+      return 'Profile';
+    } else if (url === '/owner' || url.endsWith('/owner')) {
       return 'Dashboard';
     }
     

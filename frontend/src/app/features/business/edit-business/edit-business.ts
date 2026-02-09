@@ -254,7 +254,7 @@ export class EditBusinessComponent implements OnInit {
       next: () => {
         this.toast.success('Business details updated successfully!');
         this.submitting = false;
-        this.router.navigate(['/business/dashboard/businesses']);
+        this.router.navigate(['/owner/businesses']);
       },
       error: (err: any) => {
         this.submitting = false;
@@ -271,7 +271,7 @@ export class EditBusinessComponent implements OnInit {
   }
   
   goBack() {
-    this.router.navigate(['/business/dashboard/businesses']);
+    this.router.navigate(['/owner/businesses']);
   }
   
   isFieldInvalid(fieldName: string): boolean {

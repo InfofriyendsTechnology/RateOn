@@ -133,7 +133,7 @@ export class BusinessAuthCallbackComponent implements OnInit {
           const data = JSON.parse(decodeURIComponent(params['loginData']));
           this.storage.saveToken(data.token);
           this.storage.saveUser(data.user);
-          this.router.navigate(['/business/dashboard'], { replaceUrl: true });
+          this.router.navigate(['/owner'], { replaceUrl: true });
         } catch (error) {
           console.error('Failed to parse login data:', error);
           this.router.navigate(['/auth/login'], { replaceUrl: true });
