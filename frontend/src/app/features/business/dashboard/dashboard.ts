@@ -60,6 +60,7 @@ export class BusinessDashboardComponent implements OnInit {
   businessForm = {
     name: '',
     type: '',
+    customType: '',
     category: '',
     city: '',
     state: '',
@@ -280,6 +281,7 @@ export class BusinessDashboardComponent implements OnInit {
     this.businessForm = {
       name: '',
       type: '',
+      customType: '',
       category: '',
       city: '',
       state: '',
@@ -291,10 +293,22 @@ export class BusinessDashboardComponent implements OnInit {
     this.currentBusinessStep = 1;
   }
   
+  onBusinessTypeChange() {
+    // Clear custom type when switching away from 'other'
+    if (this.businessForm.type !== 'other') {
+      this.businessForm.customType = '';
+    }
+  }
+  
   nextBusinessStep() {
     if (this.currentBusinessStep === 1) {
       if (!this.businessForm.name || !this.businessForm.type) {
         this.toastService.error('Please fill in all required fields');
+        return;
+      }
+      // Validate custom type when 'other' is selected
+      if (this.businessForm.type === 'other' && !this.businessForm.customType?.trim()) {
+        this.toastService.error('Please specify your business type');
         return;
       }
     }
@@ -323,12 +337,21 @@ export class BusinessDashboardComponent implements OnInit {
       return;
     }
     
+    // Validate custom type when 'other' is selected
+    if (this.businessForm.type === 'other' && !this.businessForm.customType?.trim()) {
+      this.toastService.error('Please specify your business type');
+      return;
+    }
+    
     this.addingBusiness = true;
+    
+    // Use customType as type if 'other' is selected
+    const businessType = this.businessForm.type === 'other' ? this.businessForm.customType : this.businessForm.type;
     
     const businessData = {
       name: this.businessForm.name,
-      type: this.businessForm.type,
-      category: this.businessForm.category || this.businessForm.type, // Use type as category if not provided
+      type: businessType,
+      category: this.businessForm.category || businessType, // Use type as category if not provided
       location: {
         address: this.businessForm.address,
         city: this.businessForm.city,

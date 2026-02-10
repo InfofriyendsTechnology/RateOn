@@ -207,7 +207,7 @@
         
         <div class="form-group">
           <label>Business Type <span class="required">*</span></label>
-          <select [(ngModel)]="businessForm.type" class="form-input">
+          <select [(ngModel)]="businessForm.type" class="form-input" (change)="onBusinessTypeChange()">
             <option value="">Select type</option>
             <option value="restaurant">Restaurant</option>
             <option value="cafe">Café</option>
@@ -215,6 +215,17 @@
             <option value="service">Service</option>
             <option value="other">Other</option>
           </select>
+        </div>
+        
+        <!-- Custom Type Input (shown when Other is selected) -->
+        <div class="form-group" *ngIf="businessForm.type === 'other'">
+          <label>Specify Business Type <span class="required">*</span></label>
+          <input 
+            type="text" 
+            [(ngModel)]="businessForm.customType" 
+            placeholder="e.g., Bakery, Salon, Gym"
+            class="form-input"
+          />
         </div>
       </div>
       

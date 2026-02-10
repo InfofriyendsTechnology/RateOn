@@ -44,6 +44,7 @@ export class BusinessesComponent implements OnInit {
   businessForm = {
     name: '',
     type: '',
+    customType: '',
     category: '',
     city: '',
     state: '',
@@ -107,6 +108,7 @@ export class BusinessesComponent implements OnInit {
     this.businessForm = {
       name: '',
       type: '',
+      customType: '',
       category: '',
       city: '',
       state: '',
@@ -118,10 +120,22 @@ export class BusinessesComponent implements OnInit {
     this.currentBusinessStep = 1;
   }
   
+  onBusinessTypeChange() {
+    // Clear custom type when switching away from "other"
+    if (this.businessForm.type !== 'other') {
+      this.businessForm.customType = '';
+    }
+  }
+  
   nextBusinessStep() {
     if (this.currentBusinessStep === 1) {
       if (!this.businessForm.name || !this.businessForm.type) {
         this.toastService.error('Please fill in all required fields');
+        return;
+      }
+      // Validate custom type if "other" is selected
+      if (this.businessForm.type === 'other' && !this.businessForm.customType?.trim()) {
+        this.toastService.error('Please enter a custom business type');
         return;
       }
     }
@@ -150,12 +164,21 @@ export class BusinessesComponent implements OnInit {
       return;
     }
     
+    // Validate custom type if "other" is selected
+    if (this.businessForm.type === 'other' && !this.businessForm.customType?.trim()) {
+      this.toastService.error('Please enter a custom business type');
+      return;
+    }
+    
     this.addingBusiness = true;
+    
+    // Use custom type if "other" was selected
+    const businessType = this.businessForm.type === 'other' ? this.businessForm.customType : this.businessForm.type;
     
     const businessData = {
       name: this.businessForm.name,
-      type: this.businessForm.type,
-      category: this.businessForm.category || this.businessForm.type,
+      type: businessType,
+      category: this.businessForm.category || businessType,
       location: {
         address: this.businessForm.address,
         city: this.businessForm.city,
