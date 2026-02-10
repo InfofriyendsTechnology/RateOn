@@ -44,7 +44,6 @@ export const routes: Routes = [
     component: BusinessDashboardComponent,
     canActivate: [businessOwnerGuard],
     children: [
-      { path: '', redirectTo: 'businesses', pathMatch: 'full' },
       { path: 'businesses', component: BusinessesComponent },
       { path: 'businesses/:id', component: BusinessOwnerDetail },
       { path: 'businesses/:businessId/items', component: ItemManagementComponent },
