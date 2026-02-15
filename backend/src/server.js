@@ -61,37 +61,17 @@ const startServer = async () => {
         await connectDB();
         await initializeDatabase();
         
-        // Initialize WebSocket (skip on Vercel)
-        if (!process.env.VERCEL) {
-            initializeSocket(server);
-        }
+        // Initialize WebSocket
+        initializeSocket(server);
         
-        // Only listen on port locally, not on Vercel
-        if (!process.env.VERCEL) {
-            server.listen(PORT, () => {
-                console.log(`✅ Server Running: ${PORT}`);
-            });
-        }
+        server.listen(PORT, () => {
+            console.log(`✅ Server Running: ${PORT}`);
+        });
 
     } catch (error) {
         console.error('❌ Server Failed');
-        if (!process.env.VERCEL) {
-            process.exit(1);
-        }
+        process.exit(1);
     }
 };
 
-// For Vercel: export handler
-let initialized = false;
-export default async (req, res) => {
-    if (!initialized) {
-        await startServer();
-        initialized = true;
-    }
-    return app(req, res);
-};
-
-// For local: start server
-if (!process.env.VERCEL) {
-    startServer();
-}
+startServer();
