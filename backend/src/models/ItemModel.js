@@ -88,23 +88,54 @@ ItemSchema.index({ category: 1 });
 ItemSchema.index({ 'availability.status': 1 });
 ItemSchema.index({ createdAt: -1 });
 
-// Method to update rating after new review
-ItemSchema.methods.updateRating = async function(newRating) {
-    this.stats.totalReviews += 1;
-    this.stats.ratingDistribution[newRating] += 1;
+// Method to update rating after new review or review deletion
+ItemSchema.methods.updateRating = async function(rating, operation = 'add') {
+    // Validate rating
+    if (rating < 1 || rating > 5) {
+        return;
+    }
     
-    // Calculate new average
-    const totalPoints = 
-        (this.stats.ratingDistribution[1] * 1) +
-        (this.stats.ratingDistribution[2] * 2) +
-        (this.stats.ratingDistribution[3] * 3) +
-        (this.stats.ratingDistribution[4] * 4) +
-        (this.stats.ratingDistribution[5] * 5);
+    // Update counts based on operation
+    if (operation === 'add') {
+        this.stats.totalReviews += 1;
+        this.stats.ratingDistribution[rating] = (this.stats.ratingDistribution[rating] || 0) + 1;
+    } else if (operation === 'remove') {
+        this.stats.totalReviews = Math.max(0, this.stats.totalReviews - 1);
+        this.stats.ratingDistribution[rating] = Math.max(0, (this.stats.ratingDistribution[rating] || 0) - 1);
+    }
     
-    this.stats.averageRating = totalPoints / this.stats.totalReviews;
+    // Recalculate average from distribution
+    if (this.stats.totalReviews > 0) {
+        const totalPoints = 
+            (this.stats.ratingDistribution[1] * 1) +
+            (this.stats.ratingDistribution[2] * 2) +
+            (this.stats.ratingDistribution[3] * 3) +
+            (this.stats.ratingDistribution[4] * 4) +
+            (this.stats.ratingDistribution[5] * 5);
+        
+        this.stats.averageRating = totalPoints / this.stats.totalReviews;
+        
+        // Ensure average is within valid range
+        this.stats.averageRating = Math.min(5, Math.max(0, this.stats.averageRating));
+    } else {
+        this.stats.averageRating = 0;
+    }
     
     await this.save();
 };
+
+// Virtual properties for backward compatibility
+ItemSchema.virtual('reviewCount').get(function() {
+    return this.stats.totalReviews;
+});
+
+ItemSchema.virtual('averageRating').get(function() {
+    return this.stats.averageRating;
+});
+
+// Ensure virtuals are included in JSON
+ItemSchema.set('toJSON', { virtuals: true });
+ItemSchema.set('toObject', { virtuals: true });
 
 const Item = mongoose.model('Item', ItemSchema);
 

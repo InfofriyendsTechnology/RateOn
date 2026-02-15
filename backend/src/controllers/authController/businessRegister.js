@@ -180,7 +180,6 @@ export default {
             );
 
         } catch (error) {
-            console.error('Business registration error:', error);
             return responseHandler.error(res, error?.message || 'Failed to register business owner');
         }
     }

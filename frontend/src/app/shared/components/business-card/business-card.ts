@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Business } from '../../../core/services/business';
-import { LucideAngularModule, MapPin, ShoppingBag, CheckCircle } from 'lucide-angular';
+import { LucideAngularModule, MapPin, ShoppingBag, CheckCircle, Star, Package, MessageSquare, ImageOff, Edit } from 'lucide-angular';
 import { ReviewService } from '../../../core/services/review';
 
 @Component({
@@ -13,10 +13,16 @@ import { ReviewService } from '../../../core/services/review';
 })
 export class BusinessCard implements OnInit {
   @Input() business!: Business;
+  @Input() hasUserReview: boolean = false;
   
   readonly MapPin = MapPin;
   readonly ShoppingBag = ShoppingBag;
   readonly CheckCircle = CheckCircle;
+  readonly Star = Star;
+  readonly Package = Package;
+  readonly MessageSquare = MessageSquare;
+  readonly ImageOff = ImageOff;
+  readonly Edit = Edit;
   
   // Values actually shown on the card
   displayAverageRating = 0;
@@ -58,9 +64,31 @@ export class BusinessCard implements OnInit {
     this.router.navigate(['/business', this.business._id]);
   }
   
+  onWriteReview(event: Event): void {
+    event.stopPropagation(); // Prevent card click navigation
+    
+    // If user has already reviewed, navigate in edit mode
+    const queryParams: any = {
+      businessId: this.business._id,
+      reviewType: 'business'
+    };
+    
+    if (this.hasUserReview) {
+      queryParams.edit = 'true';
+      // Note: We don't have the reviewId here, but the write-review page
+      // will fetch it based on businessId + current user
+    }
+    
+    this.router.navigate(['/write-review'], { queryParams });
+  }
+  
+  getReviewButtonText(): string {
+    return this.hasUserReview ? 'Edit Review' : 'Write Review';
+  }
+  
   getDefaultImage(): string {
-    // SVG with store/building icon and gradient
-    return 'data:image/svg+xml,%3Csvg width="400" height="200" xmlns="http://www.w3.org/2000/svg"%3E%3Cdefs%3E%3ClinearGradient id="g" x1="0%25" y1="0%25" x2="100%25" y2="100%25"%3E%3Cstop offset="0%25" style="stop-color:%23082052;stop-opacity:1"/%3E%3Cstop offset="100%25" style="stop-color:%231e40af;stop-opacity:1"/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width="400" height="200" fill="url(%23g)"/%3E%3Cg transform="translate(200,70)"%3E%3Crect x="-30" y="0" width="60" height="50" fill="white" opacity="0.9" rx="4"/%3E%3Crect x="-24" y="6" width="18" height="16" fill="%23082052" opacity="0.3" rx="2"/%3E%3Crect x="6" y="6" width="18" height="16" fill="%23082052" opacity="0.3" rx="2"/%3E%3Crect x="-24" y="26" width="18" height="16" fill="%23082052" opacity="0.3" rx="2"/%3E%3Crect x="6" y="26" width="18" height="16" fill="%23082052" opacity="0.3" rx="2"/%3E%3Crect x="-8" y="36" width="16" height="14" fill="%23082052" opacity="0.5" rx="2"/%3E%3C/g%3E%3Ctext x="50%25" y="75%25" font-family="Arial" font-size="14" fill="white" text-anchor="middle" opacity="0.8"%3ENo Image Available%3C/text%3E%3C/svg%3E';
+    // Dark gradient with icon and text
+    return 'data:image/svg+xml,%3Csvg width="400" height="200" xmlns="http://www.w3.org/2000/svg"%3E%3Cdefs%3E%3ClinearGradient id="g" x1="0%25" y1="0%25" x2="100%25" y2="100%25"%3E%3Cstop offset="0%25" style="stop-color:%231a1a1a;stop-opacity:1"/%3E%3Cstop offset="100%25" style="stop-color:%230a0a0a;stop-opacity:1"/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width="400" height="200" fill="url(%23g)"/%3E%3Cg transform="translate(200,80)"%3E%3Crect x="-20" y="-20" width="40" height="40" fill="none" stroke="%23666666" stroke-width="2" rx="4"/%3E%3Cline x1="-12" y1="-12" x2="12" y2="12" stroke="%23666666" stroke-width="2"/%3E%3Cline x1="12" y1="-12" x2="-12" y2="12" stroke="%23666666" stroke-width="2"/%3E%3C/g%3E%3Ctext x="50%25" y="65%25" font-family="Arial" font-size="14" font-weight="500" fill="%23666666" text-anchor="middle" dominant-baseline="middle"%3ENo Image Available%3C/text%3E%3C/svg%3E';
   }
   
   onImageError(event: Event): void {

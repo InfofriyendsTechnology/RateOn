@@ -23,7 +23,6 @@ export default {
         return responseHandler.success(res, 'Item retrieved successfully', item);
 
     } catch (error) {
-        console.error('Get item error:', error);
         return responseHandler.error(res, error?.message || 'Failed to retrieve item');
     }
     }

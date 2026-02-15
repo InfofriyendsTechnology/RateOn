@@ -1,0 +1,26 @@
+<div class="map-wrapper">
+  <h3 class="map-title">User Locations</h3>
+  
+  @if (loading) {
+    <div class="map-skeleton" [style.height]="height">
+      <div class="skeleton-content">
+        <div class="skeleton-text">Loading map...</div>
+      </div>
+    </div>
+  } @else if (locations.length === 0) {
+    <div class="map-empty" [style.height]="height">
+      <div class="empty-content">
+        <i class="lucide lucide-map-pin-off"></i>
+        <p>No location data available</p>
+      </div>
+    </div>
+  } @else {
+    <div #mapContainer class="map-container" [style.height]="height"></div>
+    <div class="map-info">
+      <span class="marker-count">
+        <i class="lucide lucide-users"></i>
+        {{ locations.length }} users displayed
+      </span>
+    </div>
+  }
+</div>

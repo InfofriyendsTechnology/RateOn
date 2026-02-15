@@ -73,7 +73,6 @@ export default {
             });
 
         } catch (error) {
-            console.error('Get user analytics error:', error);
             return responseHandler.error(res, 'Failed to fetch user analytics', 500);
         }
     }

@@ -1,0 +1,226 @@
+<div class="admin-dashboard">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h1>Admin Analytics Dashboard</h1>
+      <p class="header-subtitle">{{ todayDate }}</p>
+    </div>
+    <button class="logout-btn" (click)="logout()">
+      <lucide-icon [img]="LogOut" [size]="20"></lucide-icon>
+      Logout
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading analytics...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!isLoading" class="dashboard-content">
+    
+    <!-- Real-Time Metrics -->
+    <div class="stat-cards-row" *ngIf="realTimeMetrics">
+      <app-stat-card
+        title="New Users Today"
+        [value]="realTimeMetrics.today.newUsers"
+        icon="users"
+        [loading]="isLoading">
+      </app-stat-card>
+      
+      <app-stat-card
+        title="New Reviews Today"
+        [value]="realTimeMetrics.today.newReviews"
+        icon="file-text"
+        [loading]="isLoading">
+      </app-stat-card>
+      
+      <app-stat-card
+        title="Active Users Now"
+        [value]="realTimeMetrics.realTime.activeUsersNow"
+        icon="activity"
+        [loading]="isLoading">
+      </app-stat-card>
+      
+      <app-stat-card
+        title="New Reactions Today"
+        [value]="realTimeMetrics.today.newReactions"
+        icon="heart"
+        [loading]="isLoading">
+      </app-stat-card>
+    </div>
+
+    <!-- Overview Stats -->
+    <div class="stat-cards-row" *ngIf="userStatistics && reviewStatistics && businessStatistics">
+      <app-stat-card
+        title="Total Users"
+        [value]="userStatistics.totalUsers"
+        icon="users"
+        [loading]="isLoading">
+      </app-stat-card>
+      
+      <app-stat-card
+        title="Total Reviews"
+        [value]="reviewStatistics.totalReviews"
+        icon="file-text"
+        [loading]="isLoading">
+      </app-stat-card>
+      
+      <app-stat-card
+        title="Average Rating"
+        [value]="reviewStatistics.averageRating.toFixed(1)"
+        icon="star"
+        [loading]="isLoading">
+      </app-stat-card>
+      
+      <app-stat-card
+        title="Total Businesses"
+        [value]="businessStatistics.totalBusinesses"
+        icon="building"
+        [loading]="isLoading">
+      </app-stat-card>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-grid">
+      <!-- Registration Method Chart -->
+      <div class="chart-card">
+        <app-analytics-charts
+          type="pie"
+          [data]="registrationMethodChart!"
+          title="Registration Methods"
+          [loading]="isLoading"
+          *ngIf="registrationMethodChart">
+        </app-analytics-charts>
+      </div>
+
+      <!-- Gender Distribution Chart -->
+      <div class="chart-card">
+        <app-analytics-charts
+          type="bar"
+          [data]="genderChart!"
+          title="Gender Distribution"
+          [loading]="isLoading"
+          *ngIf="genderChart">
+        </app-analytics-charts>
+      </div>
+
+      <!-- Rating Distribution Chart -->
+      <div class="chart-card">
+        <app-analytics-charts
+          type="bar"
+          [data]="ratingChart!"
+          title="Rating Distribution"
+          [loading]="isLoading"
+          *ngIf="ratingChart">
+        </app-analytics-charts>
+      </div>
+
+      <!-- Top Countries Chart -->
+      <div class="chart-card">
+        <app-analytics-charts
+          type="bar"
+          [data]="countryChart!"
+          title="Top 10 Countries"
+          [loading]="isLoading"
+          *ngIf="countryChart">
+        </app-analytics-charts>
+      </div>
+    </div>
+
+    <!-- User Location Map -->
+    <div class="map-section" *ngIf="locationData.length > 0">
+      <h2 class="section-title">
+        <lucide-icon [img]="MapPin" [size]="24"></lucide-icon>
+        User Locations ({{ locationData.length }} users)
+      </h2>
+      <app-user-map
+        [locations]="locationData"
+        [loading]="isLoading"
+        height="500px">
+      </app-user-map>
+    </div>
+
+    <!-- Top Businesses Table -->
+    <div class="top-businesses-section">
+      <h2 class="section-title">
+        <lucide-icon [img]="TrendingUp" [size]="24"></lucide-icon>
+        Top Businesses
+      </h2>
+      <app-top-businesses
+        [businesses]="topBusinesses"
+        [loading]="isLoading"
+        [selectedPeriod]="selectedPeriod"
+        (periodChange)="onPeriodChange($event)">
+      </app-top-businesses>
+    </div>
+
+    <!-- Detailed Statistics -->
+    <div class="detailed-stats">
+      <h2 class="section-title">Detailed Statistics</h2>
+      
+      <div class="stats-grid">
+        <!-- User Stats -->
+        <div class="stat-group">
+          <h3>User Metrics</h3>
+          <div class="stat-row">
+            <span>Total Users:</span>
+            <strong>{{ userStatistics?.totalUsers || 0 }}</strong>
+          </div>
+          <div class="stat-row">
+            <span>Email Registrations:</span>
+            <strong>{{ userStatistics?.byRegistrationMethod?.email || 0 }}</strong>
+          </div>
+          <div class="stat-row">
+            <span>Google Registrations:</span>
+            <strong>{{ userStatistics?.byRegistrationMethod?.google || 0 }}</strong>
+          </div>
+        </div>
+
+        <!-- Review Stats -->
+        <div class="stat-group">
+          <h3>Review Metrics</h3>
+          <div class="stat-row">
+            <span>Total Reviews:</span>
+            <strong>{{ reviewStatistics?.totalReviews || 0 }}</strong>
+          </div>
+          <div class="stat-row">
+            <span>Average Rating:</span>
+            <strong>{{ reviewStatistics?.averageRating || 0 }} / 5.0</strong>
+          </div>
+          <div class="stat-row">
+            <span>Total Reactions:</span>
+            <strong>{{ reviewStatistics?.totalReactions || 0 }}</strong>
+          </div>
+          <div class="stat-row">
+            <span>Total Replies:</span>
+            <strong>{{ reviewStatistics?.totalReplies || 0 }}</strong>
+          </div>
+        </div>
+
+        <!-- Business Stats -->
+        <div class="stat-group">
+          <h3>Business Metrics</h3>
+          <div class="stat-row">
+            <span>Total Businesses:</span>
+            <strong>{{ businessStatistics?.totalBusinesses || 0 }}</strong>
+          </div>
+          <div class="stat-row">
+            <span>Claimed:</span>
+            <strong>{{ businessStatistics?.claimed || 0 }}</strong>
+          </div>
+          <div class="stat-row">
+            <span>Verified:</span>
+            <strong>{{ businessStatistics?.verified || 0 }}</strong>
+          </div>
+          <div class="stat-row">
+            <span>Total Items:</span>
+            <strong>{{ businessStatistics?.items?.total || 0 }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

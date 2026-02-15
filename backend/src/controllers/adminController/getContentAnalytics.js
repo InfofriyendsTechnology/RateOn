@@ -93,7 +93,6 @@ export default {
             });
 
         } catch (error) {
-            console.error('Get content analytics error:', error);
             return responseHandler.error(res, 'Failed to fetch content analytics', 500);
         }
     }

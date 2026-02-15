@@ -87,7 +87,6 @@ export default {
             return responseHandler.success(res, 'Reaction added successfully', reaction, 201);
 
         } catch (error) {
-            console.error('Add reaction error:', error);
             return responseHandler.error(res, error?.message || 'Failed to add reaction');
         }
     }

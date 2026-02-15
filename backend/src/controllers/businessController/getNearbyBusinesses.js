@@ -76,7 +76,6 @@ export default {
         );
 
     } catch (error) {
-        console.error('Get nearby businesses error:', error);
         return responseHandler.error(res, error?.message || 'Failed to retrieve nearby businesses');
     }
     }

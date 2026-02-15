@@ -1,0 +1,17 @@
+<div class="chart-container">
+  @if (title) {
+    <h3 class="chart-title">{{ title }}</h3>
+  }
+  
+  @if (loading) {
+    <div class="chart-skeleton" [style.height]="height">
+      <div class="skeleton-bars">
+        <div class="skeleton-bar" *ngFor="let i of [1,2,3,4,5]" [style.height.%]="20 + (i * 10)"></div>
+      </div>
+    </div>
+  } @else {
+    <div class="chart-wrapper" [style.height]="height">
+      <canvas #chartCanvas></canvas>
+    </div>
+  }
+</div>

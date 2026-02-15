@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, RouterLinkActive, RouterOutlet, Router, NavigationEnd } from '@angular/router';
@@ -7,7 +7,8 @@ import { AuthService } from '../../../core/services/auth';
 import { BusinessService } from '../../../core/services/business';
 import { ToastService } from '../../../core/services/toast';
 import { ThemeService } from '../../../core/services/theme';
-import { LucideAngularModule, LayoutDashboard, Compass, Trophy, ShoppingBag, Settings, Edit, LogOut, Menu, User, Plus, ArrowLeft, X, Star, Sun, Moon } from 'lucide-angular';
+import { UserNotificationsService, AppNotification } from '../../../core/services/user-notifications.service';
+import { LucideAngularModule, LayoutDashboard, Compass, Trophy, ShoppingBag, Settings, Edit, LogOut, Menu, User, Plus, ArrowLeft, X, Star, Sun, Moon, Bell, MessageSquare } from 'lucide-angular';
 import { filter } from 'rxjs/operators';
 
 @Component({
@@ -34,6 +35,8 @@ export class BusinessDashboardComponent implements OnInit {
   readonly Star = Star;
   readonly Sun = Sun;
   readonly Moon = Moon;
+  readonly Bell = Bell;
+  readonly MessageSquare = MessageSquare;
   
   user: any = null;
   businesses: any[] = [];
@@ -51,6 +54,9 @@ export class BusinessDashboardComponent implements OnInit {
   // Theme and greeting
   greeting = '';
   isDarkMode = true;
+  
+  // Notifications
+  unreadNotificationsCount = 0;
   
   // Business creation modal
   showBusinessModal = false;
@@ -76,7 +82,8 @@ export class BusinessDashboardComponent implements OnInit {
     private authService: AuthService,
     private businessService: BusinessService,
     private toastService: ToastService,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private notificationService: UserNotificationsService
   ) {}
   
   ngOnInit() {
@@ -84,24 +91,30 @@ export class BusinessDashboardComponent implements OnInit {
     this.loadBusinessData();
     this.setGreeting();
     this.loadTheme();
+    this.setupNotifications();
     
     // Set initial sidebar state - closed on mobile, open on desktop
     if (typeof window !== 'undefined') {
       this.sidebarOpen = window.innerWidth > 768;
     }
     
-    // Track child route activation
+    // Track child route activation and reload data when returning to dashboard
     this.router.events
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
         this.isChildRoute = event.url !== '/owner' && !event.url.endsWith('/owner');
+        
+        // Reload business data when navigating back to main dashboard
+        if (event.url === '/owner' || event.url.endsWith('/owner')) {
+          this.loadBusinessData();
+        }
       });
     
     // Set initial state
     this.isChildRoute = this.router.url !== '/owner' && !this.router.url.endsWith('/owner');
   }
   
-  loadBusinessData() {
+  loadBusinessData(forceRefresh: boolean = true) {
     this.loadingBusinesses = true;
     const userId = this.user?._id || this.user?.id;
     
@@ -110,14 +123,25 @@ export class BusinessDashboardComponent implements OnInit {
       return;
     }
     
+    // Add timestamp to bypass cache
+    const filters: any = { owner: userId };
+    if (forceRefresh) {
+      filters._nocache = Date.now();
+    }
+    
     // Load all businesses owned by this user
-    this.businessService.getBusinesses({ owner: userId }).subscribe({
+    this.businessService.getBusinesses(filters).subscribe({
       next: (response: any) => {
         const data = response.data || response;
         this.businesses = data.businesses || data || [];
         
-        // Select first business by default if available
-        if (this.businesses.length > 0 && !this.selectedBusiness) {
+        // Force update selected business if it exists
+        if (this.selectedBusiness) {
+          const updated = this.businesses.find(b => b._id === this.selectedBusiness._id);
+          if (updated) {
+            this.selectedBusiness = updated;
+          }
+        } else if (this.businesses.length > 0) {
           this.selectedBusiness = this.businesses[0];
         }
         
@@ -127,7 +151,6 @@ export class BusinessDashboardComponent implements OnInit {
         this.loadingBusinesses = false;
       },
       error: (err) => {
-        console.error('Failed to load businesses:', err);
         this.loadingBusinesses = false;
       }
     });
@@ -141,13 +164,18 @@ export class BusinessDashboardComponent implements OnInit {
     
     // Calculate total reviews across all businesses
     this.totalReviews = this.businesses.reduce((sum, business) => {
-      return sum + (business.reviewCount || 0);
+      return sum + (business.rating?.count || business.reviewCount || 0);
     }, 0);
     
     // Calculate average rating across all businesses
-    const businessesWithRating = this.businesses.filter(b => b.rating && b.rating > 0);
+    const businessesWithRating = this.businesses.filter(b => {
+      const rating = b.rating?.average || b.rating || 0;
+      return rating > 0;
+    });
     if (businessesWithRating.length > 0) {
-      const totalRating = businessesWithRating.reduce((sum, business) => sum + business.rating, 0);
+      const totalRating = businessesWithRating.reduce((sum, business) => {
+        return sum + (business.rating?.average || business.rating || 0);
+      }, 0);
       this.averageRating = totalRating / businessesWithRating.length;
     } else {
       this.averageRating = 0;
@@ -180,6 +208,28 @@ export class BusinessDashboardComponent implements OnInit {
     this.themeService.toggleTheme();
   }
   
+  setupNotifications() {
+    // Connect to WebSocket
+    this.notificationService.connect();
+    
+    // Seed unread count
+    this.notificationService.seedUnreadCount();
+    
+    // Subscribe to unread count updates
+    this.notificationService.onUnreadCount().subscribe(count => {
+      this.unreadNotificationsCount = count;
+    });
+    
+    // Listen for new notifications and reload business data to update counts
+    this.notificationService.onNewNotification().subscribe(notification => {
+      if (notification.type === 'new_review') {
+        // Reload business data to get updated review counts
+        this.loadBusinessData();
+      }
+    });
+  }
+  
+  
 
   toggleSidebar() {
     this.sidebarOpen = !this.sidebarOpen;
@@ -208,6 +258,10 @@ export class BusinessDashboardComponent implements OnInit {
       return 'Business Details';
     } else if (url.includes('/businesses')) {
       return 'My Businesses';
+    } else if (url.includes('/reviews')) {
+      return 'Reviews';
+    } else if (url.includes('/notifications')) {
+      return 'Notifications';
     } else if (url.includes('/settings')) {
       return 'Settings';
     } else if (url.includes('/profile')) {
@@ -224,7 +278,7 @@ export class BusinessDashboardComponent implements OnInit {
   }
 
   isOnItemsPage(): boolean {
-    return this.router.url.includes('/items/');
+    return this.router.url.includes('/items');
   }
 
   openAddItem() {
@@ -375,7 +429,6 @@ export class BusinessDashboardComponent implements OnInit {
         this.loadBusinessData(); // Reload all businesses
       },
       error: (err) => {
-        console.error('Failed to create business:', err);
         this.toastService.error('Failed to create business. Please try again.');
         this.addingBusiness = false;
       },

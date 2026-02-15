@@ -12,7 +12,6 @@ export default {
             return responseHandler.success(res, 'Conflict data retrieved', conflictData);
 
         } catch (error) {
-            console.error('Get conflict data error:', error);
             return responseHandler.error(res, error?.message || 'Failed to get conflict data');
         }
     }

@@ -54,7 +54,6 @@ export default {
                     finalImages = [...imagesToKeep];
                 }
             } catch (e) {
-                console.error('Failed to parse existingImages:', e);
             }
         }
         
@@ -63,7 +62,6 @@ export default {
         const imagesToDelete = currentImages.filter(img => !imagesToKeep.includes(img));
         
         if (imagesToDelete.length > 0) {
-            console.log('Deleting images from Cloudinary:', imagesToDelete);
             for (const imageUrl of imagesToDelete) {
                 try {
                     // Extract public_id from Cloudinary URL
@@ -77,15 +75,10 @@ export default {
                         const pathWithoutVersion = pathWithVersion.replace(/^v\d+\//, '');
                         // Remove file extension
                         const publicId = pathWithoutVersion.replace(/\.[^.]+$/, '');
-                        
-                        console.log('Deleting public_id:', publicId);
                         const deleted = await deleteFromCloudinary(publicId);
-                        console.log('Deletion result:', deleted);
                     } else {
-                        console.error('Invalid Cloudinary URL format:', imageUrl);
                     }
                 } catch (error) {
-                    console.error('Failed to delete image:', imageUrl, error);
                 }
             }
         }
@@ -127,7 +120,6 @@ export default {
         return responseHandler.success(res, 'Item updated successfully', item);
 
     } catch (error) {
-        console.error('Update item error:', error);
         return responseHandler.error(res, error?.message || 'Failed to update item');
     }
     }

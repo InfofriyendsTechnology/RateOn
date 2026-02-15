@@ -20,7 +20,6 @@ export const unfollowUser = async (req, res) => {
         return responseHandler.success(res, 'Successfully unfollowed user');
 
     } catch (error) {
-        console.error('Unfollow user error:', error);
         return responseHandler.error(res, 'Failed to unfollow user', 500);
     }
 };

@@ -81,7 +81,6 @@ export class RegisterComponent implements OnInit {
         error: (error) => {
           this.isLoading = false;
           this.errorMessage = error.error?.message || 'Registration failed. Please try again.';
-          console.error('Registration error:', error);
         }
       });
     }

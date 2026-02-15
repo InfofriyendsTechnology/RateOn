@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { Review } from '../../models/index.js';
+import { Review, Reply, Reaction } from '../../models/index.js';
 import responseHandler from '../../utils/responseHandler.js';
 import validator from '../../utils/validator.js';
 
@@ -61,6 +61,28 @@ export default {
             .populate('userId', 'username profile.firstName profile.lastName profile.avatar trustScore level')
             .lean();
 
+        // Fetch replies and reactions for each review
+        for (let review of reviews) {
+            const replies = await Reply.find({
+                reviewId: review._id,
+                isActive: true
+            })
+            .populate('userId', 'name username profile')
+            .sort({ createdAt: 1 })
+            .lean();
+            
+            // Get reaction counts
+            const helpfulCount = await Reaction.countDocuments({ reviewId: review._id, type: 'helpful' });
+            const notHelpfulCount = await Reaction.countDocuments({ reviewId: review._id, type: 'not_helpful' });
+            
+            review.replies = replies;
+            review.replyCount = replies.length;
+            review.reactions = {
+                helpful: helpfulCount,
+                notHelpful: notHelpfulCount
+            };
+        }
+
         const total = await Review.countDocuments(filter);
 
         return responseHandler.success(res, 'Reviews retrieved successfully', {
@@ -74,7 +96,6 @@ export default {
         });
 
     } catch (error) {
-        console.error('Get reviews by item error:', error);
         return responseHandler.error(res, error?.message || 'Failed to retrieve reviews');
     }
     }

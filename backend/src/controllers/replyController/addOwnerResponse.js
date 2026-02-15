@@ -64,7 +64,6 @@ export default {
             return responseHandler.success(res, 'Reply added successfully', review.ownerResponse);
 
         } catch (error) {
-            console.error('Add owner response error:', error);
             return responseHandler.error(res, error?.message || 'Failed to add reply');
         }
     }

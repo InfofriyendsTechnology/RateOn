@@ -41,7 +41,6 @@ export class PwaService {
     window.addEventListener('appinstalled', () => {
       this.isInstalled$.next(true);
       this.canInstall$.next(false);
-      console.log('PWA installed successfully');
     });
   }
 
@@ -58,14 +57,11 @@ export class PwaService {
       const { outcome } = await this.promptEvent.userChoice;
       
       if (outcome === 'accepted') {
-        console.log('User accepted install prompt');
         return true;
       } else {
-        console.log('User dismissed install prompt');
         return false;
       }
     } catch (error) {
-      console.error('Error showing install prompt:', error);
       return false;
     } finally {
       this.promptEvent = null;

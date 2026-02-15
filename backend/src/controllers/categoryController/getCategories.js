@@ -24,7 +24,6 @@ export default {
             return responseHandler.success(res, 'Categories retrieved successfully', categories);
 
         } catch (error) {
-            console.error('Get categories error:', error);
             return responseHandler.error(res, error?.message || 'Failed to retrieve categories');
         }
     }

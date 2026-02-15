@@ -65,27 +65,61 @@ export class AdminLoginComponent implements AfterViewInit {
 
     this.adminService.login({ email: adminEmail, password: this.password }).subscribe({
       next: (response: any) => {
-        const data = response.data || response;
+        this.isLoading = false;
         
-        // Store admin token and user data
-        if (data.token) {
-          this.storageService.saveToken(data.token);
-        }
-        if (data.admin) {
-          this.storageService.saveUser(data.admin);
-        }
+        console.log('📦 Full response:', response);
+        
+        // Backend returns: { success: true, message: "...", data: { token, admin, userType } }
+        if (response.success && response.data) {
+          console.log('✅ Response is valid, proceeding with token storage');
+          
+          // Clear any existing auth data first
+          this.storageService.clearAuth();
+          console.log('🧹 Cleared old auth data');
+          
+          // Store admin token and user data
+          if (response.data.token) {
+            this.storageService.saveToken(response.data.token);
+            console.log('✅ Admin token saved:', response.data.token.substring(0, 20) + '...');
+            
+            // Verify it was saved
+            const savedToken = this.storageService.getToken();
+            console.log('🔍 Verified token in storage:', savedToken ? savedToken.substring(0, 20) + '...' : 'NOT FOUND!');
+          } else {
+            console.error('❌ No token in response.data');
+          }
+          
+          if (response.data.admin) {
+            this.storageService.saveUser(response.data.admin);
+            console.log('✅ Admin user saved:', response.data.admin);
+            
+            // Verify it was saved
+            const savedUser = this.storageService.getUser();
+            console.log('🔍 Verified user in storage:', savedUser);
+          } else {
+            console.error('❌ No admin in response.data');
+          }
 
-        this.toastService.success('Welcome, Admin!');
-        
-        // Redirect to admin dashboard
-        setTimeout(() => {
-          this.router.navigate(['/admin/dashboard']);
-        }, 500);
+          this.toastService.success('Welcome, Admin!');
+          
+          // Redirect to admin dashboard
+          console.log('🚀 Redirecting to /admin/dashboard...');
+          setTimeout(() => {
+            this.router.navigate(['/admin/dashboard']);
+          }, 500);
+        } else {
+          this.showError = true;
+          this.errorMessage = response.message || 'Login failed';
+          console.error('❌ Login failed - response:', response);
+          console.error('❌ response.success:', response.success);
+          console.error('❌ response.data:', response.data);
+        }
       },
       error: (error: any) => {
         this.isLoading = false;
         this.showError = true;
         this.errorMessage = error?.error?.message || 'Invalid password';
+        console.error('❌ Login error:', error);
       }
     });
   }

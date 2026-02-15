@@ -93,7 +93,6 @@ export const initializeAdmin = async () => {
             });
         }
     } catch (error) {
-        console.error('❌ Error creating default  Admin:', error);
     }
 };
 

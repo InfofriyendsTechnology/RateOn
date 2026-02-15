@@ -1,52 +1,63 @@
 <div class="business-card" (click)="onBusinessClick()">
   <div class="business-image">
     <img 
-      [src]="business.images && business.images.length > 0 ? business.images[0] : getDefaultImage()" 
+      *ngIf="business.images && business.images.length > 0"
+      [src]="business.images[0]" 
       [alt]="business.name"
       (error)="onImageError($event)"
       loading="lazy"
     />
-    <span class="category-badge" [class]="getCategoryBadgeClass()">
-      {{business.category}}
-    </span>
+    <div *ngIf="!business.images || business.images.length === 0" class="no-image-placeholder">
+      <lucide-icon [img]="ImageOff" [size]="48"></lucide-icon>
+      <span>No Image Available</span>
+    </div>
   </div>
   
   <div class="business-content">
-    <div class="business-header">
-      <h3 class="business-name">
-        {{business.name}}
-        <lucide-icon 
-          *ngIf="business.claimed" 
-          [img]="CheckCircle" 
-          [size]="16"
-          [color]="'#10b981'"
-          class="claimed-icon"
-        ></lucide-icon>
-      </h3>
-      
-      <div class="business-address">
-        <lucide-icon [img]="MapPin" [size]="14" [color]="'#6b7280'"></lucide-icon>
-        <span>{{business.address?.street}}, {{business.address?.city}}</span>
-      </div>
+    <div class="name-category-row">
+      <h3 class="business-name">{{business.name}}</h3>
+      <span class="business-category" *ngIf="business.category">{{business.category}}</span>
+    </div>
+    
+    <!-- Location -->
+    <div class="business-location" *ngIf="business.address?.city">
+      <lucide-icon [img]="MapPin" [size]="14"></lucide-icon>
+      <span>{{business.address?.city}}{{business.address?.state ? ', ' + business.address?.state : ''}}</span>
     </div>
     
     <p class="business-description">{{business.description}}</p>
     
+    <!-- Rating Section -->
+    <div class="business-rating">
+      <div class="stars">
+        <span 
+          *ngFor="let star of [1,2,3,4,5]" 
+          class="star"
+          [class.filled]="star <= displayAverageRating"
+          [class.empty]="star > displayAverageRating">
+          ★
+        </span>
+      </div>
+      <span class="rating-value">{{displayAverageRating | number:'1.1-1'}}</span>
+    </div>
+    
+    <!-- Footer: Stats + Button -->
     <div class="business-footer">
-      <div class="stats">
-        <div class="stat">
-          <span class="stat-value">{{displayItemsCount}}</span>
+      <div class="business-stats">
+        <div class="stat-item">
+          <span class="stat-count">{{displayItemsCount}}</span>
           <span class="stat-label">Items</span>
         </div>
-        <div class="stat">
-          <span class="stat-value">{{displayReviewCount}}</span>
+        <div class="stat-item">
+          <span class="stat-count">{{displayReviewCount}}</span>
           <span class="stat-label">Reviews</span>
         </div>
-        <div class="stat">
-          <span class="stat-value">{{displayAverageRating | number:'1.1-1'}}</span>
-          <span class="stat-label">Rating</span>
-        </div>
       </div>
+      
+      <button class="btn-write-review" [class.has-review]="hasUserReview" (click)="onWriteReview($event)">
+        <lucide-icon [img]="Edit" [size]="16"></lucide-icon>
+        <span>{{getReviewButtonText()}}</span>
+      </button>
     </div>
   </div>
 </div>

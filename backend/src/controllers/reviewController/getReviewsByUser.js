@@ -1,4 +1,5 @@
 import Joi from 'joi';
+import mongoose from 'mongoose';
 import { Review } from '../../models/index.js';
 import responseHandler from '../../utils/responseHandler.js';
 import validator from '../../utils/validator.js';
@@ -19,6 +20,11 @@ export default {
     try {
         const { userId } = req.params;
         const { page = 1, limit = 10, sortBy = 'createdAt', order = 'desc' } = req.query;
+
+        // Validate ObjectId format
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return responseHandler.error(res, 'Invalid user ID format', 400);
+        }
 
         const filter = { userId, isActive: true };
 
@@ -47,7 +53,6 @@ export default {
         });
 
     } catch (error) {
-        console.error('Get reviews by user error:', error);
         return responseHandler.error(res, error?.message || 'Failed to retrieve reviews');
     }
     }

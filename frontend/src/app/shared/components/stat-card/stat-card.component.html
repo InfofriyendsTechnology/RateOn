@@ -1,0 +1,25 @@
+<div class="stat-card" [class.loading]="loading">
+  @if (loading) {
+    <div class="skeleton">
+      <div class="skeleton-icon"></div>
+      <div class="skeleton-content">
+        <div class="skeleton-title"></div>
+        <div class="skeleton-value"></div>
+      </div>
+    </div>
+  } @else {
+    <div class="stat-icon">
+      <i [class]="icon"></i>
+    </div>
+    <div class="stat-content">
+      <h3 class="stat-title">{{ title }}</h3>
+      <p class="stat-value">{{ value }}</p>
+      @if (trend) {
+        <span class="stat-trend" [class.positive]="trend.isPositive" [class.negative]="!trend.isPositive">
+          <i class="trend-icon" [class]="trend.isPositive ? 'lucide lucide-trending-up' : 'lucide lucide-trending-down'"></i>
+          {{ trend.value }}%
+        </span>
+      }
+    </div>
+  }
+</div>

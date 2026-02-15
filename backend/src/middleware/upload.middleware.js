@@ -153,7 +153,6 @@ export const deleteFromCloudinary = async (publicId) => {
         }
         return false;
     } catch (error) {
-        console.error('Cloudinary deletion failed:', error.message);
         return false;
     }
 };

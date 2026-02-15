@@ -116,8 +116,11 @@ export class ProfileComponent implements OnInit {
   loadReviews() {
     const storedUser = this.storage.getUser();
     const userId = storedUser?.id || storedUser?._id;
-    if (!userId) {
+    
+    // Skip loading reviews for admin users (they don't have ObjectId)
+    if (!userId || userId === 'super-admin' || storedUser?.role === 'super_admin' || storedUser?.role === 'admin') {
       this.loadingReviews = false;
+      this.reviews = [];
       return;
     }
     

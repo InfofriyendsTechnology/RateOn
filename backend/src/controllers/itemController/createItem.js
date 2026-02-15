@@ -91,7 +91,6 @@ export default {
         return responseHandler.success(res, 'Item created successfully', item, 201);
 
     } catch (error) {
-        console.error('Create item error:', error);
         return responseHandler.error(res, error?.message || 'Failed to create item');
     }
     }

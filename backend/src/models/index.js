@@ -9,6 +9,7 @@ export { default as Reply } from './ReplyModel.js';
 export { default as Follow } from './FollowModel.js';
 export { default as ActivityLog } from './ActivityLogModel.js';
 export { default as Report } from './ReportModel.js';
+export { default as Notification } from './NotificationModel.js';
 import { initializeAdmin } from './AdminModel.js';
 
 // Initialize all default data
@@ -16,6 +17,5 @@ export const initializeDatabase = async () => {
     try {
         await initializeAdmin();
     } catch (error) {
-        console.error('❌ Database initialization failed:', error);
     }
 };

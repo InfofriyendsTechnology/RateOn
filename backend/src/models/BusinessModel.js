@@ -105,6 +105,29 @@ const BusinessSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    rating: {
+        average: {
+            type: Number,
+            default: 0,
+            min: 0,
+            max: 5,
+            set: function(val) {
+                // Automatically clamp between 0 and 5
+                return Math.min(5, Math.max(0, val || 0));
+            }
+        },
+        count: {
+            type: Number,
+            default: 0
+        },
+        distribution: {
+            1: { type: Number, default: 0 },
+            2: { type: Number, default: 0 },
+            3: { type: Number, default: 0 },
+            4: { type: Number, default: 0 },
+            5: { type: Number, default: 0 }
+        }
+    },
     stats: {
         totalItems: {
             type: Number,
@@ -118,7 +141,11 @@ const BusinessSchema = new mongoose.Schema({
             type: Number,
             default: 0,
             min: 0,
-            max: 5
+            max: 5,
+            set: function(val) {
+                // Automatically clamp between 0 and 5
+                return Math.min(5, Math.max(0, val || 0));
+            }
         },
         views: {
             type: Number,

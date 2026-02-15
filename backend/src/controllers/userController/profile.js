@@ -28,7 +28,6 @@ const getPublicIdFromUrl = (url) => {
         const fullPath = pathParts.join('/');
         return fullPath.substring(0, fullPath.lastIndexOf('.'));
     } catch (error) {
-        console.error('Error parsing Cloudinary URL:', error);
         return null;
     }
 };
@@ -58,7 +57,6 @@ export const getUserProfile = async (req, res, next) => {
             }
         });
     } catch (error) {
-        console.error('Get profile error:', error);
         return responseHandler.internalServerError(res, 'Failed to fetch profile');
     }
 };
@@ -114,7 +112,6 @@ export const updateUserProfile = async (req, res, next) => {
             }
         });
     } catch (error) {
-        console.error('Update profile error:', error);
         return responseHandler.internalServerError(res, 'Failed to update profile');
     }
 };
@@ -150,7 +147,6 @@ export const uploadAvatar = async (req, res, next) => {
             avatar: req.uploadedFile.url
         });
     } catch (error) {
-        console.error('Upload avatar error:', error);
         return responseHandler.internalServerError(res, 'Failed to upload avatar');
     }
 };
@@ -187,7 +183,6 @@ export const deleteUserProfile = async (req, res, next) => {
 
         return responseHandler.success(res, 'Profile deleted successfully');
     } catch (error) {
-        console.error('Delete profile error:', error);
         return responseHandler.internalServerError(res, 'Failed to delete profile');
     }
 };

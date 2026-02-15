@@ -33,6 +33,16 @@ const UserSchema = new mongoose.Schema({
         unique: true,
         sparse: true
     },
+    registrationMethod: {
+        type: String,
+        enum: ['email', 'google', 'facebook', 'phone'],
+        default: 'email'
+    },
+    gender: {
+        type: String,
+        enum: ['male', 'female', 'other', 'prefer_not_to_say'],
+        default: 'prefer_not_to_say'
+    },
     role: {
         type: String,
         enum: ROLE_VALUES,
@@ -59,6 +69,33 @@ const UserSchema = new mongoose.Schema({
             default: ''
         },
         location: {
+            type: String,
+            default: ''
+        },
+        country: {
+            type: String,
+            default: ''
+        },
+        state: {
+            type: String,
+            default: ''
+        },
+        city: {
+            type: String,
+            default: ''
+        },
+        coordinates: {
+            type: {
+                type: String,
+                enum: ['Point'],
+                default: 'Point'
+            },
+            coordinates: {
+                type: [Number],  // [longitude, latitude]
+                default: [0, 0]
+            }
+        },
+        ipAddress: {
             type: String,
             default: ''
         },
@@ -137,6 +174,13 @@ UserSchema.pre('save', async function() {
     if (!this.isModified('password') || !this.password) {
         return;
     }
+    
+    // Check if password is already hashed (bcrypt hashes start with $2a$, $2b$, or $2y$)
+    const isBcryptHash = /^\$2[aby]\$\d{2}\$/.test(this.password);
+    if (isBcryptHash) {
+        return; // Password is already hashed, don't hash again
+    }
+    
     this.password = await bcrypt.hash(this.password, 10);
 });
 

@@ -62,7 +62,6 @@ export default {
                     const publicId = imageUrl.split('/').pop().split('.')[0];
                     await cloudinary.uploader.destroy(publicId);
                 } catch (error) {
-                    console.error('Failed to delete image from Cloudinary:', error);
                 }
             }
 
@@ -88,7 +87,6 @@ export default {
             );
 
         } catch (error) {
-            console.error('Delete business error:', error);
             return responseHandler.error(res, error?.message || 'Failed to delete business');
         }
     }

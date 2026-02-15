@@ -84,7 +84,6 @@ export default {
         );
 
     } catch (error) {
-        console.error('Get items by business error:', error);
         return responseHandler.error(res, error?.message || 'Failed to retrieve items');
     }
     }

@@ -115,7 +115,6 @@ export class BusinessRegisterComponent implements OnInit {
           // Skip to step 2 (Business Details)
           this.currentStep = 2;
         } catch (error) {
-          console.error('Failed to parse googleData:', error);
         }
       }
       // Also check for individual params (backward compatibility)
@@ -232,7 +231,6 @@ export class BusinessRegisterComponent implements OnInit {
         error: (error) => {
           this.isLoading = false;
           this.errorMessage = error.error?.message || 'Registration failed. Please try again.';
-          console.error('Business registration error:', error);
         }
       });
     }

@@ -1,8 +1,9 @@
 .business-card {
-  background: white;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  border: 1px solid #333;
   transition: all 0.3s ease;
   cursor: pointer;
   display: flex;
@@ -10,8 +11,9 @@
   height: 100%;
   
   &:hover {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 24px rgba(192, 192, 192, 0.2);
     transform: translateY(-4px);
+    border-color: #C0C0C0;
   }
   
   .business-image {
@@ -19,7 +21,7 @@
     width: 100%;
     height: 200px;
     overflow: hidden;
-    background: #f3f4f6;
+    background: #0a0a0a;
     
     img {
       width: 100%;
@@ -32,38 +34,27 @@
       transform: scale(1.05);
     }
     
-    .category-badge {
-      position: absolute;
-      top: 12px;
-      left: 12px;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: capitalize;
-      background: rgba(8, 32, 82, 0.9);
-      color: white;
-      backdrop-filter: blur(8px);
+    .no-image-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
       
-      // Category-specific colors
-      &.category-restaurant {
-        background: rgba(239, 68, 68, 0.9);
+      lucide-icon {
+        color: #666666;
+        opacity: 0.6;
       }
       
-      &.category-cafe {
-        background: rgba(245, 158, 11, 0.9);
-      }
-      
-      &.category-retail {
-        background: rgba(16, 185, 129, 0.9);
-      }
-      
-      &.category-hotel {
-        background: rgba(59, 130, 246, 0.9);
-      }
-      
-      &.category-service {
-        background: rgba(139, 92, 246, 0.9);
+      span {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #666666;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
       }
     }
   }
@@ -75,46 +66,68 @@
     flex: 1;
   }
   
-  .business-header {
-    margin-bottom: 12px;
+  .name-category-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .business-name {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+    line-height: 1.3;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  
+  .business-category {
+    padding: 0.25rem 0.625rem;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: #000000;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(251, 191, 36, 0.3);
+  }
+  
+  .business-location {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: #a0a0a0;
+    font-size: 0.8125rem;
+    margin-bottom: 0.5rem;
     
-    .business-name {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: #082052;
-      margin: 0 0 8px 0;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+    lucide-icon {
+      color: #fbbf24;
+      flex-shrink: 0;
+    }
+    
+    span {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-      
-      .claimed-icon {
-        flex-shrink: 0;
-      }
-    }
-    
-    .business-address {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: #6b7280;
-      font-size: 0.875rem;
-      
-      span {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
     }
   }
   
   .business-description {
-    color: #4b5563;
+    color: #a0a0a0;
     font-size: 0.875rem;
-    line-height: 1.5;
-    margin: 0 0 16px 0;
+    line-height: 1.4;
+    margin: 0 0 0.625rem 0;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -123,32 +136,120 @@
     flex: 1;
   }
   
-  .business-footer {
-    padding-top: 12px;
-    border-top: 1px solid #e5e7eb;
+  .business-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid #333;
     
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.5rem;
-      text-align: center;
+    .stars {
+      display: flex;
+      gap: 2px;
+      
+      .star {
+        font-size: 1rem;
+        line-height: 1;
+        
+        &.filled {
+          color: #fbbf24;
+        }
+        
+        &.empty {
+          color: #4a4a4a;
+        }
+      }
     }
     
-    .stat {
+    .rating-value {
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-left: 0.25rem;
+    }
+    
+    .review-count {
+      font-size: 0.8125rem;
+      font-weight: 400;
+      color: #a0a0a0;
+    }
+  }
+  
+  .business-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .business-stats {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    flex: 1;
+    
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
       
-      .stat-value {
-        display: block;
-        font-size: 1.1rem;
+      .stat-count {
+        color: #a0a0a0;
+        font-size: 1.25rem;
         font-weight: 700;
-        color: #082052;
       }
       
       .stat-label {
-        display: block;
-        font-size: 0.75rem;
-        color: #6b7280;
-        text-transform: uppercase;
-        letter-spacing: 0.03em;
+        color: #a0a0a0;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        text-transform: capitalize;
+      }
+    }
+  }
+  
+  .btn-write-review {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    background: linear-gradient(135deg, #C0C0C0 0%, #A8A8A8 100%);
+    color: #000000;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(192, 192, 192, 0.3);
+    
+    lucide-icon {
+      flex-shrink: 0;
+    }
+    
+    &:hover {
+      background: linear-gradient(135deg, #D0D0D0 0%, #B8B8B8 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(192, 192, 192, 0.4);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+    
+    // Yellow styling when user has reviewed (Edit Review)
+    &.has-review {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+      box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+      
+      &:hover {
+        background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%);
+        box-shadow: 0 4px 12px rgba(251, 191, 36, 0.5);
       }
     }
   }

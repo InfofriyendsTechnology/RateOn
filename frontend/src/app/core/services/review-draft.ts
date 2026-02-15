@@ -19,7 +19,6 @@ export class ReviewDraftService {
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(draft));
     } catch (error) {
-      console.error('Failed to save review draft:', error);
     }
   }
 
@@ -28,7 +27,6 @@ export class ReviewDraftService {
       const draft = localStorage.getItem(this.STORAGE_KEY);
       return draft ? JSON.parse(draft) : null;
     } catch (error) {
-      console.error('Failed to get review draft:', error);
       return null;
     }
   }
@@ -37,7 +35,6 @@ export class ReviewDraftService {
     try {
       localStorage.removeItem(this.STORAGE_KEY);
     } catch (error) {
-      console.error('Failed to clear review draft:', error);
     }
   }
 

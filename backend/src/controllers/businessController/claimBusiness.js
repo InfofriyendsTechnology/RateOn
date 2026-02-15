@@ -45,7 +45,6 @@ export default {
         return responseHandler.success(res, 'Business claimed successfully. You are now the owner.', business);
 
     } catch (error) {
-        console.error('Claim business error:', error);
         return responseHandler.error(res, error?.message || 'Failed to claim business');
     }
     }

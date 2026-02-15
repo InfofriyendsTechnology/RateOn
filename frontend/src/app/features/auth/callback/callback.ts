@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StorageService } from '../../../core/services/storage';
+import { AuthService } from '../../../core/services/auth';
 
 @Component({
   selector: 'app-callback',
@@ -114,7 +115,8 @@ export class CallbackComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private storage: StorageService
+    private storage: StorageService,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
@@ -140,6 +142,9 @@ export class CallbackComponent implements OnInit {
           // Store new token and user
           this.storage.saveToken(authData.token);
           this.storage.saveUser(authData.user);
+          
+          // Update AuthService to sync the authentication state
+          this.authService.updateCurrentUser(authData.user);
 
           this.message = 'Login successful! Redirecting...';
           
@@ -152,7 +157,6 @@ export class CallbackComponent implements OnInit {
             this.router.navigate([redirectUrl]);
           }, 1000);
         } catch (error) {
-          console.error('Error parsing auth data:', error);
           this.message = 'Authentication failed. Redirecting...';
           setTimeout(() => {
             this.router.navigate(['/auth/login']);

@@ -45,7 +45,6 @@ export default {
             return responseHandler.success(res, 'Reply updated successfully', review.ownerResponse);
 
         } catch (error) {
-            console.error('Update owner response error:', error);
             return responseHandler.error(res, error?.message || 'Failed to update reply');
         }
     }

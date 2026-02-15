@@ -12,6 +12,8 @@ import activityRoutes from "./activityRoutes.js";
 import leaderboardRoutes from "./leaderboardRoutes.js";
 import reportRoutes from "./reportRoutes.js";
 import adminRoutes from "./adminRoutes.js";
+import notificationRoutes from "./notificationRoutes.js";
+import locationRoutes from "./locationRoutes.js";
 
 const router = Router();
 
@@ -23,11 +25,13 @@ router.use("/categories", categoryRoutes);
 router.use("/reviews", reviewRoutes);
 router.use("/reactions", reactionRoutes);
 router.use("/replies", replyRoutes);
+router.use("/notifications", notificationRoutes);
 router.use("/follow", followRoutes);
 router.use("/activity", activityRoutes);
 router.use("/leaderboard", leaderboardRoutes);
 router.use("/reports", reportRoutes);
 router.use("/admin", adminRoutes);
+router.use("/locations", locationRoutes);
 
 export default router;
 

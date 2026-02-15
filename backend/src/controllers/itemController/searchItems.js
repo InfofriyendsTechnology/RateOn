@@ -94,7 +94,6 @@ export default {
         );
 
     } catch (error) {
-        console.error('Search items error:', error);
         return responseHandler.error(res, error?.message || 'Failed to search items');
     }
     }

@@ -1,0 +1,124 @@
+<div class="search-results-page">
+  <div class="search-content">
+    <!-- Results Section -->
+    <main class="results-section">
+      
+      <!-- Combined Header with Search and Title -->
+      <div class="results-header">
+        <div class="header-top">
+          <div class="results-info">
+            <h1 class="results-title">
+              @if (searchQuery) {
+                "{{ searchQuery }}"
+              } @else {
+                Explore
+              }
+            </h1>
+            <p class="results-count">{{ totalResults }} results</p>
+          </div>
+          <div class="search-bar-compact">
+            <app-search-bar 
+              (search)="onSearchChange($event)">
+            </app-search-bar>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <button 
+            class="tab-btn"
+            [class.active]="activeTab === 'businesses'"
+            (click)="onTabChange('businesses')">
+            <i class="lucide lucide-building-2"></i>
+            <span>Businesses</span>
+          </button>
+          <button 
+            class="tab-btn"
+            [class.active]="activeTab === 'items'"
+            (click)="onTabChange('items')">
+            <i class="lucide lucide-shopping-bag"></i>
+            <span>Items</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      @if (loading) {
+        <div class="loading-state">
+          <i class="lucide lucide-loader-2"></i>
+          <p>Searching...</p>
+        </div>
+      }
+
+      <!-- Results Grid -->
+      @if (!loading && activeTab === 'businesses' && businesses.length > 0) {
+        <div class="results-grid">
+          @for (business of businesses; track business.id) {
+            <app-business-card 
+              [business]="transformBusinessForCard(business)"
+              [hasUserReview]="hasUserReviewedBusiness(business.id)"></app-business-card>
+          }
+        </div>
+      }
+
+      @if (!loading && activeTab === 'items' && items.length > 0) {
+        <div class="results-grid">
+          @for (item of items; track item.id) {
+            <app-item-card 
+              [item]="transformItemForCard(item)"
+              [hasUserReview]="hasUserReviewedItem(item.id)"
+              (reviewAction)="onItemReviewAction($event)"
+              (cardClick)="onItemCardClick($event)"></app-item-card>
+          }
+        </div>
+      }
+
+      <!-- No Results -->
+      @if (!loading && ((activeTab === 'businesses' && businesses.length === 0) || 
+                         (activeTab === 'items' && items.length === 0))) {
+        <div class="no-results">
+          <i class="lucide lucide-search-x"></i>
+          <h2>No results found</h2>
+          <p>Try adjusting your search or filters</p>
+        </div>
+      }
+
+      <!-- Pagination -->
+      @if (!loading && totalResults > pageSize) {
+        <div class="pagination">
+          <button 
+            class="pagination-btn"
+            [disabled]="currentPage === 1"
+            (click)="onPageChange(currentPage - 1)">
+            <i class="lucide lucide-chevron-left"></i>
+            Previous
+          </button>
+
+          <div class="pagination-numbers">
+            @for (page of getPageNumbers(); track $index) {
+              @if (page === -1) {
+                <span class="pagination-ellipsis">...</span>
+              } @else {
+                <button 
+                  class="pagination-number"
+                  [class.active]="page === currentPage"
+                  (click)="onPageChange(page)">
+                  {{ page }}
+                </button>
+              }
+            }
+          </div>
+
+          <button 
+            class="pagination-btn"
+            [disabled]="currentPage === getTotalPages()"
+            (click)="onPageChange(currentPage + 1)">
+            Next
+            <i class="lucide lucide-chevron-right"></i>
+          </button>
+        </div>
+      }
+
+    </main>
+  </div>
+</div>

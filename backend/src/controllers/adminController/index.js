@@ -4,8 +4,25 @@ import adminLogin from './adminLogin.js';
 import adminLogout from './adminLogout.js';
 import getUserAnalytics from './getUserAnalytics.js';
 import getContentAnalytics from './getContentAnalytics.js';
+import getUserStatistics from './getUserStatistics.js';
+import getReviewStatistics from './getReviewStatistics.js';
+import getBusinessStatistics from './getBusinessStatistics.js';
+import getTopBusinesses from './getTopBusinesses.js';
+import getLocationData from './getLocationData.js';
+import getRealTimeMetrics from './getRealTimeMetrics.js';
 
-export { adminLogin, adminLogout, getUserAnalytics, getContentAnalytics };
+export { 
+    adminLogin, 
+    adminLogout, 
+    getUserAnalytics, 
+    getContentAnalytics,
+    getUserStatistics,
+    getReviewStatistics,
+    getBusinessStatistics,
+    getTopBusinesses,
+    getLocationData,
+    getRealTimeMetrics
+};
 
 /**
  * Get platform statistics
@@ -62,7 +79,6 @@ export const getPlatformStats = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Get platform stats error:', error);
         return responseHandler.error(res, 'Failed to fetch platform statistics', 500);
     }
 };
@@ -102,7 +118,6 @@ export const getUsers = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Get users error:', error);
         return responseHandler.error(res, 'Failed to fetch users', 500);
     }
 };
@@ -142,7 +157,6 @@ export const suspendUser = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Suspend user error:', error);
         return responseHandler.error(res, 'Failed to suspend user', 500);
     }
 };
@@ -172,7 +186,6 @@ export const unsuspendUser = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Unsuspend user error:', error);
         return responseHandler.error(res, 'Failed to unsuspend user', 500);
     }
 };
@@ -212,7 +225,6 @@ export const banUser = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Ban user error:', error);
         return responseHandler.error(res, 'Failed to ban user', 500);
     }
 };
@@ -253,7 +265,6 @@ export const getUserDetails = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Get user details error:', error);
         return responseHandler.error(res, 'Failed to fetch user details', 500);
     }
 };

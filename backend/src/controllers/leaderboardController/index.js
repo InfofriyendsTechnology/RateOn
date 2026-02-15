@@ -43,7 +43,6 @@ export const getTopReviewers = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Get top reviewers error:', error);
         return responseHandler.error(res, 'Failed to fetch top reviewers', 500);
     }
 };
@@ -116,7 +115,6 @@ export const getMostActiveUsers = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Get most active users error:', error);
         return responseHandler.error(res, 'Failed to fetch most active users', 500);
     }
 };
@@ -204,7 +202,6 @@ export const getTopContributorsByCategory = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Get top contributors by category error:', error);
         return responseHandler.error(res, 'Failed to fetch top contributors', 500);
     }
 };

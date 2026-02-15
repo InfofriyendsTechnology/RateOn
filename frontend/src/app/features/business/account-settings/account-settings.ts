@@ -88,7 +88,6 @@ export class AccountSettingsComponent implements OnInit {
     if (this.user) {
       this.loading = false;
     } else {
-      console.error('No user found');
       this.loading = false;
     }
   }
@@ -211,7 +210,6 @@ export class AccountSettingsComponent implements OnInit {
         this.router.navigate(['/']);
       },
       error: (err: any) => {
-        console.error('Delete account error:', err);
         const errorMessage = err.error?.message || 'Failed to delete account';
         this.toast.error(errorMessage);
         this.deletingAccount = false;

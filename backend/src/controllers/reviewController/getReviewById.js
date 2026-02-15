@@ -27,7 +27,6 @@ export default {
         return responseHandler.success(res, 'Review retrieved successfully', review);
 
     } catch (error) {
-        console.error('Get review by ID error:', error);
         return responseHandler.error(res, error?.message || 'Failed to retrieve review');
     }
     }

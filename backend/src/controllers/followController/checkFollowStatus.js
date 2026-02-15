@@ -14,7 +14,6 @@ export const checkFollowStatus = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Check follow status error:', error);
         return responseHandler.error(res, 'Failed to check follow status', 500);
     }
 };

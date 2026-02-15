@@ -61,7 +61,6 @@ export const createReport = async (req, res) => {
         return responseHandler.success(res, 'Report submitted successfully', { report }, 201);
 
     } catch (error) {
-        console.error('Create report error:', error);
         return responseHandler.error(res, 'Failed to create report', 500);
     }
 };
@@ -102,7 +101,6 @@ export const getReports = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Get reports error:', error);
         return responseHandler.error(res, 'Failed to fetch reports', 500);
     }
 };
@@ -127,7 +125,6 @@ export const getReportById = async (req, res) => {
         return responseHandler.success(res, 'Report fetched', { report });
 
     } catch (error) {
-        console.error('Get report by ID error:', error);
         return responseHandler.error(res, 'Failed to fetch report', 500);
     }
 };
@@ -190,7 +187,6 @@ export const resolveReport = async (req, res) => {
         return responseHandler.success(res, 'Report resolved successfully', { report });
 
     } catch (error) {
-        console.error('Resolve report error:', error);
         return responseHandler.error(res, 'Failed to resolve report', 500);
     }
 };
@@ -222,7 +218,6 @@ export const rejectReport = async (req, res) => {
         return responseHandler.success(res, 'Report rejected successfully', { report });
 
     } catch (error) {
-        console.error('Reject report error:', error);
         return responseHandler.error(res, 'Failed to reject report', 500);
     }
 };
@@ -271,7 +266,6 @@ export const getReportStats = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Get report stats error:', error);
         return responseHandler.error(res, 'Failed to fetch report statistics', 500);
     }
 };

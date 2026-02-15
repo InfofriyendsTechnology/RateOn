@@ -1,0 +1,230 @@
+<div class="filter-sidebar">
+  <!-- Header -->
+  <div class="sidebar-header">
+    <div class="header-content">
+      <h3 class="sidebar-title">Filters</h3>
+      @if (getActiveFiltersCount() > 0) {
+        <span class="filter-badge">{{ getActiveFiltersCount() }}</span>
+      }
+    </div>
+    <div class="header-actions">
+      @if (getActiveFiltersCount() > 0) {
+        <button class="clear-all-btn" (click)="clearAllFilters()">
+          Clear All
+        </button>
+      }
+      <button class="close-btn" (click)="closeSidebar()" aria-label="Close filters">
+        <i class="lucide lucide-x"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters Content -->
+  <div class="sidebar-content">
+
+    <!-- Category Filter -->
+    <div class="filter-section">
+      <button 
+        class="section-header" 
+        (click)="toggleSection('category')"
+        [class.expanded]="expandedSections['category']">
+        <span class="section-title">Category</span>
+        <i class="lucide" [class.lucide-chevron-up]="expandedSections['category']" 
+           [class.lucide-chevron-down]="!expandedSections['category']"></i>
+      </button>
+      
+      @if (expandedSections['category']) {
+        <div class="section-content">
+          @for (category of availableCategories; track category.id) {
+            <label class="checkbox-item">
+              <input 
+                type="checkbox" 
+                [checked]="selectedCategories.includes(category.id)"
+                (change)="toggleCategory(category.id)">
+              <i [class]="getCategoryIcon(category.icon)"></i>
+              <span>{{ category.name }}</span>
+            </label>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Rating Filter -->
+    <div class="filter-section">
+      <button 
+        class="section-header" 
+        (click)="toggleSection('rating')"
+        [class.expanded]="expandedSections['rating']">
+        <span class="section-title">Minimum Rating</span>
+        <i class="lucide" [class.lucide-chevron-up]="expandedSections['rating']" 
+           [class.lucide-chevron-down]="!expandedSections['rating']"></i>
+      </button>
+      
+      @if (expandedSections['rating']) {
+        <div class="section-content">
+          @for (rating of ratingStars; track rating) {
+            <label class="radio-item" (click)="selectRating(rating)">
+              <input 
+                type="radio" 
+                name="rating"
+                [checked]="selectedRating === rating">
+              <div class="stars">
+                @for (star of getStarArray(rating); track $index) {
+                  <i class="lucide lucide-star star-filled"></i>
+                }
+                @for (star of getStarArray(5 - rating); track $index) {
+                  <i class="lucide lucide-star star-empty"></i>
+                }
+              </div>
+              <span class="rating-text">{{ rating }}+ stars</span>
+            </label>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Price Range Filter -->
+    <div class="filter-section">
+      <button 
+        class="section-header" 
+        (click)="toggleSection('price')"
+        [class.expanded]="expandedSections['price']">
+        <span class="section-title">Price Range</span>
+        <i class="lucide" [class.lucide-chevron-up]="expandedSections['price']" 
+           [class.lucide-chevron-down]="!expandedSections['price']"></i>
+      </button>
+      
+      @if (expandedSections['price']) {
+        <div class="section-content">
+          <div class="price-inputs">
+            <div class="price-input-group">
+              <label>Min</label>
+              <input 
+                type="number" 
+                [(ngModel)]="priceMin" 
+                (ngModelChange)="onPriceChange()"
+                min="0"
+                placeholder="0">
+            </div>
+            <span class="price-separator">-</span>
+            <div class="price-input-group">
+              <label>Max</label>
+              <input 
+                type="number" 
+                [(ngModel)]="priceMax" 
+                (ngModelChange)="onPriceChange()"
+                min="0"
+                placeholder="1000">
+            </div>
+          </div>
+          <div class="price-range-slider">
+            <input 
+              type="range" 
+              [(ngModel)]="priceMin" 
+              (ngModelChange)="onPriceChange()"
+              min="0" 
+              max="1000" 
+              step="10">
+            <input 
+              type="range" 
+              [(ngModel)]="priceMax" 
+              (ngModelChange)="onPriceChange()"
+              min="0" 
+              max="1000" 
+              step="10">
+          </div>
+        </div>
+      }
+    </div>
+
+    <!-- Availability Filter -->
+    <div class="filter-section">
+      <button 
+        class="section-header" 
+        (click)="toggleSection('availability')"
+        [class.expanded]="expandedSections['availability']">
+        <span class="section-title">Availability</span>
+        <i class="lucide" [class.lucide-chevron-up]="expandedSections['availability']" 
+           [class.lucide-chevron-down]="!expandedSections['availability']"></i>
+      </button>
+      
+      @if (expandedSections['availability']) {
+        <div class="section-content">
+          @for (option of availabilityOptions; track option.id) {
+            <label class="checkbox-item">
+              <input 
+                type="checkbox" 
+                [checked]="selectedAvailability.includes(option.id)"
+                (change)="toggleAvailability(option.id)">
+              <span>{{ option.name }}</span>
+            </label>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Location Filter -->
+    <div class="filter-section">
+      <button 
+        class="section-header" 
+        (click)="toggleSection('location')"
+        [class.expanded]="expandedSections['location']">
+        <span class="section-title">Location</span>
+        <i class="lucide" [class.lucide-chevron-up]="expandedSections['location']" 
+           [class.lucide-chevron-down]="!expandedSections['location']"></i>
+      </button>
+      
+      @if (expandedSections['location']) {
+        <div class="section-content">
+          <label class="checkbox-item">
+            <input 
+              type="checkbox" 
+              [(ngModel)]="useLocation"
+              (ngModelChange)="onLocationToggle()">
+            <span>Use my location</span>
+          </label>
+          
+          @if (useLocation) {
+            <div class="radius-control">
+              <label>Within {{ locationRadius }} km</label>
+              <input 
+                type="range" 
+                [(ngModel)]="locationRadius" 
+                (ngModelChange)="onRadiusChange()"
+                min="1" 
+                max="50" 
+                step="1">
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <!-- Sort By -->
+    <div class="filter-section">
+      <button 
+        class="section-header" 
+        (click)="toggleSection('sort')"
+        [class.expanded]="expandedSections['sort']">
+        <span class="section-title">Sort By</span>
+        <i class="lucide" [class.lucide-chevron-up]="expandedSections['sort']" 
+           [class.lucide-chevron-down]="!expandedSections['sort']"></i>
+      </button>
+      
+      @if (expandedSections['sort']) {
+        <div class="section-content">
+          @for (option of sortOptions; track option.id) {
+            <label class="radio-item" (click)="selectedSort = option.id; onSortChange()">
+              <input 
+                type="radio" 
+                name="sort"
+                [checked]="selectedSort === option.id">
+              <span>{{ option.name }}</span>
+            </label>
+          }
+        </div>
+      }
+    </div>
+
+  </div>
+</div>

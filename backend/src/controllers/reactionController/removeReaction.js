@@ -40,7 +40,6 @@ export default {
             return responseHandler.success(res, 'Reaction removed successfully');
 
         } catch (error) {
-            console.error('Remove reaction error:', error);
             return responseHandler.error(res, error?.message || 'Failed to remove reaction');
         }
     }

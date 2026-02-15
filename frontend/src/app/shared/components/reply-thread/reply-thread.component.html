@@ -1,0 +1,209 @@
+<div class="reply-thread">
+  <!-- Header -->
+  <div class="reply-header">
+    <h3 class="reply-title">
+      {{ totalReplies }} {{ totalReplies === 1 ? 'Reply' : 'Replies' }}
+    </h3>
+  </div>
+
+  <!-- Main Reply Form (Top-level) -->
+  <div class="main-reply-form" *ngIf="currentUserId">
+    <div class="reply-form-container">
+      <textarea
+        [(ngModel)]="mainReplyText"
+        class="reply-textarea"
+        placeholder="Write a reply..."
+        rows="3"
+        maxlength="1000"
+        [disabled]="isSubmittingMainReply"></textarea>
+      
+      <div class="reply-form-footer">
+        <span [class]="getCharCountClass(mainReplyText)" class="char-count">
+          {{ mainReplyText.length }} / 1000
+        </span>
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          (click)="submitMainReply()"
+          [disabled]="!mainReplyText.trim() || isSubmittingMainReply">
+          <span *ngIf="!isSubmittingMainReply">Post Reply</span>
+          <span *ngIf="isSubmittingMainReply">Posting...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Login Prompt -->
+  <div class="login-prompt" *ngIf="!currentUserId">
+    <p>Please log in to post a reply</p>
+  </div>
+
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading replies...</p>
+  </div>
+
+  <!-- Replies List -->
+  <div class="replies-list" *ngIf="!isLoading">
+    <ng-container *ngIf="replies.length > 0">
+      <!-- Recursively render replies -->
+      <ng-container *ngFor="let reply of replies">
+        <ng-container *ngTemplateOutlet="replyItem; context: { $implicit: reply, level: 0 }"></ng-container>
+      </ng-container>
+    </ng-container>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="replies.length === 0 && !isLoading">
+      <p>No replies yet. Be the first to reply!</p>
+    </div>
+
+    <!-- Load More Button -->
+    <div class="load-more" *ngIf="hasMore && !isLoadingMore">
+      <button type="button" class="btn btn-outline-secondary" (click)="loadMore()">
+        Load More Replies
+      </button>
+    </div>
+
+    <!-- Loading More State -->
+    <div class="loading-more" *ngIf="isLoadingMore">
+      <div class="spinner-sm"></div>
+      <span>Loading more...</span>
+    </div>
+  </div>
+</div>
+
+<!-- Reply Item Template (Recursive) -->
+<ng-template #replyItem let-reply let-level="level">
+  <div class="reply-item" [class.nested]="level > 0" [style.margin-left.px]="level * 24">
+    <!-- View Mode -->
+    <div class="reply-content" *ngIf="!editForms[reply._id]?.visible">
+      <!-- User Avatar & Info -->
+      <div class="reply-meta">
+        <img 
+          [src]="reply.userId.profile?.avatar || '/assets/default-avatar.png'" 
+          [alt]="getUserDisplayName(reply)"
+          class="user-avatar">
+        
+        <div class="user-info">
+          <span class="user-name">{{ getUserDisplayName(reply) }}</span>
+          <span class="reply-date">{{ formatDate(reply.createdAt) }}</span>
+          <span class="edited-badge" *ngIf="reply.isEdited">(edited)</span>
+        </div>
+      </div>
+
+      <!-- Comment Text -->
+      <div class="reply-text">
+        {{ reply.comment }}
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="reply-actions">
+        <!-- Reply Button -->
+        <button 
+          type="button"
+          class="btn-action"
+          (click)="showReplyForm(reply._id)"
+          *ngIf="currentUserId">
+          Reply
+        </button>
+
+        <!-- Edit Button (Owner Only) -->
+        <button
+          type="button"
+          class="btn-action"
+          (click)="showEditForm(reply)"
+          *ngIf="canModifyReply(reply)">
+          Edit
+        </button>
+
+        <!-- Delete Button (Owner Only) -->
+        <button
+          type="button"
+          class="btn-action text-danger"
+          (click)="deleteReply(reply._id)"
+          *ngIf="canModifyReply(reply)">
+          Delete
+        </button>
+      </div>
+
+      <!-- Nested Reply Form -->
+      <div class="nested-reply-form" *ngIf="replyForms[reply._id]?.visible">
+        <div class="reply-form-container">
+          <textarea
+            [(ngModel)]="replyForms[reply._id].text"
+            class="reply-textarea"
+            placeholder="Write a reply..."
+            rows="2"
+            maxlength="1000"
+            [disabled]="replyForms[reply._id].isSubmitting"></textarea>
+          
+          <div class="reply-form-footer">
+            <span [class]="getCharCountClass(replyForms[reply._id].text)" class="char-count">
+              {{ replyForms[reply._id].text.length }} / 1000
+            </span>
+            <div class="form-buttons">
+              <button
+                type="button"
+                class="btn btn-sm btn-secondary"
+                (click)="cancelReplyForm(reply._id)"
+                [disabled]="replyForms[reply._id].isSubmitting">
+                Cancel
+              </button>
+              <button
+                type="button"
+                class="btn btn-sm btn-primary"
+                (click)="submitNestedReply(reply._id)"
+                [disabled]="!replyForms[reply._id].text.trim() || replyForms[reply._id].isSubmitting">
+                <span *ngIf="!replyForms[reply._id].isSubmitting">Post Reply</span>
+                <span *ngIf="replyForms[reply._id].isSubmitting">Posting...</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Mode -->
+    <div class="reply-edit" *ngIf="editForms[reply._id]?.visible">
+      <div class="reply-form-container">
+        <textarea
+          [(ngModel)]="editForms[reply._id].text"
+          class="reply-textarea"
+          rows="3"
+          maxlength="1000"
+          [disabled]="editForms[reply._id].isSubmitting"></textarea>
+        
+        <div class="reply-form-footer">
+          <span [class]="getCharCountClass(editForms[reply._id].text)" class="char-count">
+            {{ editForms[reply._id].text.length }} / 1000
+          </span>
+          <div class="form-buttons">
+            <button
+              type="button"
+              class="btn btn-sm btn-secondary"
+              (click)="cancelEditForm(reply._id)"
+              [disabled]="editForms[reply._id].isSubmitting">
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-sm btn-primary"
+              (click)="updateReply(reply._id)"
+              [disabled]="!editForms[reply._id].text.trim() || editForms[reply._id].isSubmitting">
+              <span *ngIf="!editForms[reply._id].isSubmitting">Save Changes</span>
+              <span *ngIf="editForms[reply._id].isSubmitting">Saving...</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nested Replies (Recursive) -->
+    <div class="nested-replies" *ngIf="reply.children && reply.children.length > 0">
+      <ng-container *ngFor="let childReply of reply.children">
+        <ng-container *ngTemplateOutlet="replyItem; context: { $implicit: childReply, level: level + 1 }"></ng-container>
+      </ng-container>
+    </div>
+  </div>
+</ng-template>

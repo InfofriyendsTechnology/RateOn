@@ -44,7 +44,6 @@ export const followUser = async (req, res) => {
         }, 201);
 
     } catch (error) {
-        console.error('Follow user error:', error);
         return responseHandler.error(res, 'Failed to follow user', 500);
     }
 };

@@ -49,7 +49,6 @@ export default {
                         finalImages = [...imagesToKeep];
                     }
                 } catch (e) {
-                    console.error('Failed to parse existingImages for review:', e);
                 }
             } else if (Array.isArray(review.images)) {
                 // If existingImages not provided, default to keeping all current images
@@ -63,7 +62,6 @@ export default {
                 const imagesToDelete = currentImages.filter(img => !imagesToKeep.includes(img));
 
                 if (imagesToDelete.length > 0) {
-                    console.log('Deleting review images from Cloudinary:', imagesToDelete);
                     for (const imageUrl of imagesToDelete) {
                         try {
                             const urlParts = imageUrl.split('/upload/');
@@ -71,14 +69,10 @@ export default {
                                 const pathWithVersion = urlParts[1];
                                 const pathWithoutVersion = pathWithVersion.replace(/^v\d+\//, '');
                                 const publicId = pathWithoutVersion.replace(/\.[^.]+$/, '');
-
-                                console.log('Deleting review public_id:', publicId);
                                 await deleteFromCloudinary(publicId);
                             } else {
-                                console.error('Invalid Cloudinary URL format for review image:', imageUrl);
                             }
                         } catch (error) {
-                            console.error('Failed to delete review image:', imageUrl, error);
                         }
                     }
                 }
@@ -164,7 +158,6 @@ export default {
             return responseHandler.success(res, 'Review updated successfully', review);
 
         } catch (error) {
-            console.error('Update review error:', error);
             return responseHandler.error(res, error?.message || 'Failed to update review');
         }
     }

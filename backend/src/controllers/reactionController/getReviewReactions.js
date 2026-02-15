@@ -39,7 +39,6 @@ export default {
             });
 
         } catch (error) {
-            console.error('Get review reactions error:', error);
             return responseHandler.error(res, error?.message || 'Failed to retrieve reactions');
         }
     }

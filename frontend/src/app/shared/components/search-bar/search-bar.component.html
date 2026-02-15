@@ -1,0 +1,93 @@
+<div class="search-bar-container">
+  <div class="search-input-wrapper">
+    <i class="search-icon lucide lucide-search"></i>
+    
+    <input
+      type="text"
+      class="search-input"
+      placeholder="Search businesses, items, categories..."
+      [(ngModel)]="searchQuery"
+      (input)="onInputChange($event.target.value)"
+      (focus)="onInputFocus()"
+      (blur)="onInputBlur()"
+      (keydown)="onKeyDown($event)"
+      autocomplete="off"
+    />
+    
+    @if (loading) {
+      <i class="loading-icon lucide lucide-loader-2"></i>
+    }
+    
+    @if (searchQuery) {
+      <button 
+        class="clear-btn" 
+        (click)="clearSearch()"
+        type="button"
+        aria-label="Clear search">
+        <i class="lucide lucide-x"></i>
+      </button>
+    }
+  </div>
+
+  <!-- Suggestions Dropdown -->
+  @if (showSuggestions) {
+    <div class="suggestions-dropdown">
+      
+      <!-- Search Suggestions -->
+      @if (suggestions.length > 0) {
+        <div class="suggestions-section">
+          <div class="section-title">Suggestions</div>
+          
+          @for (suggestion of suggestions; track suggestion.id; let i = $index) {
+            <div 
+              class="suggestion-item"
+              [class.selected]="i === selectedIndex"
+              (click)="selectSuggestion(suggestion)">
+              <i [class]="getSuggestionIcon(suggestion.type)"></i>
+              <div class="suggestion-content">
+                <div class="suggestion-name">{{ suggestion.name }}</div>
+                @if (suggestion.subtitle) {
+                  <div class="suggestion-subtitle">{{ suggestion.subtitle }}</div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+      
+      <!-- Recent Searches -->
+      @if (recentSearches.length > 0 && !searchQuery) {
+        <div class="suggestions-section">
+          <div class="section-title">Recent Searches</div>
+          
+          @for (recent of recentSearches; track $index) {
+            <div class="suggestion-item recent">
+              <i class="lucide lucide-clock"></i>
+              <div 
+                class="suggestion-content" 
+                (click)="searchQuery = recent; performSearch()">
+                <div class="suggestion-name">{{ recent }}</div>
+              </div>
+              <button 
+                class="remove-recent-btn" 
+                (click)="removeRecentSearch(recent); $event.stopPropagation()"
+                type="button"
+                aria-label="Remove recent search">
+                <i class="lucide lucide-x"></i>
+              </button>
+            </div>
+          }
+        </div>
+      }
+      
+      <!-- No Results -->
+      @if (suggestions.length === 0 && searchQuery.length >= 2 && !loading) {
+        <div class="no-results">
+          <i class="lucide lucide-search-x"></i>
+          <p>No suggestions found</p>
+        </div>
+      }
+      
+    </div>
+  }
+</div>

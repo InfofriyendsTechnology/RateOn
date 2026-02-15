@@ -38,7 +38,6 @@ export const getUserActivity = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Get user activity error:', error);
         return responseHandler.error(res, 'Failed to fetch user activity', 500);
     }
 };

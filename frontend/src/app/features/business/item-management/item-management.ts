@@ -90,7 +90,6 @@ export class ItemManagementComponent implements OnInit, OnDestroy {
         this.business = response.data || response;
       },
       error: (err) => {
-        console.error('Error fetching business:', err);
         this.notificationService.showError('Failed to load business');
       }
     });
@@ -104,14 +103,11 @@ export class ItemManagementComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.itemService.getItemsByBusiness(this.businessId).subscribe({
       next: (response: any) => {
-        console.log('Full API response:', response);
         const data = response.data || response;
-        console.log('Extracted data:', data);
         this.items = data.items || [];
         this.loading = false;
       },
       error: (err) => {
-        console.error('Error loading items:', err);
         this.loading = false;
       }
     });

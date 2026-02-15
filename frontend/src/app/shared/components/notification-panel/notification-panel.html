@@ -1,0 +1,23 @@
+<section class="notif-panel" *ngIf="open">
+  <header class="panel-header">
+    <h3>Notifications</h3>
+    <div class="actions">
+      <button class="btn" (click)="markAllRead()">Mark all as read</button>
+      <button class="btn btn-ghost" (click)="closed.emit()">Close</button>
+    </div>
+  </header>
+
+  <ul class="notif-list">
+    <li *ngFor="let n of notifications" class="notif-item" [class.unread]="!n.isRead">
+      <a [routerLink]="n.link || '/'" (click)="markRead(n._id)">
+        <div class="message">{{ n.message }}</div>
+        <div class="meta">{{ n.type }} · {{ n.createdAt | date:'short' }}</div>
+      </a>
+      <button class="delete" (click)="remove(n._id)" aria-label="Delete">×</button>
+    </li>
+  </ul>
+
+  <footer class="panel-footer" *ngIf="hasMore">
+    <button class="btn" [disabled]="loading" (click)="loadMore()">Load more</button>
+  </footer>
+</section>

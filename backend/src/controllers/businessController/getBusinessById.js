@@ -21,7 +21,6 @@ export default {
             return responseHandler.success(res, 'Business retrieved successfully', business);
 
         } catch (error) {
-            console.error('Get business error:', error);
             return responseHandler.error(res, error?.message || 'Failed to retrieve business');
         }
     }

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LucideAngularModule, ArrowLeft, Star, Upload, X, Check } from 'lucide-angular';
+import { LucideAngularModule, ArrowLeft, Star, Upload, X, Check, Building, Package } from 'lucide-angular';
 import { ItemService, Item } from '../../../core/services/item';
 import { ReviewService } from '../../../core/services/review';
 import { BusinessService, Business } from '../../../core/services/business';
@@ -25,11 +25,14 @@ export class WriteReview implements OnInit {
   readonly Upload = Upload;
   readonly X = X;
   readonly Check = Check;
+  readonly Building = Building;
+  readonly Package = Package;
   item: Item | null = null;
   business: Business | null = null;
   existingReview: any = null;
   isEditMode = false;
   isViewMode = false; // View-only mode when user has existing review
+  reviewType: 'item' | 'business' = 'item'; // Determines if reviewing business or item
   
   // Review Form Data
   rating = 0;
@@ -64,18 +67,46 @@ export class WriteReview implements OnInit {
   ngOnInit() {
     const itemId = this.route.snapshot.queryParamMap.get('itemId');
     const businessId = this.route.snapshot.queryParamMap.get('businessId');
+    const reviewType = this.route.snapshot.queryParamMap.get('reviewType');
+    const reviewId = this.route.snapshot.queryParamMap.get('reviewId');
+    const isEdit = this.route.snapshot.queryParamMap.get('edit') === 'true';
     
-    if (itemId) {
-      this.loadItemDetails(itemId);
-      this.checkExistingReview(itemId);
-    }
+    // Determine review type
+    this.reviewType = reviewType === 'business' ? 'business' : 'item';
     
-    if (businessId) {
-      this.loadBusinessDetails(businessId);
-    }
-    
-    if (!itemId || !businessId) {
-      this.error = 'Invalid review request. Item or Business not specified.';
+    if (this.reviewType === 'business') {
+      // Business review mode
+      if (businessId) {
+        this.loadBusinessDetails(businessId);
+        
+        // Check if editing existing business review
+        if (isEdit && reviewId) {
+          this.isEditMode = true;
+          this.loadExistingBusinessReview(reviewId);
+        } else if (isEdit) {
+          // Edit mode without reviewId - will fetch and go to edit mode directly
+          this.checkExistingBusinessReview(businessId, true);
+        } else {
+          // Check if user already has a review for this business
+          this.checkExistingBusinessReview(businessId, false);
+        }
+      } else {
+        this.error = 'Invalid review request. Business not specified.';
+      }
+    } else {
+      // Item review mode
+      if (itemId) {
+        this.loadItemDetails(itemId);
+        this.checkExistingReview(itemId, isEdit);
+      }
+      
+      if (businessId) {
+        this.loadBusinessDetails(businessId);
+      }
+      
+      if (!itemId || !businessId) {
+        this.error = 'Invalid review request. Item or Business not specified.';
+      }
     }
   }
 
@@ -90,7 +121,6 @@ export class WriteReview implements OnInit {
       error: (err: any) => {
         this.error = 'Failed to load item details';
         this.loading = false;
-        console.error(err);
       }
     });
   }
@@ -102,62 +132,96 @@ export class WriteReview implements OnInit {
         this.business = data.business || data;
       },
       error: (err: any) => {
-        console.error('Failed to load business', err);
       }
     });
   }
   
-  checkExistingReview(itemId: string) {
+  checkExistingReview(itemId: string, forceEditMode: boolean = false) {
     this.reviewService.getReviewsByItem(itemId).subscribe({
       next: (response: any) => {
         const data = response.data || response;
         const reviews = data.reviews || data || [];
-        
-        console.log('All reviews for item:', reviews);
-        
         // Find user's review (get current user from storage)
         const currentUser = this.storage.getUser();
-        console.log('Current user:', currentUser);
-        
         if (currentUser && currentUser._id) {
           this.existingReview = reviews.find((review: any) => {
             const reviewUserId = review.userId?._id || review.userId || review.user?._id;
-            console.log('Comparing:', reviewUserId, 'with', currentUser._id);
             return reviewUserId === currentUser._id;
           });
-          
-          console.log('Found existing review:', this.existingReview);
-          
           if (this.existingReview) {
-            this.isViewMode = true; // Start in view mode
-            this.isEditMode = false;
-            console.log('View mode activated');
+            if (forceEditMode) {
+              // Go directly to edit mode
+              this.isEditMode = true;
+              this.isViewMode = false;
+            } else {
+              // Start in view mode
+              this.isViewMode = true;
+              this.isEditMode = false;
+            }
             this.prefillForm();
           }
         }
       },
       error: (err: any) => {
-        console.error('Failed to check existing review', err);
+      }
+    });
+  }
+  
+  checkExistingBusinessReview(businessId: string, forceEditMode: boolean = false) {
+    this.reviewService.getReviewsByBusiness(businessId, { reviewType: 'business' }).subscribe({
+      next: (response: any) => {
+        const data = response.data || response;
+        const reviews = data.reviews || data || [];
+        // Find user's review (get current user from storage)
+        const currentUser = this.storage.getUser();
+        if (currentUser && currentUser._id) {
+          this.existingReview = reviews.find((review: any) => {
+            const reviewUserId = review.userId?._id || review.userId || review.user?._id;
+            return reviewUserId === currentUser._id;
+          });
+          if (this.existingReview) {
+            if (forceEditMode) {
+              // Go directly to edit mode
+              this.isEditMode = true;
+              this.isViewMode = false;
+            } else {
+              // Start in view mode
+              this.isViewMode = true;
+              this.isEditMode = false;
+            }
+            this.prefillForm();
+          }
+        }
+      },
+      error: (err: any) => {
+      }
+    });
+  }
+  
+  loadExistingBusinessReview(reviewId: string) {
+    this.loading = true;
+    this.reviewService.getReviewById(reviewId).subscribe({
+      next: (response: any) => {
+        const data = response.data || response;
+        this.existingReview = data.review || data;
+        this.prefillForm();
+        this.loading = false;
+      },
+      error: (err: any) => {
+        this.error = 'Failed to load review for editing';
+        this.loading = false;
       }
     });
   }
   
   prefillForm() {
     if (!this.existingReview) return;
-    
-    console.log('Prefilling form with:', this.existingReview);
-    
     this.rating = this.existingReview.rating || 0;
     this.reviewText = this.existingReview.reviewText || this.existingReview.comment || '';
-    
-    console.log('Rating:', this.rating);
-    console.log('Review text:', this.reviewText);
-    
     // Load existing images
     if (this.existingReview.images && this.existingReview.images.length > 0) {
       this.existingImageUrls = [...this.existingReview.images];
       this.imagePreviewUrls = [...this.existingReview.images];
-      console.log('Images loaded:', this.imagePreviewUrls);
     }
   }
   
@@ -225,16 +289,22 @@ export class WriteReview implements OnInit {
   }
 
   removeImage(index: number) {
+    // Remove from preview
+    this.imagePreviewUrls.splice(index, 1);
+    
     // Check if it's an existing image URL or a new file
-    if (index < this.existingImageUrls.length) {
+    const existingImagesCount = this.existingImageUrls.length;
+    
+    if (index < existingImagesCount) {
       // Remove from existing images
       this.existingImageUrls.splice(index, 1);
     } else {
       // Remove from new files
-      const fileIndex = index - this.existingImageUrls.length;
-      this.selectedFiles.splice(fileIndex, 1);
+      const fileIndex = index - existingImagesCount;
+      if (fileIndex >= 0 && fileIndex < this.selectedFiles.length) {
+        this.selectedFiles.splice(fileIndex, 1);
+      }
     }
-    this.imagePreviewUrls.splice(index, 1);
   }
 
   // Form Validation
@@ -250,11 +320,6 @@ export class WriteReview implements OnInit {
       this.notificationService.showError('Please complete all required fields');
       return;
     }
-    
-    if (!this.item) {
-      this.notificationService.showError('Item information not found');
-      return;
-    }
 
     // Check if user is authenticated
     if (!this.authService.isAuthenticated()) {
@@ -265,65 +330,156 @@ export class WriteReview implements OnInit {
     this.submitting = true;
     
     const formData = new FormData();
-    formData.append('itemId', this.item._id);
     
-    // Extract businessId - handle both string and object format
-    const businessId = typeof this.item.businessId === 'string' 
-      ? this.item.businessId 
-      : (this.item.businessId as any)?._id || this.business?._id;
-    
-    if (!businessId) {
-      this.notificationService.showError('Business information not found');
-      this.submitting = false;
-      return;
-    }
-    
-    formData.append('businessId', businessId);
-    formData.append('rating', this.rating.toString());
-    formData.append('comment', this.reviewText);
-    
-    // Append images
-    this.selectedFiles.forEach((file) => {
-      formData.append('images', file);
-    });
-    
-    // If editing, include existing images that weren't removed
-    if (this.isEditMode) {
-      formData.append('existingImages', JSON.stringify(this.existingImageUrls));
-    }
-    
-    // Use update or create based on edit mode
-    const reviewObservable = this.isEditMode && this.existingReview 
-      ? this.reviewService.updateReview(this.existingReview._id, formData)
-      : this.reviewService.createReview(formData);
-    
-    reviewObservable.subscribe({
-      next: (response: any) => {
-        const message = this.isEditMode ? 'Review updated successfully!' : 'Review submitted successfully!';
-        this.notificationService.showSuccess(message);
+    if (this.reviewType === 'business') {
+      // Business review
+      if (!this.business) {
+        this.notificationService.showError('Business information not found');
         this.submitting = false;
-        
-        // Navigate back to business detail or item page
-        if (this.business) {
-          this.router.navigate(['/business', this.business._id]);
-        } else {
-          this.router.navigate(['/explore']);
-        }
-      },
-      error: (err: any) => {
-        const message = this.isEditMode ? 'Failed to update review' : 'Failed to submit review';
-        this.notificationService.showError(err.error?.message || message);
-        this.submitting = false;
-        console.error(err);
+        return;
       }
-    });
+      
+      formData.append('businessId', this.business._id);
+      formData.append('rating', this.rating.toString());
+      formData.append('comment', this.reviewText);
+      
+      // If editing, include existing images that weren't removed
+      if (this.isEditMode) {
+        formData.append('existingImages', JSON.stringify(this.existingImageUrls));
+      }
+      
+      // Append new images
+      this.selectedFiles.forEach((file) => {
+        formData.append('images', file);
+      });
+      
+      // Use update or create based on edit mode
+      const reviewObservable = this.isEditMode && this.existingReview 
+        ? this.reviewService.updateReview(this.existingReview._id, formData)
+        : this.reviewService.createBusinessReview(formData);
+      
+      reviewObservable.subscribe({
+        next: (response: any) => {
+          const message = this.isEditMode ? 'Business review updated successfully!' : 'Business review submitted successfully!';
+          this.notificationService.showSuccess(message);
+          this.submitting = false;
+          this.router.navigate(['/business', this.business!._id]);
+        },
+        error: (err: any) => {
+          const message = this.isEditMode ? 'Failed to update business review' : 'Failed to submit business review';
+          this.notificationService.showError(err.error?.message || message);
+          this.submitting = false;
+        }
+      });
+    } else {
+      // Item review
+      if (!this.item) {
+        this.notificationService.showError('Item information not found');
+        this.submitting = false;
+        return;
+      }
+      
+      formData.append('itemId', this.item._id);
+      
+      // Extract businessId - handle both string and object format
+      const businessId = typeof this.item.businessId === 'string' 
+        ? this.item.businessId 
+        : (this.item.businessId as any)?._id || this.business?._id;
+      
+      if (!businessId) {
+        this.notificationService.showError('Business information not found');
+        this.submitting = false;
+        return;
+      }
+      
+      formData.append('businessId', businessId);
+      formData.append('rating', this.rating.toString());
+      formData.append('comment', this.reviewText);
+      
+      // Append images
+      this.selectedFiles.forEach((file) => {
+        formData.append('images', file);
+      });
+      
+      // If editing, include existing images that weren't removed
+      if (this.isEditMode) {
+        formData.append('existingImages', JSON.stringify(this.existingImageUrls));
+      }
+      
+      // Use update or create based on edit mode
+      const reviewObservable = this.isEditMode && this.existingReview 
+        ? this.reviewService.updateReview(this.existingReview._id, formData)
+        : this.reviewService.createReview(formData);
+      
+      reviewObservable.subscribe({
+        next: (response: any) => {
+          const message = this.isEditMode ? 'Review updated successfully!' : 'Review submitted successfully!';
+          this.notificationService.showSuccess(message);
+          this.submitting = false;
+          
+          // Navigate back to item detail page
+          if (this.item?._id) {
+            this.router.navigate(['/item', this.item._id]);
+          } else if (this.business) {
+            this.router.navigate(['/business', this.business._id]);
+          } else {
+            this.router.navigate(['/home']);
+          }
+        },
+        error: (err: any) => {
+          // If user already has a review (409 conflict), fetch it and switch to edit mode
+          if (err.status === 409 || err.statusCode === 409) {
+            this.notificationService.showInfo('Loading your existing review for editing...');
+            
+            // Fetch user's review for this item
+            if (this.item?._id) {
+              this.reviewService.getUserReviewForItem(this.item._id).subscribe({
+                next: (response: any) => {
+                  const review = response.data || response;
+                  if (review && this.item) {
+                    // Navigate to edit mode with the review ID
+                    const businessId = typeof this.item.businessId === 'string' 
+                      ? this.item.businessId 
+                      : (this.item.businessId as any)?._id;
+                    
+                    this.router.navigate(['/write-review'], {
+                      queryParams: {
+                        itemId: this.item._id,
+                        businessId: businessId,
+                        reviewId: review._id,
+                        edit: 'true'
+                      }
+                    });
+                  }
+                  this.submitting = false;
+                },
+                error: (fetchErr: any) => {
+                  // If we can't fetch the review, just show the error
+                  this.notificationService.showError(err.error?.message || 'You have already reviewed this item');
+                  this.submitting = false;
+                }
+              });
+            } else {
+              this.notificationService.showError(err.error?.message || 'You have already reviewed this item');
+              this.submitting = false;
+            }
+          } else {
+            const message = this.isEditMode ? 'Failed to update review' : 'Failed to submit review';
+            this.notificationService.showError(err.error?.message || message);
+            this.submitting = false;
+          }
+        }
+      });
+    }
   }
 
   cancel() {
-    if (this.business) {
+    if (this.item?._id) {
+      this.router.navigate(['/item', this.item._id]);
+    } else if (this.business) {
       this.router.navigate(['/business', this.business._id]);
     } else {
-      this.router.navigate(['/explore']);
+      this.router.navigate(['/home']);
     }
   }
 

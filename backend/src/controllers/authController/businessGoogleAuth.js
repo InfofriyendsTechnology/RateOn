@@ -89,7 +89,6 @@ export default {
                 // Save session before redirect
                 return req.session.save((err) => {
                     if (err) {
-                        console.error('Session save error:', err);
                     }
                     
                     // Redirect to frontend business registration form with Google data
@@ -109,7 +108,6 @@ export default {
             return res.redirect(`${FRONTEND_URL}/business/register?error=invalid_state`);
 
         } catch (error) {
-            console.error('Business Google OAuth error:', error);
             return res.redirect(`${FRONTEND_URL}/business/register?error=${encodeURIComponent(error?.message || 'authentication_failed')}`);
         }
     },
@@ -287,7 +285,6 @@ export default {
             );
 
         } catch (error) {
-            console.error('Complete business registration error:', error);
             return responseHandler.error(res, error?.message || 'Failed to complete registration');
         }
     }

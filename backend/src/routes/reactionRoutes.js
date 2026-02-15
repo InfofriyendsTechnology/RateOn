@@ -10,6 +10,12 @@ router.get('/review/:reviewId',
     reactionController.getReviewReactions.handler
 );
 
+// Public route - get user reactions
+router.get('/user/:userId',
+    reactionController.getUserReactions.validator,
+    reactionController.getUserReactions.handler
+);
+
 // Protected routes
 router.post('/',
     auth,
@@ -21,6 +27,13 @@ router.delete('/review/:reviewId',
     auth,
     reactionController.removeReaction.validator,
     reactionController.removeReaction.handler
+);
+
+// Toggle reaction (add/remove/change) - NEW
+router.post('/toggle',
+    auth,
+    reactionController.toggleReaction.validator,
+    reactionController.toggleReaction.handler
 );
 
 export default router;

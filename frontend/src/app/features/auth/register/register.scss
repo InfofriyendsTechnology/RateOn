@@ -1,7 +1,8 @@
-﻿// Signup Page - Perfect 100vh, No Scrollbar (Matching Login Design)
+// Signup Page - Perfect 100vh, No Scrollbar (Matching Login Design)
 
 .auth-page {
   height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   background-color: var(--bg-primary);
   display: flex;
@@ -400,3 +401,4 @@
     margin-bottom: 0.875rem;
   }
 }
+

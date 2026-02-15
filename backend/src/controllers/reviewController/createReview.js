@@ -3,6 +3,7 @@ import { Review, Item, Business, User } from '../../models/index.js';
 import responseHandler from '../../utils/responseHandler.js';
 import validator from '../../utils/validator.js';
 import { logActivity } from '../../utils/activityTracker.js';
+import NotificationService from '../../utils/notificationService.js';
 
 export default {
     validator: validator({
@@ -50,8 +51,8 @@ export default {
             return responseHandler.badRequest(res, 'Item does not belong to this business');
         }
 
-        // Check if user already reviewed this item
-        const existingReview = await Review.findOne({ userId, itemId });
+        // Check if user already reviewed this item (only active reviews)
+        const existingReview = await Review.findOne({ userId, itemId, isActive: true });
         if (existingReview) {
             return responseHandler.conflict(res, 'You have already reviewed this item. Please edit your existing review.');
         }
@@ -85,16 +86,24 @@ export default {
         });
 
         if (totalReviews > 0) {
-            business.rating.average = totalRating / totalReviews;
+            const avgRating = totalRating / totalReviews;
+            // Ensure rating stays within 0-5 range
+            business.rating.average = Math.min(5, Math.max(0, avgRating));
             business.rating.count = totalReviews;
             
             // Update rating distribution
-            const allReviews = await Review.find({ businessId });
+            const allReviews = await Review.find({ businessId, isActive: true });
             const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
             allReviews.forEach(r => {
-                distribution[r.rating] = (distribution[r.rating] || 0) + 1;
+                if (r && r.rating >= 1 && r.rating <= 5) {
+                    distribution[r.rating] = (distribution[r.rating] || 0) + 1;
+                }
             });
             business.rating.distribution = distribution;
+            
+            // Also sync to stats.avgRating for backward compatibility
+            business.stats.avgRating = business.rating.average;
+            business.stats.totalReviews = totalReviews;
             
             await business.save();
         }
@@ -112,6 +121,21 @@ export default {
             { hasPhotos: images && images.length > 0, itemId, businessId }
         );
 
+        // Create notification for business owner
+        const businessOwnerId = business.owner;
+        if (businessOwnerId && businessOwnerId.toString() !== userId.toString()) {
+            await NotificationService.notifyNewReview(
+                {
+                    _id: review._id,
+                    userId,
+                    businessId,
+                    itemId,
+                    rating
+                },
+                businessOwnerId
+            );
+        }
+
         // Populate review data for response
         await review.populate([
             { path: 'userId', select: 'username profile.firstName profile.lastName profile.avatar trustScore level' },
@@ -127,7 +151,6 @@ export default {
         );
 
     } catch (error) {
-        console.error('Create review error:', error);
         return responseHandler.error(res, error?.message || 'Failed to create review');
     }
     }

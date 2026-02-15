@@ -87,7 +87,6 @@ export class BusinessesComponent implements OnInit {
         this.loadingBusinesses = false;
       },
       error: (err) => {
-        console.error('Failed to load businesses:', err);
         this.loadingBusinesses = false;
       }
     });
@@ -202,7 +201,6 @@ export class BusinessesComponent implements OnInit {
         this.loadBusinesses();
       },
       error: (err) => {
-        console.error('Failed to create business:', err);
         this.toastService.error('Failed to create business. Please try again.');
         this.addingBusiness = false;
       },
@@ -238,7 +236,6 @@ export class BusinessesComponent implements OnInit {
         this.loadBusinesses();
       },
       error: (err) => {
-        console.error('Failed to delete business:', err);
         this.toastService.error('Failed to delete business. Please try again.');
         this.deletingBusiness = false;
       },

@@ -134,9 +134,13 @@ export class HomeComponent implements OnInit {
   }
   
   loadRecentReviews() {
-    const userId = this.user?.id || this.storage.getUser()?.id;
-    if (!userId) {
+    const storedUser = this.storage.getUser();
+    const userId = this.user?.id || storedUser?.id;
+    
+    // Skip loading reviews for admin users (they don't have ObjectId)
+    if (!userId || userId === 'super-admin' || storedUser?.role === 'super_admin' || storedUser?.role === 'admin') {
       this.loadingReviews = false;
+      this.recentReviews = [];
       return;
     }
     
@@ -224,7 +228,8 @@ export class HomeComponent implements OnInit {
   }
 
   writeReview(): void {
-    this.router.navigate(['/search/items']);
+    // Navigate to search page where users can find businesses and items to review
+    this.router.navigate(['/search']);
   }
 
   discoverPlaces(): void {

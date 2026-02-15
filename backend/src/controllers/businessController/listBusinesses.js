@@ -90,7 +90,6 @@ export default {
         );
 
     } catch (error) {
-        console.error('List businesses error:', error);
         return responseHandler.error(res, error?.message || 'Failed to retrieve businesses');
     }
     }

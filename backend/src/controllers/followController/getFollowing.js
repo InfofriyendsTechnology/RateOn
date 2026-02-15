@@ -36,7 +36,6 @@ export const getFollowing = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Get following error:', error);
         return responseHandler.error(res, 'Failed to fetch following', 500);
     }
 };

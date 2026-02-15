@@ -36,7 +36,6 @@ export const getFollowers = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Get followers error:', error);
         return responseHandler.error(res, 'Failed to fetch followers', 500);
     }
 };

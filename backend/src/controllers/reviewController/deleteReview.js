@@ -44,22 +44,39 @@ export default {
                 let totalReviews = 0;
                 
                 businessItems.forEach(item => {
-                    if (item.reviewCount > 0) {
+                    if (item && item.reviewCount > 0 && item.averageRating) {
                         totalRating += item.averageRating * item.reviewCount;
                         totalReviews += item.reviewCount;
                     }
                 });
 
-                business.rating.average = totalReviews > 0 ? totalRating / totalReviews : 0;
+                // Initialize rating object if it doesn't exist
+                if (!business.rating) {
+                    business.rating = {
+                        average: 0,
+                        count: 0,
+                        distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+                    };
+                }
+
+                const avgRating = totalReviews > 0 ? totalRating / totalReviews : 0;
+                // Ensure rating stays within 0-5 range
+                business.rating.average = Math.min(5, Math.max(0, avgRating));
                 business.rating.count = totalReviews;
                 
                 // Update rating distribution
                 const allReviews = await Review.find({ businessId: review.businessId, isActive: true });
                 const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
                 allReviews.forEach(r => {
-                    distribution[r.rating] = (distribution[r.rating] || 0) + 1;
+                    if (r && r.rating >= 1 && r.rating <= 5) {
+                        distribution[r.rating] = (distribution[r.rating] || 0) + 1;
+                    }
                 });
                 business.rating.distribution = distribution;
+                
+                // Also sync to stats.avgRating for backward compatibility
+                business.stats.avgRating = business.rating.average;
+                business.stats.totalReviews = totalReviews;
                 
                 await business.save();
             }
@@ -72,7 +89,6 @@ export default {
             return responseHandler.success(res, 'Review deleted successfully');
 
         } catch (error) {
-            console.error('Delete review error:', error);
             return responseHandler.error(res, error?.message || 'Failed to delete review');
         }
     }

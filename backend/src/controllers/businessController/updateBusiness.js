@@ -92,7 +92,6 @@ export default {
                 const fullPath = pathParts.join('/');
                 return fullPath.substring(0, fullPath.lastIndexOf('.'));
             } catch (error) {
-                console.error('Error parsing Cloudinary URL:', error);
                 return null;
             }
         };
@@ -103,9 +102,7 @@ export default {
             if (business.logo) {
                 const oldPublicId = getPublicIdFromUrl(business.logo);
                 if (oldPublicId) {
-                    await deleteFromCloudinary(oldPublicId).catch(err => 
-                        console.error('Error deleting old logo:', err)
-                    );
+                await deleteFromCloudinary(oldPublicId).catch(() => {});
                 }
             }
             business.logo = req.uploadedFile.url;
@@ -118,9 +115,7 @@ export default {
                 for (const oldImage of business.coverImages) {
                     const oldPublicId = getPublicIdFromUrl(oldImage);
                     if (oldPublicId) {
-                        await deleteFromCloudinary(oldPublicId).catch(err => 
-                            console.error('Error deleting old cover image:', err)
-                        );
+                        await deleteFromCloudinary(oldPublicId).catch(() => {});
                     }
                 }
             }
@@ -170,7 +165,6 @@ export default {
         return responseHandler.success(res, 'Business updated successfully', business);
 
     } catch (error) {
-        console.error('Update business error:', error);
         return responseHandler.error(res, error?.message || 'Failed to update business');
     }
     }

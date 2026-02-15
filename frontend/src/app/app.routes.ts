@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth-guard';
 import { businessOwnerGuard } from './core/guards/role-guard';
+import { adminGuard } from './core/guards/admin.guard';
 import { LoginComponent } from './features/auth/login/login';
 import { RegisterComponent } from './features/auth/register/register';
 import { CallbackComponent } from './features/auth/callback/callback';
@@ -14,8 +15,13 @@ import { EditBusinessComponent } from './features/business/edit-business/edit-bu
 import { BusinessDetail as BusinessOwnerDetail } from './features/business/business-detail/business-detail';
 import { AccountSettingsComponent } from './features/business/account-settings/account-settings';
 import { WriteReview } from './features/review/write-review/write-review';
+import { BusinessPublicView } from './features/business/public-view/business-public-view';
+import { ItemPublicView } from './features/item/item-public-view/item-public-view';
+import { SearchResultsComponent } from './features/search/search-results/search-results.component';
 import { AdminLoginComponent } from './features/admin/login/admin-login.component';
+import { AdminShellComponent } from './features/admin/shell/admin-shell.component';
 import { AdminDashboardComponent } from './features/admin/dashboard/admin-dashboard.component';
+import { SeedComponent } from './features/admin/seed/seed.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -27,7 +33,16 @@ export const routes: Routes = [
   
   // Admin routes
   { path: 'admin/login', component: AdminLoginComponent },
-  { path: 'admin/dashboard', component: AdminDashboardComponent },
+  { 
+    path: 'admin', 
+    component: AdminShellComponent,
+    canActivate: [adminGuard],
+    children: [
+      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      { path: 'dashboard', component: AdminDashboardComponent },
+      { path: 'seed', component: SeedComponent }
+    ]
+  },
   
   // User home (all authenticated users)
   { 
@@ -62,6 +77,11 @@ export const routes: Routes = [
   
   // Write review (no auth guard - handle in component)
   { path: 'write-review', component: WriteReview },
+  
+  // Public views (no auth required)
+  { path: 'business/:id', component: BusinessPublicView },
+  { path: 'item/:id', component: ItemPublicView },
+  { path: 'search', component: SearchResultsComponent },
   
   // Fallback
   { path: '**', redirectTo: '' }

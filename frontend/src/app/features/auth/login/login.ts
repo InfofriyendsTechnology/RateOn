@@ -56,7 +56,6 @@ export class LoginComponent implements OnInit {
         next: (response) => {
           this.isLoading = false;
           if (response.success) {
-            console.log('Login successful:', response);
             // Redirect based on user role if no return URL specified
             let targetUrl = this.returnUrl;
             if (this.returnUrl === '/home') {
@@ -71,7 +70,6 @@ export class LoginComponent implements OnInit {
         error: (error) => {
           this.isLoading = false;
           this.errorMessage = error.error?.message || 'Login failed. Please try again.';
-          console.error('Login error:', error);
         }
       });
     }

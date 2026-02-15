@@ -1,0 +1,294 @@
+<div class="item-public-view-container" *ngIf="!loading && item">
+  <!-- Header with Back Button -->
+  <div class="header-actions">
+    <button class="btn-back" (click)="goBack()">
+      <lucide-icon [img]="ArrowLeft" [size]="20"></lucide-icon>
+      <span>Back</span>
+    </button>
+  </div>
+
+  <!-- Item Header -->
+  <div class="item-header">
+    <div class="item-image-section">
+      <img 
+        *ngIf="item.images && item.images.length > 0" 
+        [src]="item.images[0]" 
+        [alt]="item.name"
+        class="item-main-image" />
+      <div *ngIf="!item.images || item.images.length === 0" class="no-image-placeholder">
+        <lucide-icon [img]="Package" [size]="64"></lucide-icon>
+        <span>No Image Available</span>
+      </div>
+    </div>
+
+    <div class="item-info">
+      <div class="item-name-section">
+        <h1 class="item-name">{{ item.name }}</h1>
+        <span class="item-category" *ngIf="item.category">{{ item.category }}</span>
+      </div>
+
+      <div class="item-price" *ngIf="item.price">
+        <lucide-icon [img]="IndianRupee" [size]="24"></lucide-icon>
+        <span>{{ item.price }}</span>
+      </div>
+
+      <div class="item-rating" *ngIf="getRating() > 0">
+        <div class="stars">
+          <span *ngFor="let star of [1,2,3,4,5]" 
+            class="star"
+            [class.filled]="star <= getRating()"
+            [class.empty]="star > getRating()">
+            ★
+          </span>
+        </div>
+        <span class="rating-text">{{ getRating().toFixed(1) }} ({{ getReviewCount() }} reviews)</span>
+      </div>
+
+      <p class="item-description" *ngIf="item.description">{{ item.description }}</p>
+
+      <!-- Business Info -->
+      <div class="business-info" *ngIf="business" (click)="navigateToBusiness()">
+        <lucide-icon [img]="Building" [size]="18"></lucide-icon>
+        <div class="business-details">
+          <span class="business-name">{{ business.name }}</span>
+          <span class="business-category" *ngIf="business.category">{{ business.category }}</span>
+        </div>
+      </div>
+
+      <!-- Write/Edit Review Button -->
+      <button class="btn-write-review" [class.has-review]="userHasReview" (click)="writeReview()">
+        <lucide-icon [img]="Edit" [size]="20"></lucide-icon>
+        <span>{{ userHasReview ? 'Edit Your Review' : 'Write Review' }}</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Reviews Section -->
+  <div class="reviews-section">
+    <div class="reviews-header">
+      <h2>
+        <lucide-icon [img]="MessageSquare" [size]="24"></lucide-icon>
+        <span>Reviews ({{ reviews.length }})</span>
+      </h2>
+    </div>
+
+    <div class="reviews-list" *ngIf="!loadingReviews && reviews.length > 0">
+      <div class="review-card" *ngFor="let review of reviews">
+        <!-- Review Header -->
+        <div class="review-header">
+          <div class="reviewer-info">
+            <div class="reviewer-avatar" [class.has-image]="review.userId?.profile?.avatar">
+              <img *ngIf="review.userId?.profile?.avatar" 
+                   [src]="review.userId.profile.avatar" 
+                   [alt]="review.userId?.name || 'User'"
+                   class="avatar-image" />
+              <lucide-icon *ngIf="!review.userId?.profile?.avatar" [img]="User" [size]="24"></lucide-icon>
+            </div>
+            <div class="reviewer-details">
+              <h4 class="reviewer-name">{{ review.userId?.name || review.userId?.username || 'Anonymous' }}</h4>
+              <div class="review-meta">
+                <div class="rating-stars">
+                  <span *ngFor="let star of [1,2,3,4,5]" 
+                    class="star"
+                    [class.filled]="star <= review.rating"
+                    [class.empty]="star > review.rating">
+                    ★
+                  </span>
+                </div>
+                <span class="review-date">{{ review.createdAt | date: 'MMM d, yyyy' }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Review Actions (Edit/Delete) for own reviews -->
+          <div class="review-actions" *ngIf="isUserReview(review)">
+            <button class="action-btn" (click)="toggleReviewMenu(review._id)">
+              <lucide-icon [img]="MoreVertical" [size]="20"></lucide-icon>
+            </button>
+            <div class="action-menu" *ngIf="activeReviewMenu === review._id">
+              <button class="menu-item" (click)="editReview(review)">
+                <lucide-icon [img]="Edit" [size]="16"></lucide-icon>
+                <span>Edit</span>
+              </button>
+              <button class="menu-item delete" (click)="deleteReview(review)">
+                <lucide-icon [img]="Trash" [size]="16"></lucide-icon>
+                <span>Delete</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Review Content -->
+        <div class="review-content">
+          <p>{{ review.reviewText || review.comment }}</p>
+        </div>
+
+        <!-- Review Images -->
+        <div class="review-images" *ngIf="review.images?.length > 0">
+          <img *ngFor="let img of review.images.slice(0, 4)" 
+               [src]="img" 
+               [alt]="'Review photo'" 
+               class="review-image" />
+        </div>
+
+        <!-- Review Actions (Reactions Only) -->
+        <div class="review-actions-bar">
+          <div class="reaction-buttons">
+            <button class="reaction-btn helpful" (click)="toggleReaction(review, 'helpful')" [title]="'Mark as helpful'" [disabled]="isUserReview(review)">
+              <lucide-icon [img]="ThumbsUp" [size]="18"></lucide-icon>
+              <span class="count" *ngIf="review.reactions?.helpful > 0">{{ review.reactions.helpful }}</span>
+            </button>
+            <button class="reaction-btn not-helpful" (click)="toggleReaction(review, 'not_helpful')" [title]="'Mark as not helpful'" [disabled]="isUserReview(review)">
+              <lucide-icon [img]="ThumbsDown" [size]="18"></lucide-icon>
+              <span class="count" *ngIf="review.reactions?.notHelpful > 0">{{ review.reactions.notHelpful }}</span>
+            </button>
+          </div>
+          
+          <!-- Reply button - Only for business owner -->
+          <button class="reply-btn" *ngIf="isBusinessOwner()" (click)="startReply(review._id)">
+            <lucide-icon [img]="MessageSquare" [size]="16"></lucide-icon>
+            <span>Reply as Business</span>
+          </button>
+        </div>
+        
+        <!-- Reply Form -->
+        <div class="reply-form" *ngIf="replyingToReview === review._id">
+          <textarea 
+            class="reply-input" 
+            [(ngModel)]="replyText[review._id]" 
+            placeholder="Write your reply..."
+            rows="3">
+          </textarea>
+          <div class="reply-form-actions">
+            <button class="btn-cancel" (click)="cancelReply(review._id)" [disabled]="submittingReply">Cancel</button>
+            <button class="btn-submit" (click)="submitReply(review)" [disabled]="submittingReply || !replyText[review._id]?.trim()">
+              {{ submittingReply ? 'Submitting...' : 'Submit Reply' }}
+            </button>
+          </div>
+        </div>
+        
+        <!-- View Replies Button (for all reviews that have replies) -->
+        <button class="view-replies-btn" *ngIf="review.replies?.length > 0" (click)="toggleReplies(review._id)">
+          <lucide-icon [img]="MessageSquare" [size]="16"></lucide-icon>
+          <span>{{ isRepliesExpanded(review._id) ? 'Hide' : 'View' }} {{ review.replies.length }} {{ review.replies.length === 1 ? 'Reply' : 'Replies' }}</span>
+        </button>
+
+        <!-- Replies Loading -->
+        <div class="replies-loading" *ngIf="loadingReplies[review._id] && isRepliesExpanded(review._id)">
+          <div class="small-spinner"></div>
+          <span>Loading replies...</span>
+        </div>
+        
+        <!-- Business Reply Section (Single reply from business owner) -->
+        <div class="replies-section" *ngIf="review.replies?.length > 0 && isRepliesExpanded(review._id) && !loadingReplies[review._id]">
+          <div class="reply-card">
+            <div class="reply-header">
+              <div class="reply-user-info">
+                <div class="reply-author-avatar business-badge">
+                  <img *ngIf="review.replies[0].userId?.profile?.avatar" 
+                       [src]="review.replies[0].userId.profile.avatar" 
+                       [alt]="review.replies[0].userId?.name"
+                       class="avatar-small" />
+                  <lucide-icon *ngIf="!review.replies[0].userId?.profile?.avatar" [img]="Building" [size]="18"></lucide-icon>
+                </div>
+                <div class="reply-info">
+                  <span class="reply-author">
+                    {{ review.replies[0].userId?.name || review.replies[0].userId?.username || 'Business Owner' }}
+                    <span class="owner-badge">Business Owner</span>
+                  </span>
+                  <span class="reply-date">
+                    {{ review.replies[0].createdAt | date: 'MMM d, yyyy h:mm a' }}
+                    <span *ngIf="review.replies[0].isEdited" style="color: #888; font-style: italic;"> (edited)</span>
+                  </span>
+                </div>
+              </div>
+              
+              <!-- Reply Actions (Edit/Delete) for business owner only -->
+              <div class="reply-actions" *ngIf="isBusinessOwner()">
+                <button class="reply-action-btn" (click)="toggleReplyMenu(review.replies[0]._id); $event.stopPropagation()">
+                  <lucide-icon [img]="MoreVertical" [size]="18"></lucide-icon>
+                </button>
+                <div class="reply-action-menu" *ngIf="activeReplyMenu === review.replies[0]._id">
+                  <button class="reply-menu-item" (click)="startEditReply(review.replies[0]); activeReplyMenu = null">
+                    <lucide-icon [img]="Edit" [size]="14"></lucide-icon>
+                    <span>Edit</span>
+                  </button>
+                  <button class="reply-menu-item delete" (click)="deleteReplyConfirm(review.replies[0], review); activeReplyMenu = null">
+                    <lucide-icon [img]="Trash" [size]="14"></lucide-icon>
+                    <span>Delete</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Reply Content (shown when not editing) -->
+            <div class="reply-content" *ngIf="editingReply !== review.replies[0]._id">
+              <p>{{ review.replies[0].comment || review.replies[0].text }}</p>
+            </div>
+            
+            <!-- Reply Edit Form (shown when editing) -->
+            <div class="reply-edit-form" *ngIf="editingReply === review.replies[0]._id">
+              <textarea 
+                class="reply-edit-input" 
+                [(ngModel)]="editReplyText[review.replies[0]._id]" 
+                placeholder="Edit your reply..."
+                rows="3"
+                [disabled]="submittingEdit">
+              </textarea>
+              <div class="reply-edit-actions">
+                <button class="btn-cancel-edit" 
+                        (click)="cancelEditReply(review.replies[0]._id)" 
+                        [disabled]="submittingEdit">Cancel</button>
+                <button class="btn-save-edit" 
+                        (click)="saveEditReply(review.replies[0], review)" 
+                        [disabled]="submittingEdit || !editReplyText[review.replies[0]._id]?.trim()">
+                  {{ submittingEdit ? 'Saving...' : 'Save Changes' }}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="no-reviews" *ngIf="!loadingReviews && reviews.length === 0">
+      <lucide-icon [img]="MessageSquare" [size]="48"></lucide-icon>
+      <p>No reviews yet</p>
+      <button class="btn-write-first-review" (click)="writeReview()">
+        <lucide-icon [img]="Edit" [size]="20"></lucide-icon>
+        <span>Write the first review</span>
+      </button>
+    </div>
+
+    <div class="loading-state" *ngIf="loadingReviews">
+      <div class="spinner"></div>
+      <p>Loading reviews...</p>
+    </div>
+  </div>
+</div>
+
+<div class="loading-state" *ngIf="loading">
+  <div class="spinner"></div>
+  <p>Loading item details...</p>
+</div>
+
+<div class="error-state" *ngIf="!loading && !item">
+  <h2>Item Not Found</h2>
+  <p>Sorry, we couldn't find the item you're looking for.</p>
+  <button class="btn-back" (click)="goBack()">
+    <lucide-icon [img]="ArrowLeft" [size]="20"></lucide-icon>
+    <span>Go Back</span>
+  </button>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" *ngIf="showDeleteConfirm" (click)="cancelDeleteReview()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <h3>Delete Review</h3>
+    <p>Are you sure you want to delete this review? This action cannot be undone.</p>
+    <div class="modal-actions">
+      <button class="btn-cancel" (click)="cancelDeleteReview()">Cancel</button>
+      <button class="btn-delete" (click)="confirmDeleteReview()">Delete</button>
+    </div>
+  </div>
+</div>

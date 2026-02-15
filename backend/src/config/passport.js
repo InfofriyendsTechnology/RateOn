@@ -65,13 +65,11 @@ if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
 
             return done(null, newUser);
         } catch (error) {
-            console.error('❌ User Google OAuth error:', error.message);
             return done(error, null);
         }
     }));
 
 } else {
-    console.log('⚠️  Google OAuth not configured. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to .env file.');
 }
 
 passport.serializeUser((user, done) => {

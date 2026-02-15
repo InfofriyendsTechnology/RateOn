@@ -1,0 +1,22 @@
+<div class="follow-button-container">
+  <button
+    type="button"
+    [class]="getButtonClass()"
+    [disabled]="isLoading || !canFollow || !currentUserId"
+    (click)="toggleFollow()"
+    (mouseenter)="onMouseEnter()"
+    (mouseleave)="onMouseLeave()"
+    [attr.aria-label]="getButtonText()">
+    
+    <!-- Loading Spinner -->
+    <span class="spinner" *ngIf="isLoading"></span>
+    
+    <!-- Button Text -->
+    <span class="btn-text">{{ getButtonText() }}</span>
+  </button>
+
+  <!-- Follower Count -->
+  <span class="follower-count" *ngIf="showCount">
+    {{ formatFollowerCount() }}
+  </span>
+</div>

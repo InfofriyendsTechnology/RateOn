@@ -8,12 +8,11 @@ import { initializeDatabase } from "./models/index.js";
 import { PORT, FRONTEND_URL } from "./config/config.js";
 import responseHandler from "./utils/responseHandler.js";
 import passportConfig from "./config/passport.js";
+import { initializeSocket } from "./services/websocket/notificationSocket.js";
 
 const app = express();
 
 const server = createServer(app);
-
-
 
 app.use(cors({
     origin: ['http://localhost:5300', 'http://127.0.0.1:5300', 'https://rateon.vercel.app'],
@@ -61,12 +60,17 @@ const startServer = async () => {
     try {
         await connectDB();
         await initializeDatabase();
+        
+        // Initialize WebSocket
+        initializeSocket(server);
+        
         server.listen(PORT, () => {
-            console.log(`✅ Server running on port ${PORT}`);
+            console.log(`✅ Server Running: ${PORT}`);
         });
 
     } catch (error) {
-        console.error('❌ Error starting server:', error.message);
+        console.error('❌ Server Failed');
+        process.exit(1);
     }
 };
 

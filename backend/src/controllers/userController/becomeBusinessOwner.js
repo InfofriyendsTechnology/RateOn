@@ -48,7 +48,6 @@ export default {
             });
 
         } catch (error) {
-            console.error('Become business owner error:', error);
             return responseHandler.error(res, error?.message || "Failed to upgrade to business owner");
         }
     }

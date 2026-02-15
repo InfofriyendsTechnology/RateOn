@@ -5,7 +5,7 @@
 // ============================================================================
 
 .landing-page {
-  min-height: 100vh;
+  min-height: 100vh;`r`n  min-height: 100dvh;
   background-color: var(--bg-primary);
   color: var(--text-primary);
   transition: var(--transition-theme);

@@ -35,7 +35,6 @@ export const logActivity = async (userId, activityType, relatedEntity = null, me
 
         return activity;
     } catch (error) {
-        console.error('Error logging activity:', error);
         throw error;
     }
 };
@@ -58,7 +57,6 @@ export const updateUserTrustScore = async (userId, points) => {
 
         await user.save();
     } catch (error) {
-        console.error('Error updating trust score:', error);
         throw error;
     }
 };
@@ -127,7 +125,6 @@ export const recalculateTrustScore = async (userId) => {
 
         return trustScore;
     } catch (error) {
-        console.error('Error recalculating trust score:', error);
         throw error;
     }
 };
@@ -155,7 +152,6 @@ const calculateConsistencyBonus = async (userId) => {
         
         return 0;
     } catch (error) {
-        console.error('Error calculating consistency bonus:', error);
         return 0;
     }
 };
@@ -177,6 +173,5 @@ export const logHelpfulReactionReceived = async (reviewAuthorId, reviewId) => {
         // Add bonus points for helpful reaction
         await updateUserTrustScore(reviewAuthorId, ACTIVITY_POINTS.helpful_reaction_received);
     } catch (error) {
-        console.error('Error logging helpful reaction:', error);
     }
 };

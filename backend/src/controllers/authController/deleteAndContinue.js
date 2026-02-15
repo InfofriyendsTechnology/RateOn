@@ -32,7 +32,6 @@ export default {
             );
 
         } catch (error) {
-            console.error('Delete and continue error:', error);
             return responseHandler.error(res, error?.message || 'Failed to delete account');
         }
     }

@@ -1,20 +1,34 @@
 import { Router } from 'express';
 import auth from '../middleware/auth.js';
-import * as replyController from '../controllers/replyController/index.js';
+import * as replyController from '../controllers/reply/index.js';
 
 const router = Router();
 
-// All routes require authentication (business owner only)
-router.post('/review/:reviewId',
+// Create a new reply (authenticated users)
+router.post('/',
     auth,
-    replyController.addOwnerResponse.validator,
-    replyController.addOwnerResponse.handler
+    replyController.createReply.validator,
+    replyController.createReply.handler
 );
 
-router.put('/review/:reviewId',
+// Get all replies for a review (public)
+router.get('/review/:reviewId',
+    replyController.getRepliesByReview.validator,
+    replyController.getRepliesByReview.handler
+);
+
+// Update a reply (owner only)
+router.put('/:id',
     auth,
-    replyController.updateOwnerResponse.validator,
-    replyController.updateOwnerResponse.handler
+    replyController.updateReply.validator,
+    replyController.updateReply.handler
+);
+
+// Delete a reply (owner only)
+router.delete('/:id',
+    auth,
+    replyController.deleteReply.validator,
+    replyController.deleteReply.handler
 );
 
 export default router;

@@ -59,7 +59,6 @@ export const getFollowingActivity = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Get following activity error:', error);
         return responseHandler.error(res, 'Failed to fetch following activity', 500);
     }
 };

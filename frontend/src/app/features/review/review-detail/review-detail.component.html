@@ -1,0 +1,186 @@
+<div class="review-detail-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Loading review...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-message">
+    <p>{{ error }}</p>
+    <button (click)="goBack()" class="btn-secondary">Go Back</button>
+  </div>
+
+  <!-- Review Content -->
+  <div *ngIf="review && !loading" class="review-content">
+    <!-- Back Button -->
+    <button (click)="goBack()" class="btn-back">
+      ← Back
+    </button>
+
+    <!-- Review Header -->
+    <div class="review-header">
+      <div class="user-info">
+        <img [src]="review.userId?.profile?.avatar || 'assets/default-avatar.png'" 
+             [alt]="review.userId?.username" 
+             class="user-avatar">
+        <div class="user-details">
+          <h3 class="user-name">{{ review.userId?.profile?.firstName }} {{ review.userId?.profile?.lastName }}</h3>
+          <p class="username">@{{ review.userId?.username }}</p>
+          <p class="review-date">{{ formatDate(review.createdAt) }}</p>
+        </div>
+        <div class="user-badge" *ngIf="review.userId?.trustScore">
+          <span class="trust-score">Level {{ review.userId?.level || 1 }}</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button *ngIf="isOwner" (click)="editReview()" class="btn-edit">
+          Edit Review
+        </button>
+        <button *ngIf="isOwner" (click)="deleteReview()" class="btn-delete">
+          Delete Review
+        </button>
+        <button *ngIf="!isOwner && currentUser" (click)="openReportModal()" class="btn-report">
+          Report
+        </button>
+      </div>
+    </div>
+
+    <!-- Business & Item Info -->
+    <div class="business-item-info">
+      <div class="item-name">
+        <strong>{{ review.itemId?.name }}</strong>
+      </div>
+      <div class="business-name">
+        at <a [routerLink]="['/business', review.businessId?._id]">{{ review.businessId?.name }}</a>
+      </div>
+    </div>
+
+    <!-- Rating -->
+    <div class="review-rating">
+      <div class="stars">
+        <span *ngFor="let star of getStarArray(review.rating)" class="star filled">★</span>
+        <span *ngFor="let star of getEmptyStarArray(review.rating)" class="star">★</span>
+      </div>
+      <span class="rating-number">{{ review.rating }}.0</span>
+    </div>
+
+    <!-- Review Title -->
+    <h2 *ngIf="review.title" class="review-title">{{ review.title }}</h2>
+
+    <!-- Review Comment -->
+    <div class="review-comment">
+      <p>{{ review.comment }}</p>
+    </div>
+
+    <!-- Review Images -->
+    <div *ngIf="review.images && review.images.length > 0" class="review-images">
+      <img *ngFor="let image of review.images" 
+           [src]="image" 
+           [alt]="review.title || 'Review image'" 
+           class="review-image">
+    </div>
+
+    <!-- Edited Badge -->
+    <div *ngIf="review.isEdited" class="edited-badge">
+      Edited on {{ formatDate(review.updatedAt) }}
+    </div>
+
+    <!-- Reactions Component (from Employee 2) -->
+    <div class="review-reactions">
+      <app-reaction-buttons
+        [reviewId]="reviewId"
+        [reviewOwnerId]="review.userId?._id"
+        [initialStats]="getReactionStats()"
+        [userReaction]="getUserReaction()"
+        (reactionChanged)="handleReactionChange($event)">
+      </app-reaction-buttons>
+    </div>
+
+    <!-- Statistics -->
+    <div *ngIf="statistics" class="review-statistics">
+      <div class="stat-item">
+        <span class="stat-icon">💬</span>
+        <span class="stat-value">{{ statistics.replies?.count || 0 }}</span>
+        <span class="stat-label">Replies</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-icon">🔥</span>
+        <span class="stat-value">{{ statistics.engagement?.totalInteractions || 0 }}</span>
+        <span class="stat-label">Interactions</span>
+      </div>
+      <div class="stat-item" *ngIf="statistics.reactions?.helpfulnessPercentage > 0">
+        <span class="stat-icon">👍</span>
+        <span class="stat-value">{{ statistics.reactions?.helpfulnessPercentage }}%</span>
+        <span class="stat-label">Helpful</span>
+      </div>
+    </div>
+
+    <!-- Owner Response -->
+    <div *ngIf="review.ownerResponse?.response" class="owner-response">
+      <div class="response-header">
+        <strong>Business Owner Response</strong>
+        <span class="response-date">{{ formatDate(review.ownerResponse.respondedAt) }}</span>
+      </div>
+      <p class="response-text">{{ review.ownerResponse.response }}</p>
+    </div>
+
+    <!-- Replies Section (from Employee 7) -->
+    <div class="replies-section">
+      <app-reply-thread
+        [reviewId]="reviewId"
+        [autoLoad]="true">
+      </app-reply-thread>
+    </div>
+  </div>
+
+  <!-- Report Modal -->
+  <div *ngIf="showReportModal" class="modal-overlay" (click)="closeReportModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Report Review</h3>
+        <button (click)="closeReportModal()" class="btn-close">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="reportReason">Reason *</label>
+          <select id="reportReason" [(ngModel)]="reportReason" required>
+            <option value="">Select a reason</option>
+            <option value="spam">Spam</option>
+            <option value="inappropriate_content">Inappropriate Content</option>
+            <option value="harassment">Harassment</option>
+            <option value="false_information">False Information</option>
+            <option value="offensive_language">Offensive Language</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="reportDescription">Description * (min 10 characters)</label>
+          <textarea 
+            id="reportDescription" 
+            [(ngModel)]="reportDescription" 
+            rows="4" 
+            required
+            placeholder="Please provide details about why you're reporting this review..."></textarea>
+          <small>{{ reportDescription.length }}/500 characters</small>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button (click)="closeReportModal()" class="btn-secondary" [disabled]="submittingReport">
+          Cancel
+        </button>
+        <button 
+          (click)="submitReport()" 
+          class="btn-primary" 
+          [disabled]="!reportReason || reportDescription.length < 10 || submittingReport">
+          {{ submittingReport ? 'Submitting...' : 'Submit Report' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

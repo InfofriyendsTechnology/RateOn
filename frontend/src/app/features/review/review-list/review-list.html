@@ -1,1 +1,155 @@
-<p>review-list works!</p>
+<div class="review-list-container">
+  <!-- Header with Filters -->
+  <div class="list-header">
+    <div class="header-info">
+      <h2>Reviews</h2>
+      <span class="review-count" *ngIf="!loading">{{ totalReviews }} {{ totalReviews === 1 ? 'review' : 'reviews' }}</span>
+    </div>
+
+    <div class="filters">
+      <!-- Sort Dropdown -->
+      <div class="filter-group">
+        <label>Sort by:</label>
+        <select (change)="onSortChange($any($event.target).value)" class="filter-select">
+          <option *ngFor="let option of sortOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Rating Filter -->
+      <div class="filter-group">
+        <label>Filter by rating:</label>
+        <select (change)="onFilterChange(+$any($event.target).value)" class="filter-select">
+          <option [value]="0">All Ratings</option>
+          <option *ngFor="let rating of [5, 4, 3, 2, 1]" [value]="rating">
+            {{ rating }} {{ rating === 1 ? 'star' : 'stars' }}
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading reviews...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-state">
+    <p>{{ error }}</p>
+    <button (click)="loadReviews()" class="btn-retry">Try Again</button>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && !error && reviews.length === 0" class="empty-state">
+    <div class="empty-icon">📝</div>
+    <h3>No reviews yet</h3>
+    <p>Be the first to share your experience!</p>
+  </div>
+
+  <!-- Review List -->
+  <div *ngIf="!loading && !error && reviews.length > 0" class="reviews-grid">
+    <div *ngFor="let review of reviews" class="review-card">
+      <!-- Review Header -->
+      <div class="review-header">
+        <div class="user-info">
+          <img [src]="review.userId?.profile?.avatar || 'assets/default-avatar.png'" 
+               [alt]="review.userId?.username" 
+               class="user-avatar">
+          <div class="user-details">
+            <div class="user-name">{{ review.userId?.profile?.firstName }} {{ review.userId?.profile?.lastName }}</div>
+            <div class="review-date">{{ formatDate(review.createdAt) }}</div>
+          </div>
+        </div>
+
+        <!-- Rating -->
+        <div class="rating">
+          <span *ngFor="let star of getStarArray(review.rating)" class="star filled">★</span>
+          <span *ngFor="let star of getEmptyStarArray(review.rating)" class="star">★</span>
+        </div>
+      </div>
+
+      <!-- Business/Item Info -->
+      <div class="business-info" *ngIf="review.businessId || review.itemId">
+        <span class="item-name" *ngIf="review.itemId">{{ review.itemId?.name }}</span>
+        <span class="separator" *ngIf="review.businessId && review.itemId">at</span>
+        <a [routerLink]="['/business', review.businessId?._id]" class="business-name" *ngIf="review.businessId">
+          {{ review.businessId?.name }}
+        </a>
+      </div>
+
+      <!-- Review Title -->
+      <h3 class="review-title" *ngIf="review.title">{{ review.title }}</h3>
+
+      <!-- Review Comment -->
+      <p class="review-comment">
+        {{ review.comment.length > 200 ? (review.comment | slice:0:200) + '...' : review.comment }}
+      </p>
+
+      <!-- Review Images -->
+      <div *ngIf="review.images && review.images.length > 0" class="review-images">
+        <img *ngFor="let image of review.images.slice(0, 3)" 
+             [src]="image" 
+             [alt]="review.title" 
+             class="review-image">
+        <div *ngIf="review.images.length > 3" class="more-images">
+          +{{ review.images.length - 3 }}
+        </div>
+      </div>
+
+      <!-- Reaction Buttons -->
+      <div class="review-reactions">
+        <app-reaction-buttons
+          [reviewId]="review._id"
+          [reviewOwnerId]="review.userId?._id"
+          [initialStats]="getReactionStats(review)"
+          (reactionChanged)="handleReactionChange($event, review)">
+        </app-reaction-buttons>
+      </div>
+
+      <!-- Review Footer -->
+      <div class="review-footer">
+        <span class="reply-count" *ngIf="review.stats?.replyCount > 0">
+          💬 {{ review.stats.replyCount }} {{ review.stats.replyCount === 1 ? 'reply' : 'replies' }}
+        </span>
+        <a [routerLink]="['/review', review._id]" class="btn-view-detail">
+          View Details →
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="!loading && reviews.length > 0 && totalPages > 1" class="pagination">
+    <button 
+      (click)="previousPage()" 
+      [disabled]="currentPage === 1" 
+      class="pagination-btn">
+      ← Previous
+    </button>
+
+    <div class="pagination-numbers">
+      <button 
+        *ngFor="let page of getPaginationRange()" 
+        (click)="goToPage(page)" 
+        [class.active]="page === currentPage"
+        class="pagination-number">
+        {{ page }}
+      </button>
+    </div>
+
+    <button 
+      (click)="nextPage()" 
+      [disabled]="currentPage === totalPages" 
+      class="pagination-btn">
+      Next →
+    </button>
+  </div>
+
+  <!-- Pagination Info -->
+  <div *ngIf="!loading && reviews.length > 0" class="pagination-info">
+    Showing {{ (currentPage - 1) * limit + 1 }} - {{ Math.min(currentPage * limit, totalReviews) }} of {{ totalReviews }}
+  </div>
+</div>

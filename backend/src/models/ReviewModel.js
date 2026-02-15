@@ -4,12 +4,18 @@ const ReviewSchema = new mongoose.Schema({
     itemId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Item',
-        required: true
+        required: false  // Optional - null for business reviews
     },
     businessId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Business',
         required: true
+    },
+    reviewType: {
+        type: String,
+        enum: ['business', 'item'],
+        required: true,
+        default: 'item'
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -93,8 +99,26 @@ ReviewSchema.index({ rating: 1 });
 ReviewSchema.index({ 'stats.helpfulCount': -1 });
 ReviewSchema.index({ createdAt: -1 });
 
-// Compound index for finding user's review on specific item
-ReviewSchema.index({ userId: 1, itemId: 1 }, { unique: true });
+// Compound index for finding user's review on specific item (item reviews only)
+// Only enforce uniqueness for ACTIVE reviews - allows users to review again after deletion
+ReviewSchema.index({ userId: 1, itemId: 1 }, { 
+    unique: true, 
+    partialFilterExpression: { 
+        reviewType: 'item', 
+        itemId: { $exists: true, $type: 'objectId' },
+        isActive: true
+    } 
+});
+
+// Compound index for finding user's review on specific business (business reviews)
+// Only enforce uniqueness for ACTIVE reviews
+ReviewSchema.index({ userId: 1, businessId: 1, reviewType: 1 }, { 
+    unique: true, 
+    partialFilterExpression: { 
+        reviewType: 'business',
+        isActive: true
+    } 
+});
 
 // Text search
 ReviewSchema.index({ title: 'text', comment: 'text' });

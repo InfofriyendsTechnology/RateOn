@@ -38,7 +38,6 @@ export default {
             return responseHandler.success(res, 'Category created successfully', category, 201);
 
         } catch (error) {
-            console.error('Create category error:', error);
             return responseHandler.error(res, error?.message || 'Failed to create category');
         }
     }

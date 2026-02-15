@@ -46,6 +46,13 @@
             <lucide-icon *ngIf="isBusinessOwner" [img]="Building2" [size]="18" [strokeWidth]="2"></lucide-icon>
             <span>{{ isBusinessOwner ? 'Dashboard' : 'Home' }}</span>
           </a>
+
+          <!-- Notifications -->
+          <div class="notif-wrapper" style="position:relative;">
+            <app-notification-bell [count]="unreadCount" (openPanel)="panelOpen = !panelOpen"></app-notification-bell>
+            <app-notification-panel [open]="panelOpen" (closed)="panelOpen = false"></app-notification-panel>
+          </div>
+
           <div class="user-badge">
             <img *ngIf="getUserAvatar() && !avatarFailed" [src]="getUserAvatar()" [alt]="currentUser?.username" 
                  class="user-avatar-img" crossorigin="anonymous" referrerpolicy="no-referrer"

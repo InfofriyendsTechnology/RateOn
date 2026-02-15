@@ -15,19 +15,30 @@ const auth = async (req, res, next) => {
         const decoded = jwt.verify(token, JWT_SECRET);
         req.user = decoded;
 
-        const userData = decoded.userType === 'admin'
-            ? await Admin.findById(decoded.id).select('-password')
-            : await User.findById(decoded.id).select('-password');
+        // Special handling for super-admin (no database lookup needed)
+        if (decoded.id === 'super-admin' && decoded.userType === 'admin') {
+            req.userData = {
+                _id: 'super-admin',
+                username: 'Super Admin',
+                email: 'admin@rateon.com',
+                role: 'super_admin',
+                isActive: true
+            };
+        } else {
+            const userData = decoded.userType === 'admin'
+                ? await Admin.findById(decoded.id).select('-password')
+                : await User.findById(decoded.id).select('-password');
 
-        if (!userData) {
-            return responseHandler.error(res, 'User not found');
+            if (!userData) {
+                return responseHandler.error(res, 'User not found');
+            }
+
+            if (!userData.isActive) {
+                return responseHandler.error(res, 'Account has been deactivated');
+            }
+
+            req.userData = userData;
         }
-
-        if (!userData.isActive) {
-            return responseHandler.error(res, 'Account has been deactivated');
-        }
-
-        req.userData = userData;
         next();
 
     } catch (error) {

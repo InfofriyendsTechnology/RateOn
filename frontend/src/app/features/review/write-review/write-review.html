@@ -15,35 +15,59 @@
   <div *ngIf="!loading && !error" class="review-form">
     <!-- Header -->
     <div class="form-header">
-      <div class="header-row">
-        <div class="header-text">
-          <h1>{{isViewMode ? 'Your Review' : (isEditMode ? 'Edit Your Review' : 'Write a Review')}}</h1>
-          <p class="subtitle">{{isViewMode ? 'View your review for this item' : (isEditMode ? 'Update your experience with this item' : 'Share your experience with this item')}}</p>
-        </div>
-        <button 
-          *ngIf="isViewMode" 
-          class="edit-mode-btn"
-          (click)="enableEditMode()"
-        >
-          <lucide-icon [img]="Star" [size]="18"></lucide-icon>
-          Edit Review
-        </button>
-      </div>
+      <h1>{{isViewMode ? 'Your Review' : (isEditMode ? 'Edit Review' : 'Write Review')}}</h1>
+      <button 
+        *ngIf="isViewMode" 
+        class="edit-mode-btn"
+        (click)="enableEditMode()"
+      >
+        <lucide-icon [img]="Star" [size]="16"></lucide-icon>
+        Edit
+      </button>
     </div>
 
-    <!-- Left Column: Item Info -->
+    <!-- Left Column: Item/Business Info -->
     <div class="item-info-section">
-      <div class="item-info-card" *ngIf="item && business">
-      <img 
-        [src]="item.images[0] || 'assets/placeholder-item.jpg'" 
-        [alt]="item.name"
-        class="item-image"
-      />
-      <div class="item-details">
-        <h3>{{item.name}}</h3>
-        <p class="business-name">at {{business.name}}</p>
-        <p class="item-description">{{item.description}}</p>
+      <!-- Item Review Info -->
+      <div class="item-info-card" *ngIf="reviewType === 'item' && item && business">
+        <div class="item-image-container">
+          <img 
+            *ngIf="item.images && item.images.length > 0"
+            [src]="item.images[0]" 
+            [alt]="item.name"
+            class="item-image"
+          />
+          <div *ngIf="!item.images || item.images.length === 0" class="image-placeholder">
+            <lucide-icon [img]="Package" [size]="48"></lucide-icon>
+            <span>NO IMAGE</span>
+          </div>
+        </div>
+        <div class="item-details">
+          <h3>{{item.name}}</h3>
+          <p class="business-name">at {{business.name}}</p>
+          <p class="item-description">{{item.description}}</p>
+        </div>
       </div>
+      
+      <!-- Business Review Info -->
+      <div class="item-info-card" *ngIf="reviewType === 'business' && business">
+        <div class="item-image-container">
+          <img 
+            *ngIf="business.images && business.images.length > 0"
+            [src]="business.images[0]" 
+            [alt]="business.name"
+            class="item-image"
+          />
+          <div *ngIf="!business.images || business.images.length === 0" class="image-placeholder">
+            <lucide-icon [img]="Building" [size]="48"></lucide-icon>
+            <span>NO IMAGE</span>
+          </div>
+        </div>
+        <div class="item-details">
+          <h3>{{business.name}}</h3>
+          <p class="business-name" *ngIf="business.category">{{business.category}}</p>
+          <p class="item-description" *ngIf="business.location">{{business.location.city}}, {{business.location.state}}</p>
+        </div>
       </div>
     </div>
 
@@ -79,7 +103,7 @@
         id="reviewText"
         [(ngModel)]="reviewText"
         [readonly]="isViewMode"
-        [placeholder]="isViewMode ? '' : 'Share your experience with this item. What did you like? What could be better? (Minimum 10 characters)'"
+        [placeholder]="isViewMode ? '' : (reviewType === 'business' ? 'Share your experience with this business. What did you like? What could be better? (Minimum 10 characters)' : 'Share your experience with this item. What did you like? What could be better? (Minimum 10 characters)')"
         rows="6"
         class="review-textarea"
         [class.readonly]="isViewMode"
@@ -183,9 +207,13 @@
           <lucide-icon [img]="Check" [size]="16"></lucide-icon>
           <span>Be honest and specific about your experience</span>
         </li>
-        <li>
+        <li *ngIf="reviewType === 'item'">
           <lucide-icon [img]="Check" [size]="16"></lucide-icon>
           <span>Focus on the item, not the business overall</span>
+        </li>
+        <li *ngIf="reviewType === 'business'">
+          <lucide-icon [img]="Check" [size]="16"></lucide-icon>
+          <span>Share your overall experience with the business</span>
         </li>
         <li>
           <lucide-icon [img]="Check" [size]="16"></lucide-icon>

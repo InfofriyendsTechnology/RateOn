@@ -1,0 +1,109 @@
+<div class="top-businesses-container">
+  <div class="header">
+    <h3 class="title">Top Businesses</h3>
+    <div class="period-toggle">
+      <button 
+        class="toggle-btn" 
+        [class.active]="selectedPeriod === 'week'"
+        (click)="onPeriodChange('week')"
+        [disabled]="loading">
+        Week
+      </button>
+      <button 
+        class="toggle-btn" 
+        [class.active]="selectedPeriod === 'month'"
+        (click)="onPeriodChange('month')"
+        [disabled]="loading">
+        Month
+      </button>
+    </div>
+  </div>
+
+  @if (loading) {
+    <div class="table-skeleton">
+      <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]">
+        <div class="skeleton-cell rank"></div>
+        <div class="skeleton-cell name"></div>
+        <div class="skeleton-cell count"></div>
+        <div class="skeleton-cell rating"></div>
+        <div class="skeleton-cell reactions"></div>
+      </div>
+    </div>
+  } @else if (sortedBusinesses.length === 0) {
+    <div class="empty-state">
+      <i class="lucide lucide-building-2"></i>
+      <p>No business data available for this period</p>
+    </div>
+  } @else {
+    <div class="table-wrapper">
+      <table class="businesses-table">
+        <thead>
+          <tr>
+            <th class="rank-col">#</th>
+            <th class="sortable" (click)="sortBy('businessName')">
+              Business Name
+              @if (sortColumn === 'businessName') {
+                <i class="sort-icon lucide" [class.lucide-chevron-up]="sortDirection === 'asc'" [class.lucide-chevron-down]="sortDirection === 'desc'"></i>
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('reviewCount')">
+              Reviews
+              @if (sortColumn === 'reviewCount') {
+                <i class="sort-icon lucide" [class.lucide-chevron-up]="sortDirection === 'asc'" [class.lucide-chevron-down]="sortDirection === 'desc'"></i>
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('averageRating')">
+              Rating
+              @if (sortColumn === 'averageRating') {
+                <i class="sort-icon lucide" [class.lucide-chevron-up]="sortDirection === 'asc'" [class.lucide-chevron-down]="sortDirection === 'desc'"></i>
+              }
+            </th>
+            <th class="sortable" (click)="sortBy('reactionCount')">
+              Reactions
+              @if (sortColumn === 'reactionCount') {
+                <i class="sort-icon lucide" [class.lucide-chevron-up]="sortDirection === 'asc'" [class.lucide-chevron-down]="sortDirection === 'desc'"></i>
+              }
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (business of sortedBusinesses; track business.businessId; let i = $index) {
+            <tr>
+              <td class="rank-col">
+                <span class="rank-badge" [class.top-three]="i < 3">{{ i + 1 }}</span>
+              </td>
+              <td class="business-name">
+                {{ business.businessName }}
+                @if (business.category) {
+                  <span class="category">{{ business.category }}</span>
+                }
+              </td>
+              <td class="review-count">
+                <i class="lucide lucide-message-square"></i>
+                {{ business.reviewCount }}
+              </td>
+              <td class="rating">
+                <div class="stars">
+                  @for (star of getRatingStars(business.averageRating); track $index) {
+                    @if (star === 'full') {
+                      <i class="lucide lucide-star star-icon filled"></i>
+                    } @else if (star === 'half') {
+                      <i class="lucide lucide-star-half star-icon filled"></i>
+                    } @else {
+                      <i class="lucide lucide-star star-icon empty"></i>
+                    }
+                  }
+                </div>
+                <span class="rating-value">{{ business.averageRating.toFixed(1) }}</span>
+              </td>
+              <td class="reaction-count">
+                <i class="lucide lucide-thumbs-up"></i>
+                {{ business.reactionCount }}
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

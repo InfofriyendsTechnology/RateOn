@@ -83,7 +83,6 @@ const responseHandler = {
         });
     },
     internalServerError: (res, error) => {
-        console.error('Internal Server Error:', error);
         const formattedError = formatError(error);
         formattedError.code = 'INTERNAL_SERVER_ERROR';
         return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({

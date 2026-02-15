@@ -1,0 +1,99 @@
+<div class="location-selector">
+  <!-- Auto-detect message -->
+  <div class="location-detector" *ngIf="detectingLocation">
+    <div class="detecting-message">
+      <span class="spinner"></span>
+      <span>Detecting your location...</span>
+    </div>
+  </div>
+
+  <!-- Country Selector -->
+  <div class="form-group">
+    <label for="country">
+      Country
+      <span class="required" *ngIf="required">*</span>
+    </label>
+    <select 
+      id="country"
+      class="form-control"
+      [(ngModel)]="selectedCountry"
+      (change)="onCountryChange()"
+      [disabled]="disabled || loadingCountries"
+      [required]="required"
+    >
+      <option value="">
+        {{ loadingCountries ? 'Loading countries...' : 'Select Country' }}
+      </option>
+      <option 
+        *ngFor="let country of countries" 
+        [value]="country.isoCode"
+      >
+        {{ country.flag }} {{ country.name }}
+      </option>
+    </select>
+  </div>
+
+  <!-- State Selector -->
+  <div class="form-group" *ngIf="selectedCountry">
+    <label for="state">
+      State / Region
+      <span class="required" *ngIf="required">*</span>
+    </label>
+    <select 
+      id="state"
+      class="form-control"
+      [(ngModel)]="selectedState"
+      (change)="onStateChange()"
+      [disabled]="disabled || loadingStates || !selectedCountry"
+      [required]="required"
+    >
+      <option value="">
+        {{ loadingStates ? 'Loading states...' : 'Select State' }}
+      </option>
+      <option 
+        *ngFor="let state of states" 
+        [value]="state.isoCode"
+      >
+        {{ state.name }}
+      </option>
+    </select>
+  </div>
+
+  <!-- City Selector -->
+  <div class="form-group" *ngIf="selectedState">
+    <label for="city">
+      City
+      <span class="required" *ngIf="required">*</span>
+    </label>
+    <select 
+      id="city"
+      class="form-control"
+      [(ngModel)]="selectedCity"
+      (change)="onCityChange()"
+      [disabled]="disabled || loadingCities || !selectedState"
+      [required]="required"
+    >
+      <option value="">
+        {{ loadingCities ? 'Loading cities...' : 'Select City' }}
+      </option>
+      <option 
+        *ngFor="let city of cities" 
+        [value]="city.name"
+      >
+        {{ city.name }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Manual location button if auto-detect is enabled -->
+  <div class="manual-location-btn" *ngIf="autoDetect && !detectingLocation">
+    <button 
+      type="button" 
+      class="btn-link"
+      (click)="detectLocation()"
+      [disabled]="disabled"
+    >
+      📍 Detect my location again
+    </button>
+  </div>
+</div>

@@ -56,6 +56,31 @@ export class AdminService {
     return this.http.get(`${this.apiUrl}/analytics/content`);
   }
 
+  // New Analytics Endpoints (Employee 5)
+  getUserStatistics(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/stats/users`);
+  }
+
+  getReviewStatistics(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/stats/reviews`);
+  }
+
+  getBusinessStatistics(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/stats/businesses`);
+  }
+
+  getTopBusinesses(period: 'week' | 'month' = 'month'): Observable<any> {
+    return this.http.get(`${this.apiUrl}/stats/businesses/top?period=${period}`);
+  }
+
+  getLocationData(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/stats/locations`);
+  }
+
+  getRealTimeMetrics(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/stats/realtime`);
+  }
+
   // Platform Statistics
   getPlatformStats(): Observable<{ stats: PlatformStats }> {
     return this.http.get<{ stats: PlatformStats }>(`${this.apiUrl}/stats`);
@@ -111,5 +136,26 @@ export class AdminService {
   // Review Management (optional - for future)
   deleteReviewPermanently(reviewId: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/reviews/${reviewId}`);
+  }
+
+  // Seed Data Management
+  getSeedStats(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/seed/stats`);
+  }
+
+  createDummyData(): Observable<any> {
+    return this.http.post(`${this.apiUrl}/seed/create`, {});
+  }
+
+  clearDummyData(): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/seed/clear`);
+  }
+
+  getDummyAccounts(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/seed/accounts`);
+  }
+
+  impersonateBusinessOwner(userId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/seed/impersonate/${userId}`, {});
   }
 }

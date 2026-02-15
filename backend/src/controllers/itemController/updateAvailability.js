@@ -51,7 +51,6 @@ export default {
         return responseHandler.success(res, 'Item availability updated successfully', item);
 
     } catch (error) {
-        console.error('Update availability error:', error);
         return responseHandler.error(res, error?.message || 'Failed to update availability');
     }
     }

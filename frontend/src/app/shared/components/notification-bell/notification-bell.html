@@ -1,0 +1,4 @@
+<button class="notif-bell" (click)="onClick()" [disabled]="disabled" aria-label="Notifications">
+  <lucide-icon [img]="Bell" class="icon"></lucide-icon>
+  <span class="badge" *ngIf="count > 0">{{ count > 99 ? '99+' : count }}</span>
+</button>

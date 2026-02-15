@@ -1,18 +1,21 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LucideAngularModule, Home, Compass, Trophy, LogIn, UserPlus, LayoutDashboard, User, LogOut, Menu, X, Building2, Moon, Sun } from 'lucide-angular';
 import { StorageService } from '../../../core/services/storage';
 import { ThemeService } from '../../../core/services/theme';
+import { NotificationBellComponent } from '../notification-bell/notification-bell';
+import { NotificationPanelComponent } from '../notification-panel/notification-panel';
+import { UserNotificationsService } from '../../../core/services/user-notifications.service';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive, CommonModule, LucideAngularModule],
+imports: [RouterLink, RouterLinkActive, CommonModule, LucideAngularModule, NotificationBellComponent, NotificationPanelComponent],
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss',
 })
-export class Navbar {
+export class Navbar implements OnInit {
   // Lucide Icons
   readonly Home = Home;
   readonly Compass = Compass;
@@ -29,13 +32,26 @@ export class Navbar {
   readonly Sun = Sun;
   isMenuOpen = false;
   avatarFailed = false;
-  showLogoutModal = false;
+showLogoutModal = false;
+
+  // Notifications UI state
+  unreadCount = 0;
+  panelOpen = false;
 
   constructor(
     private storage: StorageService,
     private router: Router,
-    public themeService: ThemeService
+public themeService: ThemeService,
+    private userNotifications: UserNotificationsService
   ) {}
+
+  ngOnInit(): void {
+    if (this.isLoggedIn) {
+      this.userNotifications.connect();
+      this.userNotifications.seedUnreadCount();
+      this.userNotifications.onUnreadCount().subscribe((c) => (this.unreadCount = c || 0));
+    }
+  }
 
   get isLoggedIn(): boolean {
     return this.storage.isAuthenticated();
@@ -67,6 +83,7 @@ export class Navbar {
   }
 
   confirmLogout() {
+    try { (this as any).userNotifications?.disconnect?.(); } catch {}
     this.storage.clearAuth();
     window.location.href = '/auth/login';
   }

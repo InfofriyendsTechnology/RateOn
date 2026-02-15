@@ -1,0 +1,230 @@
+.search-bar-container {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+
+  .search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #121212;
+    border: 1px solid #333;
+    border-radius: 24px;
+    padding: 0 1.25rem;
+    transition: all 0.2s ease;
+
+    &:focus-within {
+      border-color: #C0C0C0;
+      box-shadow: 0 0 0 1px #C0C0C0;
+    }
+
+    .search-icon {
+      font-size: 20px;
+      color: #C0C0C0;
+      margin-right: 0.75rem;
+    }
+
+    .search-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      padding: 0.875rem 0;
+      font-size: 1rem;
+      color: #ffffff;
+      background: transparent;
+
+      &::placeholder {
+        color: #666;
+      }
+    }
+
+    .loading-icon {
+      font-size: 20px;
+      color: #C0C0C0;
+      margin-right: 0.5rem;
+      animation: spin 1s linear infinite;
+    }
+
+    .clear-btn {
+      padding: 0.25rem;
+      border: none;
+      background: transparent;
+      color: #a1a1a1;
+      cursor: pointer;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+
+      i {
+        font-size: 18px;
+      }
+
+      &:hover {
+        background: #333;
+        color: #ffffff;
+      }
+    }
+  }
+
+  .suggestions-dropdown {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    right: 0;
+    background: #121212;
+    border: 1px solid #333;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    max-height: 400px;
+    overflow-y: auto;
+    z-index: 1000;
+    animation: slideDown 0.2s ease;
+
+    .suggestions-section {
+      padding: 0.5rem 0;
+
+      &:not(:last-child) {
+        border-bottom: 1px solid #333;
+      }
+
+      .section-title {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #a1a1a1;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .suggestion-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        gap: 0.75rem;
+
+        i {
+          font-size: 18px;
+          color: #C0C0C0;
+          flex-shrink: 0;
+        }
+
+        .suggestion-content {
+          flex: 1;
+          min-width: 0;
+
+          .suggestion-name {
+            font-size: 0.9375rem;
+            color: #ffffff;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+
+          .suggestion-subtitle {
+            font-size: 0.8125rem;
+            color: #a1a1a1;
+            margin-top: 0.125rem;
+          }
+        }
+
+        .remove-recent-btn {
+          padding: 0.25rem;
+          border: none;
+          background: transparent;
+          color: #666;
+          cursor: pointer;
+          border-radius: 4px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          opacity: 0;
+          transition: all 0.2s ease;
+
+          i {
+            font-size: 16px;
+          }
+
+          &:hover {
+            background: #333;
+            color: #ef4444;
+          }
+        }
+
+        &:hover {
+          background: #1a1a1a;
+
+          .remove-recent-btn {
+            opacity: 1;
+          }
+        }
+
+        &.selected {
+          background: #1a1a1a;
+
+          .remove-recent-btn {
+            opacity: 1;
+          }
+        }
+      }
+    }
+
+    .no-results {
+      padding: 2rem 1rem;
+      text-align: center;
+      color: #a1a1a1;
+
+      i {
+        font-size: 48px;
+        margin-bottom: 0.5rem;
+        opacity: 0.5;
+      }
+
+      p {
+        margin: 0;
+        font-size: 0.9375rem;
+      }
+    }
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Already using Black & Silver theme
+
+// Responsive
+@media (max-width: 768px) {
+  .search-bar-container {
+    .search-input-wrapper {
+      padding: 0 0.75rem;
+
+      .search-input {
+        font-size: 0.9375rem;
+        padding: 0.75rem 0;
+      }
+    }
+
+    .suggestions-dropdown {
+      max-height: 300px;
+    }
+  }
+}
