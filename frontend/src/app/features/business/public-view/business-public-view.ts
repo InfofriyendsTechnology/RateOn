@@ -104,6 +104,11 @@ export class BusinessPublicView implements OnInit {
       next: (resp: any) => {
         const data = resp.data || resp;
         this.business = data.business || data;
+        console.log('Business Data:', this.business);
+        console.log('Description:', this.business.description);
+        console.log('Location:', this.business.location);
+        console.log('Contact:', this.business.contact);
+        console.log('Hours:', this.business.businessHours);
         this.loading = false;
       },
       error: () => { 
@@ -117,6 +122,7 @@ export class BusinessPublicView implements OnInit {
       next: (resp: any) => {
         const data = resp.data || resp;
         this.items = data.items || data || [];
+        console.log('Items loaded:', this.items.length, this.items);
         this.loadingItems = false;
       },
       error: () => {

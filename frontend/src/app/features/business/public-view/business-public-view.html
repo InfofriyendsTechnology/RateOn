@@ -15,15 +15,15 @@
           <h1 class="business-name">{{ business.name }}</h1>
           <div class="business-meta">
             <span class="category-badge">{{ business.category || business.type }}</span>
-            <div class="rating-stars" *ngIf="business.rating">
+            <div class="rating-stars" *ngIf="business.rating?.average || business.stats?.avgRating">
               <span class="stars">
                 <lucide-icon *ngFor="let star of [1,2,3,4,5]" 
                   [img]="Star" 
                   [size]="18"
-                  [attr.fill]="getStarFill(star, business.rating)"
-                  [style.color]="getStarColor(star, business.rating)"></lucide-icon>
+                  [attr.fill]="getStarFill(star, business.rating?.average || business.stats?.avgRating || 0)"
+                  [style.color]="getStarColor(star, business.rating?.average || business.stats?.avgRating || 0)"></lucide-icon>
               </span>
-              <span class="rating-text">{{ business.rating.toFixed(1) }} ({{ business.stats?.totalReviews || 0 }} reviews)</span>
+              <span class="rating-text">{{ (business.rating?.average || business.stats?.avgRating || 0).toFixed(1) }} ({{ business.stats?.totalReviews || business.rating?.count || 0 }} reviews)</span>
             </div>
           </div>
         </div>
