@@ -66,14 +66,32 @@ const startServer = async () => {
             initializeSocket(server);
         }
         
-        server.listen(PORT, () => {
-            console.log(`✅ Server Running: ${PORT}`);
-        });
+        // Only listen on port locally, not on Vercel
+        if (!process.env.VERCEL) {
+            server.listen(PORT, () => {
+                console.log(`✅ Server Running: ${PORT}`);
+            });
+        }
 
     } catch (error) {
         console.error('❌ Server Failed');
-        process.exit(1);
+        if (!process.env.VERCEL) {
+            process.exit(1);
+        }
     }
 };
 
-startServer();
+// For Vercel: export handler
+let initialized = false;
+export default async (req, res) => {
+    if (!initialized) {
+        await startServer();
+        initialized = true;
+    }
+    return app(req, res);
+};
+
+// For local: start server
+if (!process.env.VERCEL) {
+    startServer();
+}
