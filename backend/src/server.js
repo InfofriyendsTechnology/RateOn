@@ -61,8 +61,10 @@ const startServer = async () => {
         await connectDB();
         await initializeDatabase();
         
-        // Initialize WebSocket
-        initializeSocket(server);
+        // Initialize WebSocket (skip on Vercel)
+        if (!process.env.VERCEL) {
+            initializeSocket(server);
+        }
         
         server.listen(PORT, () => {
             console.log(`✅ Server Running: ${PORT}`);
