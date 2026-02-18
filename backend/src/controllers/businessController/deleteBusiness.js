@@ -68,14 +68,11 @@ export default {
             // 4. Delete the business
             await Business.findByIdAndDelete(businessId);
 
-            // 5. Update user - convert business owner back to regular user
-            await User.findByIdAndUpdate(userId, {
-                role: 'user'
-            });
+            // Note: User keeps business_owner role so they can create another business
 
             return responseHandler.success(
                 res,
-                'Business account deleted successfully. You have been converted to a regular user account.',
+                'Business deleted successfully. You can create a new business anytime.',
                 {
                     deleted: {
                         business: 1,

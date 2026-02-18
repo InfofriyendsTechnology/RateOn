@@ -148,13 +148,32 @@ export class CallbackComponent implements OnInit {
 
           this.message = 'Login successful! Redirecting...';
           
-          // Redirect based on user role
-          const redirectUrl = authData.user.role === 'business_owner' 
-            ? '/owner' 
-            : '/home';
+          // Check for return URL from auth data or sessionStorage
+          let redirectUrl = authData.returnUrl || sessionStorage.getItem('auth_return_url');
+          
+          // Clear the stored return URL
+          sessionStorage.removeItem('auth_return_url');
+          
+          // Decode the return URL if it exists
+          if (redirectUrl) {
+            try {
+              redirectUrl = decodeURIComponent(redirectUrl);
+            } catch (e) {
+              // If decode fails, ignore and use default
+              redirectUrl = null;
+            }
+          }
+          
+          // If no return URL, redirect based on user role
+          if (!redirectUrl) {
+            redirectUrl = authData.user.role === 'business_owner' 
+              ? '/owner' 
+              : '/home';
+          }
           
           setTimeout(() => {
-            this.router.navigate([redirectUrl]);
+            // Use navigateByUrl with replaceUrl to prevent back button issues
+            this.router.navigateByUrl(redirectUrl, { replaceUrl: true });
           }, 1000);
         } catch (error) {
           this.message = 'Authentication failed. Redirecting...';

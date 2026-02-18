@@ -59,15 +59,15 @@
       <div class="review-header">
         <div class="reviewer-info">
           <div class="reviewer-avatar">
-            <img *ngIf="review.userId?.profile?.avatar || review.userId?.avatar || review.userId?.googleProfile?.picture" 
-                 [src]="review.userId?.profile?.avatar || review.userId?.avatar || review.userId?.googleProfile?.picture" 
-                 [alt]="review.userId?.name || review.userId?.username || 'User'"
+            <img *ngIf="getAvatarUrl(review) && !avatarFailed[review._id]" 
+                 [src]="getAvatarUrl(review)" 
+                 [alt]="getUserDisplayName(review)"
                  class="avatar-image"
                  crossorigin="anonymous"
                  referrerpolicy="no-referrer"
-                 (error)="$event.target.style.display='none'" />
-            <span *ngIf="!review.userId?.profile?.avatar && !review.userId?.avatar && !review.userId?.googleProfile?.picture" class="avatar-initial">
-              {{ (review.userId?.name || review.userId?.username || 'U')?.charAt(0)?.toUpperCase() }}
+                 (error)="onAvatarError(review._id)" />
+            <span *ngIf="!getAvatarUrl(review) || avatarFailed[review._id]" class="avatar-initial">
+              {{ getUserDisplayName(review).charAt(0).toUpperCase() }}
             </span>
           </div>
           <div class="reviewer-details">

@@ -8,6 +8,7 @@ import { BusinessService } from '../../../core/services/business';
 import { ToastService } from '../../../core/services/toast';
 import { ThemeService } from '../../../core/services/theme';
 import { UserNotificationsService, AppNotification } from '../../../core/services/user-notifications.service';
+import { UserService } from '../../../core/services/user';
 import { LucideAngularModule, LayoutDashboard, Compass, Trophy, ShoppingBag, Settings, Edit, LogOut, Menu, User, Plus, ArrowLeft, X, Star, Sun, Moon, Bell, MessageSquare } from 'lucide-angular';
 import { filter } from 'rxjs/operators';
 
@@ -83,7 +84,8 @@ export class BusinessDashboardComponent implements OnInit {
     private businessService: BusinessService,
     private toastService: ToastService,
     private themeService: ThemeService,
-    private notificationService: UserNotificationsService
+    private notificationService: UserNotificationsService,
+    private userService: UserService
   ) {}
   
   ngOnInit() {
@@ -316,22 +318,27 @@ export class BusinessDashboardComponent implements OnInit {
   
   onAvatarError(event: any) {
     this.avatarFailed = true;
-    event.target.style.display = 'none';
   }
   
   // Business creation methods
   openBusinessModal() {
+    // Reset form first to ensure clean state
+    this.resetBusinessForm();
+    // Then show modal
     this.showBusinessModal = true;
     this.currentBusinessStep = 1;
-    this.resetBusinessForm();
   }
   
   closeBusinessModal() {
     this.showBusinessModal = false;
-    this.resetBusinessForm();
+    // Reset form after a short delay to ensure clean state
+    setTimeout(() => {
+      this.resetBusinessForm();
+    }, 300);
   }
   
   resetBusinessForm() {
+    // Create a new object instance to force change detection
     this.businessForm = {
       name: '',
       type: '',
@@ -345,6 +352,7 @@ export class BusinessDashboardComponent implements OnInit {
       description: ''
     };
     this.currentBusinessStep = 1;
+    this.addingBusiness = false;
   }
   
   onBusinessTypeChange() {
@@ -399,6 +407,34 @@ export class BusinessDashboardComponent implements OnInit {
     
     this.addingBusiness = true;
     
+    // Check if user has business_owner role, if not upgrade first
+    if (this.user?.role !== 'business_owner') {
+      this.userService.becomeBusinessOwner().subscribe({
+        next: (response: any) => {
+          // Update local user data
+          this.user.role = 'business_owner';
+          this.storage.saveUser(response.data.user);
+          
+          // Update token if returned
+          if (response.data.token) {
+            this.storage.saveToken(response.data.token);
+          }
+          
+          // Now proceed to create business
+          this.createBusinessRequest();
+        },
+        error: (err) => {
+          this.toastService.error('Failed to upgrade account. Please try again.');
+          this.addingBusiness = false;
+        }
+      });
+    } else {
+      // Already business owner, proceed directly
+      this.createBusinessRequest();
+    }
+  }
+  
+  private createBusinessRequest() {
     // Use customType as type if 'other' is selected
     const businessType = this.businessForm.type === 'other' ? this.businessForm.customType : this.businessForm.type;
     

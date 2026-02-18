@@ -111,39 +111,73 @@ export default {
 
             // If rating changed, update item and business ratings
             if (ratingChanged) {
-                const item = await Item.findById(review.itemId);
-                if (item) {
-                    // Remove old rating and add new one
-                    await item.updateRating(oldRating, 'remove');
-                    await item.updateRating(rating, 'add');
-                }
+                // Handle item review
+                if (review.itemId) {
+                    const item = await Item.findById(review.itemId);
+                    if (item) {
+                        // Remove old rating and add new one
+                        await item.updateRating(oldRating, 'remove');
+                        await item.updateRating(rating, 'add');
+                    }
 
-                // Recalculate business rating
-                const business = await Business.findById(review.businessId);
-                if (business) {
-                    const businessItems = await Item.find({ businessId: review.businessId });
-                    let totalRating = 0;
-                    let totalReviews = 0;
-                    
-                    businessItems.forEach(item => {
-                        if (item.reviewCount > 0) {
-                            totalRating += item.averageRating * item.reviewCount;
-                            totalReviews += item.reviewCount;
-                        }
-                    });
-
-                    if (totalReviews > 0) {
-                        business.rating.average = totalRating / totalReviews;
+                    // Recalculate business rating from items
+                    const business = await Business.findById(review.businessId);
+                    if (business) {
+                        const businessItems = await Item.find({ businessId: review.businessId });
+                        let totalRating = 0;
+                        let totalReviews = 0;
                         
-                        // Update rating distribution
-                        const allReviews = await Review.find({ businessId: review.businessId, isActive: true });
-                        const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-                        allReviews.forEach(r => {
-                            distribution[r.rating] = (distribution[r.rating] || 0) + 1;
+                        businessItems.forEach(item => {
+                            if (item.reviewCount > 0) {
+                                totalRating += item.averageRating * item.reviewCount;
+                                totalReviews += item.reviewCount;
+                            }
                         });
-                        business.rating.distribution = distribution;
+
+                        if (totalReviews > 0) {
+                            business.rating.average = totalRating / totalReviews;
+                            
+                            // Update rating distribution
+                            const allReviews = await Review.find({ businessId: review.businessId, isActive: true });
+                            const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+                            allReviews.forEach(r => {
+                                distribution[r.rating] = (distribution[r.rating] || 0) + 1;
+                            });
+                            business.rating.distribution = distribution;
+                            business.stats.avgRating = business.rating.average;
+                            business.stats.totalReviews = totalReviews;
+                            
+                            await business.save();
+                        }
+                    }
+                } 
+                // Handle business review
+                else if (review.reviewType === 'business') {
+                    const business = await Business.findById(review.businessId);
+                    if (business) {
+                        // Recalculate from all business reviews
+                        const businessReviews = await Review.find({ businessId: review.businessId, reviewType: 'business', isActive: true });
                         
-                        await business.save();
+                        if (businessReviews.length > 0) {
+                            const totalRating = businessReviews.reduce((sum, r) => sum + r.rating, 0);
+                            const avgRating = totalRating / businessReviews.length;
+                            
+                            // Update rating distribution
+                            const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+                            businessReviews.forEach(r => {
+                                distribution[r.rating] = (distribution[r.rating] || 0) + 1;
+                            });
+                            
+                            business.rating = business.rating || {};
+                            business.rating.average = avgRating;
+                            business.rating.count = businessReviews.length;
+                            business.rating.distribution = distribution;
+                            business.stats = business.stats || {};
+                            business.stats.totalReviews = businessReviews.length;
+                            business.stats.avgRating = avgRating;
+                            
+                            await business.save();
+                        }
                     }
                 }
             }

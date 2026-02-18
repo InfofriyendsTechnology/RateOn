@@ -106,9 +106,42 @@
   align-items: center;
   justify-content: center;
   gap: $space-3;
+  font-weight: 600;
   
   svg {
     flex-shrink: 0;
+  }
+}
+
+// Override button styles for modal buttons
+.auth-modal-content {
+  .btn-primary {
+    background: var(--color-accent-gradient);
+    color: #000000;
+    font-weight: 600;
+    box-shadow: var(--shadow-md);
+    border: none;
+    
+    &:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+  }
+  
+  .btn-outline {
+    background: transparent;
+    color: var(--text-primary);
+    border: 2px solid var(--border-color);
+    font-weight: 500;
+    
+    &:hover:not(:disabled) {
+      background: var(--bg-hover);
+      border-color: var(--border-color-strong);
+    }
   }
 }
 
@@ -139,7 +172,7 @@
   font-size: $text-sm;
 
   a {
-    color: $color-yellow;
+    color: var(--accent-primary);
     text-decoration: none;
     font-weight: $font-weight-semibold;
 
@@ -192,8 +225,8 @@
 
       &:focus {
         outline: none;
-        border-color: $color-yellow;
-        box-shadow: 0 0 0 3px rgba(250, 189, 5, 0.1);
+        border-color: var(--accent-primary);
+        box-shadow: 0 0 0 3px var(--accent-primary-alpha);
       }
 
       &::placeholder {

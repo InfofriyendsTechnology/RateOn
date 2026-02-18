@@ -93,18 +93,24 @@ export class BusinessesComponent implements OnInit {
   }
   
   openBusinessModal() {
+    // Reset form first to ensure clean state
+    this.resetBusinessForm();
+    // Then show modal
     this.showBusinessModal = true;
     this.currentBusinessStep = 1;
-    this.resetBusinessForm();
   }
   
   closeBusinessModal() {
     this.showBusinessModal = false;
-    this.resetBusinessForm();
+    // Reset form after a short delay to ensure clean state
+    setTimeout(() => {
+      this.resetBusinessForm();
+    }, 300);
   }
   
   resetBusinessForm() {
-    this.businessForm = {
+    // Create a completely new object to ensure Angular detects the change
+    this.businessForm = Object.assign({}, {
       name: '',
       type: '',
       customType: '',
@@ -115,8 +121,9 @@ export class BusinessesComponent implements OnInit {
       phone: '',
       website: '',
       description: ''
-    };
+    });
     this.currentBusinessStep = 1;
+    this.addingBusiness = false;
   }
   
   onBusinessTypeChange() {

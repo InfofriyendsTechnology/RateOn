@@ -1,36 +1,66 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import { LucideAngularModule, Store, Star, MapPin, Package, IndianRupee, Tag } from 'lucide-angular';
+import { LucideAngularModule, Store, Star, MapPin, Package, IndianRupee, Tag, Sun, Moon } from 'lucide-angular';
+import { ThemeService } from '../../../core/services/theme';
 import { SearchBarComponent } from '../../../shared/components/search-bar/search-bar.component';
 import { FilterSidebarComponent, FilterState } from '../../../shared/components/filter-sidebar/filter-sidebar.component';
+import { BreadcrumbsComponent, Crumb } from '../../../shared/components/breadcrumbs/breadcrumbs';
 import { BusinessCard } from '../../../shared/components/business-card/business-card';
 import { ItemCard } from '../../../shared/components/item-card/item-card';
 import { BusinessService } from '../../../core/services/business';
 import { ItemService } from '../../../core/services/item';
 import { ReviewService } from '../../../core/services/review';
 import { StorageService } from '../../../core/services/storage';
+import { ExploreStateService } from '../../../core/services/explore-state.service';
 
 interface Business {
   id: string;
+  _id: string;
   name: string;
+  type: string;
+  description?: string;
   category: string;
-  rating: number;
+  rating: {
+    average: number;
+    count: number;
+    distribution: { [key: number]: number };
+  };
+  averageRating: number;
   reviewCount: number;
-  address: string;
+  itemsCount: number;
+  address: {
+    street: string;
+    area: string;
+    city: string;
+    state: string;
+  };
+  addressString?: string;
+  images: string[];
   image: string;
   priceRange: string;
   distance?: number;
   isOpen?: boolean;
-  location?: {
-    city?: string;
-    address?: string;
-    state?: string;
+  claimed: boolean;
+  isClaimed: boolean;
+  isVerified: boolean;
+  contact: {
+    phone?: string;
+    whatsapp?: string;
+    website?: string;
+    email?: string;
   };
-  stats?: {
-    totalItems?: number;
-    totalReviews?: number;
+  location: {
+    address: string;
+    city: string;
+    state: string;
+    country: string;
+    coordinates: { lat: number; lng: number };
+  };
+  stats: {
+    totalItems: number;
+    totalReviews: number;
   };
 }
 
@@ -49,11 +79,12 @@ interface Item {
 @Component({
   selector: 'app-search-results',
   standalone: true,
-  imports: [CommonModule, LucideAngularModule, SearchBarComponent, FilterSidebarComponent, BusinessCard, ItemCard],
+  imports: [CommonModule, LucideAngularModule, SearchBarComponent, FilterSidebarComponent, BusinessCard, ItemCard, BreadcrumbsComponent],
   templateUrl: './search-results.component.html',
   styleUrl: './search-results.component.scss'
 })
-export class SearchResultsComponent implements OnInit, OnDestroy {
+export class SearchResultsComponent implements OnInit, AfterViewInit, OnDestroy {
+  private savedScrollPosition: number = 0;
   private destroy$ = new Subject<void>();
   
   // Lucide Icons
@@ -63,6 +94,8 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
   readonly Package = Package;
   readonly IndianRupee = IndianRupee;
   readonly Tag = Tag;
+  readonly Sun = Sun;
+  readonly Moon = Moon;
   
   searchQuery: string = '';
   activeTab: 'businesses' | 'items' = 'businesses';
@@ -77,24 +110,34 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
   loading: boolean = false;
   showFilters: boolean = true;
   currentPage: number = 1;
-  pageSize: number = 12;
+  pageSize: number = 10; // Load 10 more at a time
   totalResults: number = 0;
+  displayedCount: number = 10; // Initially show 10 items
   
   // Filters
   currentFilters: FilterState | null = null;
+  
+  // Breadcrumbs
+  breadcrumbs: Crumb[] = [];
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private location: Location,
+    public themeService: ThemeService,
     private businessService: BusinessService,
     private itemService: ItemService,
     private reviewService: ReviewService,
-    private storage: StorageService
+    private storage: StorageService,
+    private exploreState: ExploreStateService
   ) {}
 
   ngOnInit(): void {
     // Get current user
     this.currentUser = this.storage.getUser();
+    
+    // Restore state if coming back from navigation
+    this.restoreState();
     
     // Listen to query params
     this.route.queryParams
@@ -103,17 +146,42 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
         this.searchQuery = params['q'] || '';
         this.activeTab = params['tab'] || 'businesses';
         this.currentPage = parseInt(params['page'] || '1', 10);
-        this.performSearch();
+        this.updateBreadcrumbs();
+        
+        // Only perform search if we don't have restored state
+        if (!this.exploreState.hasState()) {
+          this.performSearch();
+        }
       });
   }
 
   ngOnDestroy(): void {
+    // Save state before leaving
+    this.saveState();
     this.destroy$.next();
     this.destroy$.complete();
   }
 
   performSearch(): void {
+    // Check if we have cached data and no search query
+    if (!this.searchQuery && this.allBusinesses.length > 0 && this.activeTab === 'businesses') {
+      // Use cached data - restore previous view state
+      const currentDisplayed = this.businesses.length || this.displayedCount;
+      this.businesses = this.allBusinesses.slice(0, currentDisplayed);
+      this.totalResults = this.allBusinesses.length;
+      return;
+    }
+    
+    if (!this.searchQuery && this.allItems.length > 0 && this.activeTab === 'items') {
+      // Use cached data - restore previous view state
+      const currentDisplayed = this.items.length || this.displayedCount;
+      this.items = this.allItems.slice(0, currentDisplayed);
+      this.totalResults = this.allItems.length;
+      return;
+    }
+    
     this.loading = true;
+    this.currentPage = 1; // Reset to page 1 on new search
     
     if (this.activeTab === 'businesses') {
       // Fetch real businesses
@@ -122,19 +190,53 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
           const data = response.data || response;
           const allBusinesses = data.businesses || data || [];
           
-          // Map to expected format
+          // Map to expected format - match landing page format directly
           this.businesses = allBusinesses.map((b: any) => ({
             id: b._id,
+            _id: b._id, // Add _id for card
             name: b.name,
+            type: b.type || b.category || 'Business',
+            description: b.description || '',
             category: b.category || b.type || 'Business',
-            rating: b.rating || 0,
-            reviewCount: b.stats?.totalReviews || 0,
-            address: `${b.location?.city || ''}, ${b.location?.state || ''}`.trim(),
+            rating: {
+              average: Number(b.rating) || 0,
+              count: Number(b.stats?.totalReviews) || 0,
+              distribution: {}
+            },
+            averageRating: Number(b.rating) || 0,
+            reviewCount: Number(b.stats?.totalReviews) || 0,
+            itemsCount: Number(b.stats?.totalItems) || 0,
+            address: {
+              street: b.location?.address || '',
+              area: '',
+              city: b.location?.city || '',
+              state: b.location?.state || ''
+            },
+            addressString: `${b.location?.city || ''}, ${b.location?.state || ''}`.trim(),
+            images: b.logo ? [b.logo] : b.coverImages || [],
             image: b.logo || b.coverImages?.[0] || '',
             priceRange: '$$',
             isOpen: b.isOpen,
-            location: b.location,
-            stats: b.stats
+            claimed: false,
+            isClaimed: b.isClaimed || false,
+            isVerified: b.isVerified || false,
+            contact: {
+              phone: b.contact?.phone || '',
+              whatsapp: b.contact?.whatsapp || '',
+              website: b.contact?.website || '',
+              email: b.contact?.email || ''
+            },
+            location: {
+              address: b.location?.address || '',
+              city: b.location?.city || '',
+              state: b.location?.state || '',
+              country: b.location?.country || '',
+              coordinates: b.location?.coordinates || { lat: 0, lng: 0 }
+            },
+            stats: {
+              totalItems: Number(b.stats?.totalItems) || 0,
+              totalReviews: Number(b.stats?.totalReviews) || 0
+            }
           }));
           
           // Filter by search query if present
@@ -143,11 +245,16 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
             this.businesses = this.businesses.filter(b => 
               b.name.toLowerCase().includes(query) || 
               b.category.toLowerCase().includes(query) ||
-              b.address.toLowerCase().includes(query)
+              (b.addressString || '').toLowerCase().includes(query)
             );
           }
           
+          // Store all results for explore page (in-memory cache)
+          this.allBusinesses = [...this.businesses];
           this.totalResults = this.businesses.length;
+          
+          // Show first 10 businesses initially
+          this.businesses = this.businesses.slice(0, this.displayedCount);
           
           // Load user reviews for businesses
           if (this.currentUser && this.businesses.length > 0) {
@@ -192,7 +299,12 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
             );
           }
           
+          // Store all results for explore page (in-memory cache)
+          this.allItems = [...this.items];
           this.totalResults = this.items.length;
+          
+          // Show first 10 items initially
+          this.items = this.items.slice(0, this.displayedCount);
           
           // Load user reviews for items
           if (this.currentUser && this.items.length > 0) {
@@ -261,6 +373,7 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
   }
 
   onTabChange(tab: 'businesses' | 'items'): void {
+    if (this.activeTab === tab) return; // Don't reload if same tab
     this.activeTab = tab;
     this.currentPage = 1;
     this.updateQueryParams();
@@ -275,7 +388,6 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
   onPageChange(page: number): void {
     this.currentPage = page;
     this.updateQueryParams();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   toggleFilters(): void {
@@ -347,14 +459,14 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
   }
 
   onImageError(event: any): void {
-    // Hide broken image by setting display to none
-    event.target.style.display = 'none';
+    // Image will be hidden by CSS
   }
   
   transformBusinessForCard(business: Business): any {
     return {
       _id: business.id,
       name: business.name,
+      description: business.description || '',
       category: business.category,
       averageRating: business.rating,
       reviewCount: business.reviewCount,
@@ -414,5 +526,91 @@ export class SearchResultsComponent implements OnInit, OnDestroy {
   onItemCardClick(item: any): void {
     // Navigate to item detail page
     this.router.navigate(['/item', item._id]);
+  }
+  
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+  }
+  
+  updateBreadcrumbs(): void {
+    this.breadcrumbs = [
+      { label: 'Home', link: '/' },
+      { label: 'Explore' }
+    ];
+  }
+  
+  // Store all fetched results for pagination (in-memory cache)
+  allBusinesses: Business[] = [];
+  allItems: Item[] = [];
+  
+  saveState(): void {
+    // Save current scroll position
+    const scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+    
+    this.exploreState.saveState({
+      businesses: this.businesses,
+      items: this.items,
+      allBusinesses: this.allBusinesses,
+      allItems: this.allItems,
+      totalResults: this.totalResults,
+      activeTab: this.activeTab,
+      scrollPosition: scrollPosition
+    });
+  }
+  
+  restoreState(): void {
+    const savedState = this.exploreState.getState();
+    
+    if (savedState) {
+      // Restore all data
+      this.businesses = savedState.businesses;
+      this.items = savedState.items;
+      this.allBusinesses = savedState.allBusinesses;
+      this.allItems = savedState.allItems;
+      this.totalResults = savedState.totalResults;
+      this.activeTab = savedState.activeTab;
+      
+      // Store scroll position to restore after view init
+      this.savedScrollPosition = savedState.scrollPosition;
+      
+      // Clear state after restoring
+      this.exploreState.clearState();
+    }
+  }
+  
+  ngAfterViewInit(): void {
+    // Restore scroll position after view is fully rendered
+    if (this.savedScrollPosition > 0) {
+      setTimeout(() => {
+        window.scrollTo({
+          top: this.savedScrollPosition,
+          behavior: 'instant'
+        });
+        this.savedScrollPosition = 0;
+      }, 100);
+    }
+  }
+  
+  loadMore(): void {
+    // Get current length before loading
+    const currentLength = this.activeTab === 'businesses' ? this.businesses.length : this.items.length;
+    
+    // Calculate slice indices (load 10 more)
+    const startIndex = currentLength;
+    const endIndex = startIndex + this.pageSize; // Load 10 more
+    
+    if (this.activeTab === 'businesses') {
+      // Get 10 more businesses from already fetched results
+      const moreBusinesses = this.allBusinesses.slice(startIndex, endIndex);
+      this.businesses = [...this.businesses, ...moreBusinesses];
+    } else {
+      // Get 10 more items from already fetched results
+      const moreItems = this.allItems.slice(startIndex, endIndex);
+      this.items = [...this.items, ...moreItems];
+    }
+  }
+  
+  goBack(): void {
+    this.location.back();
   }
 }

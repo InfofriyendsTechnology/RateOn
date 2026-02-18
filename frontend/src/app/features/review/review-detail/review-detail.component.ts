@@ -7,11 +7,13 @@ import { ReviewService } from '../../../core/services/review';
 import { AuthService } from '../../../core/services/auth';
 import { ReactionButtons } from '../../../shared/components/reaction-buttons/reaction-buttons';
 import { ReplyThreadComponent } from '../../../shared/components/reply-thread/reply-thread.component';
+import { AuthModalComponent } from '../../../shared/components/auth-modal/auth-modal.component';
+import { StorageService } from '../../../core/services/storage';
 
 @Component({
   selector: 'app-review-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, ReactionButtons, ReplyThreadComponent],
+  imports: [CommonModule, FormsModule, RouterModule, ReactionButtons, ReplyThreadComponent, AuthModalComponent],
   templateUrl: './review-detail.component.html',
   styleUrls: ['./review-detail.component.scss']
 })
@@ -31,12 +33,14 @@ export class ReviewDetailComponent implements OnInit, OnDestroy {
   reportReason: string = '';
   reportDescription: string = '';
   submittingReport: boolean = false;
+  showAuthModal: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private reviewService: ReviewService,
-    private authService: AuthService
+    private authService: AuthService,
+    private storage: StorageService
   ) {}
 
   ngOnInit(): void {
@@ -188,8 +192,7 @@ export class ReviewDetailComponent implements OnInit, OnDestroy {
 
   openReportModal(): void {
     if (!this.currentUser) {
-      // Redirect to login or show login modal
-      this.router.navigate(['/auth/login'], { queryParams: { returnUrl: this.router.url } });
+      this.showAuthModal = true;
       return;
     }
     this.showReportModal = true;
@@ -248,5 +251,20 @@ export class ReviewDetailComponent implements OnInit, OnDestroy {
 
   goBack(): void {
     window.history.back();
+  }
+
+  handleAuthRequired(): void {
+    this.showAuthModal = true;
+  }
+
+  onAuthSuccess(): void {
+    this.showAuthModal = false;
+    this.currentUser = this.storage.getUser();
+    this.loadReviewWithReplies();
+    this.loadStatistics();
+  }
+
+  closeAuthModal(): void {
+    this.showAuthModal = false;
   }
 }

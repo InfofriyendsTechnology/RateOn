@@ -14,20 +14,7 @@
   </div>
   
   <div class="business-content">
-    <div class="name-category-row">
-      <h3 class="business-name">{{business.name}}</h3>
-      <span class="business-category" *ngIf="business.category">{{business.category}}</span>
-    </div>
-    
-    <!-- Location -->
-    <div class="business-location" *ngIf="business.address?.city">
-      <lucide-icon [img]="MapPin" [size]="14"></lucide-icon>
-      <span>{{business.address?.city}}{{business.address?.state ? ', ' + business.address?.state : ''}}</span>
-    </div>
-    
-    <p class="business-description">{{business.description}}</p>
-    
-    <!-- Rating Section -->
+    <!-- Rating Section - at top -->
     <div class="business-rating">
       <div class="stars">
         <span 
@@ -40,6 +27,19 @@
       </div>
       <span class="rating-value">{{displayAverageRating | number:'1.1-1'}}</span>
     </div>
+    
+    <div class="name-category-row">
+      <h3 class="business-name">{{business.name}}</h3>
+      <span class="business-category" *ngIf="business.category">{{business.category}}</span>
+    </div>
+    
+    <!-- Location -->
+    <div class="business-location" *ngIf="business.address?.city">
+      <lucide-icon [img]="MapPin" [size]="14"></lucide-icon>
+      <span>{{business.address?.city}}{{business.address?.state ? ', ' + business.address?.state : ''}}</span>
+    </div>
+    
+    <p class="business-description">{{business.description}}</p>
     
     <!-- Footer: Stats + Button -->
     <div class="business-footer">

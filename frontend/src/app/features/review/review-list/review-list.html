@@ -105,7 +105,8 @@
           [reviewId]="review._id"
           [reviewOwnerId]="review.userId?._id"
           [initialStats]="getReactionStats(review)"
-          (reactionChanged)="handleReactionChange($event, review)">
+          (reactionChanged)="handleReactionChange($event, review)"
+          (authRequired)="handleAuthRequired()">
         </app-reaction-buttons>
       </div>
 
@@ -153,3 +154,10 @@
     Showing {{ (currentPage - 1) * limit + 1 }} - {{ Math.min(currentPage * limit, totalReviews) }} of {{ totalReviews }}
   </div>
 </div>
+
+<!-- Auth Modal -->
+<app-auth-modal 
+  *ngIf="showAuthModal"
+  (authSuccess)="onAuthSuccess()"
+  (close)="closeAuthModal()">
+</app-auth-modal>

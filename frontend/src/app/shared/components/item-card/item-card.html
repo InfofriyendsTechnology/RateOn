@@ -6,14 +6,31 @@
       (error)="onImageError($event)"
       loading="lazy"
     />
-    <app-availability-badge 
-      [status]="item.availability.status || 'available'"
-      size="small"
-      class="badge-overlay"
-    ></app-availability-badge>
   </div>
   
   <div class="item-content">
+    <!-- Rating Section - at top -->
+    <div class="item-rating">
+      <div class="rating-left">
+        <div class="stars">
+          <span 
+            *ngFor="let star of [1,2,3,4,5]" 
+            class="star"
+            [class.filled]="star <= getRating()"
+            [class.empty]="star > getRating()">
+            ★
+          </span>
+        </div>
+        <span class="rating-value">{{getRating() | number:'1.1-1'}}</span>
+      </div>
+      <span class="availability-status"
+            [class.available]="item.availability.status === 'available'"
+            [class.out-of-stock]="item.availability.status === 'out_of_stock'"
+            [class.coming-soon]="item.availability.status === 'coming_soon'">
+        {{item.availability.status === 'available' ? 'In Stock' : item.availability.status === 'out_of_stock' ? 'Out of Stock' : 'Coming Soon'}}
+      </span>
+    </div>
+    
     <h3 class="item-name">{{item.name}}</h3>
     
     <!-- Category -->
@@ -21,24 +38,16 @@
     
     <p class="item-description">{{item.description}}</p>
     
-    <!-- Rating Section -->
-    <div class="item-rating">
-      <div class="stars">
-        <span 
-          *ngFor="let star of [1,2,3,4,5]" 
-          class="star"
-          [class.filled]="star <= getRating()"
-          [class.empty]="star > getRating()">
-          ★
-        </span>
-      </div>
-      <span class="rating-value">{{getRating() | number:'1.1-1'}}</span>
-      <span class="review-count" *ngIf="getReviewCount() > 0">({{getReviewCount()}})</span>
-    </div>
-    
     <div class="item-footer">
-      <div class="item-price">
-        <span>₹{{item.price || 0}}</span>
+      <div class="item-stats">
+        <div class="stat-item">
+          <span class="stat-count">₹{{item.price || 0}}</span>
+          <span class="stat-label">Price</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-count">{{getReviewCount()}}</span>
+          <span class="stat-label">Reviews</span>
+        </div>
       </div>
       
       <button 

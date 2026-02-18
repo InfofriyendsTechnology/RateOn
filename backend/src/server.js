@@ -2,6 +2,7 @@ import cors from "cors";
 import express from "express";
 import { createServer } from "http";
 import session from "express-session";
+import cookieParser from "cookie-parser";
 import routes from "./routes/index.js";
 import connectDB from "./config/mongodb.js";
 import { initializeDatabase } from "./models/index.js";
@@ -23,6 +24,7 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Session enabled for business Google OAuth flow
 app.use(session({

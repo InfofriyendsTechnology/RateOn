@@ -51,6 +51,9 @@ export class ReviewsManagementComponent implements OnInit, OnDestroy {
   replyText: { [key: string]: string } = {};
   submittingReply = false;
   
+  // Avatar error tracking
+  avatarFailed: { [key: string]: boolean } = {};
+  
   // Subscriptions
   private routerSubscription?: Subscription;
 
@@ -327,5 +330,19 @@ export class ReviewsManagementComponent implements OnInit, OnDestroy {
       // Review not found in current filters
       this.toastService.error('Review not found. Try adjusting your filters.');
     }
+  }
+  
+  onAvatarError(reviewId: string): void {
+    this.avatarFailed[reviewId] = true;
+  }
+  
+  getAvatarUrl(review: any): string | null {
+    if (!review.userId) return null;
+    return review.userId.profile?.avatar || review.userId.avatar || review.userId.googleProfile?.picture || null;
+  }
+  
+  getUserDisplayName(review: any): string {
+    if (!review.userId) return 'U';
+    return review.userId.name || review.userId.firstName || review.userId.username || 'User';
   }
 }

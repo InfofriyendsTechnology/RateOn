@@ -166,7 +166,8 @@
       border-radius: 8px;
       font-size: 0.95rem;
       font-family: inherit;
-      color: var(--text-primary);
+      color: var(--text-primary) !important;
+      -webkit-text-fill-color: var(--text-primary) !important;
       transition: all 0.2s ease;
       
       &:focus {
@@ -201,6 +202,11 @@
       background-repeat: no-repeat;
       background-position: right 1rem center;
       padding-right: 2.5rem;
+      
+      option {
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+      }
     }
     
     textarea {

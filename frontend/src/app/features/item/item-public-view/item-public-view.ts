@@ -2,7 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LucideAngularModule, ArrowLeft, Star, MessageSquare, ThumbsUp, ThumbsDown, User, MoreVertical, Edit, Trash, Package, Building, IndianRupee } from 'lucide-angular';
+import { LucideAngularModule, Home, Star, MessageSquare, ThumbsUp, ThumbsDown, User, MoreVertical, Edit, Trash, Package, Building, IndianRupee, Sun, Moon } from 'lucide-angular';
+import { ThemeService } from '../../../core/services/theme';
 import { ItemService } from '../../../core/services/item';
 import { BusinessService } from '../../../core/services/business';
 import { ReviewService } from '../../../core/services/review';
@@ -10,11 +11,13 @@ import { StorageService } from '../../../core/services/storage';
 import { NotificationService } from '../../../core/services/notification.service';
 import { ReactionService } from '../../../core/services/reaction.service';
 import { ReplyService, CreateReplyRequest } from '../../../core/services/reply.service';
+import { BreadcrumbsComponent, Crumb } from '../../../shared/components/breadcrumbs/breadcrumbs';
+import { AuthModalComponent } from '../../../shared/components/auth-modal/auth-modal.component';
 
 @Component({
   selector: 'app-item-public-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, BreadcrumbsComponent, AuthModalComponent],
   templateUrl: './item-public-view.html',
   styleUrl: './item-public-view.scss',
 })
@@ -39,9 +42,12 @@ export class ItemPublicView implements OnInit {
   showDeleteConfirm: boolean = false;
   reviewToDelete: any = null;
   adminDeleteMode: boolean = false;
+  reviewAvatarFailed: { [key: string]: boolean } = {};
+  replyAvatarFailed: { [key: string]: boolean } = {};
+  showAuthModal = false;
 
   // Icons
-  readonly ArrowLeft = ArrowLeft;
+  readonly Home = Home;
   readonly Star = Star;
   readonly MessageSquare = MessageSquare;
   readonly ThumbsUp = ThumbsUp;
@@ -53,10 +59,15 @@ export class ItemPublicView implements OnInit {
   readonly Package = Package;
   readonly Building = Building;
   readonly IndianRupee = IndianRupee;
+  readonly Sun = Sun;
+  readonly Moon = Moon;
+  
+  breadcrumbs: Crumb[] = [];
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    public themeService: ThemeService,
     private itemService: ItemService,
     private businessService: BusinessService,
     private reviewService: ReviewService,
@@ -124,9 +135,11 @@ export class ItemPublicView implements OnInit {
       next: (resp: any) => {
         const data = resp.data || resp;
         this.business = data.business || data;
+        this.updateBreadcrumbs();
       },
       error: () => {
         // Ignore error, business details are optional
+        this.updateBreadcrumbs();
       }
     });
   }
@@ -167,7 +180,7 @@ export class ItemPublicView implements OnInit {
 
   writeReview() {
     if (!this.currentUser) {
-      this.notification.showError('Please login to write a review');
+      this.showAuthModal = true;
       return;
     }
     
@@ -211,15 +224,24 @@ export class ItemPublicView implements OnInit {
     }
   }
 
-  goBack() {
+  updateBreadcrumbs(): void {
     const businessId = typeof this.item?.businessId === 'string' 
       ? this.item.businessId 
       : this.item?.businessId?._id;
-      
-    if (businessId) {
-      this.router.navigate(['/business', businessId]);
-    } else {
-      this.router.navigate(['/search']);
+    
+    if (this.business && this.item) {
+      this.breadcrumbs = [
+        { label: 'Home', link: '/', icon: this.Home },
+        { label: 'Businesses', link: '/search?tab=businesses' },
+        { label: this.business.name, link: `/business/${businessId}` },
+        { label: this.item.name }
+      ];
+    } else if (this.item) {
+      this.breadcrumbs = [
+        { label: 'Home', link: '/', icon: this.Home },
+        { label: 'Items', link: '/search?tab=items' },
+        { label: this.item.name }
+      ];
     }
   }
 
@@ -379,7 +401,7 @@ export class ItemPublicView implements OnInit {
 
   toggleReaction(review: any, type: 'helpful' | 'not_helpful') {
     if (!this.currentUser) {
-      this.notification.showError('Please login to react to reviews');
+      this.showAuthModal = true;
       return;
     }
 
@@ -409,7 +431,7 @@ export class ItemPublicView implements OnInit {
 
   startReply(reviewId: string) {
     if (!this.currentUser) {
-      this.notification.showError('Please login to reply to reviews');
+      this.showAuthModal = true;
       return;
     }
     this.replyingToReview = reviewId;
@@ -549,4 +571,79 @@ export class ItemPublicView implements OnInit {
     });
   }
   
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+  }
+  
+  // Avatar helper methods
+  getReviewerAvatar(review: any): string | null {
+    const userId = review.userId;
+    if (!userId) return null;
+    
+    // Check for Google profile picture
+    if (userId.profilePicture) {
+      return userId.profilePicture;
+    }
+    
+    // Check for regular profile avatar
+    if (userId.profile?.avatar) {
+      return userId.profile.avatar;
+    }
+    
+    return null;
+  }
+
+  getReviewerInitial(review: any): string {
+    const userId = review.userId;
+    if (!userId) return '?';
+    
+    const name = userId.name || userId.username || 'User';
+    return name.charAt(0).toUpperCase();
+  }
+
+  onReviewAvatarError(reviewId: string): void {
+    this.reviewAvatarFailed[reviewId] = true;
+  }
+
+  getReplyAvatar(reply: any): string | null {
+    const userId = reply?.userId;
+    if (!userId) return null;
+    
+    // Check for Google profile picture
+    if (userId.profilePicture) {
+      return userId.profilePicture;
+    }
+    
+    // Check for regular profile avatar
+    if (userId.profile?.avatar) {
+      return userId.profile.avatar;
+    }
+    
+    return null;
+  }
+
+  getReplyInitial(reply: any): string {
+    const userId = reply?.userId;
+    if (!userId) return '?';
+    
+    const name = userId.name || userId.username || 'User';
+    return name.charAt(0).toUpperCase();
+  }
+
+  onReplyAvatarError(replyId: string): void {
+    this.replyAvatarFailed[replyId] = true;
+  }
+
+  onAuthSuccess(): void {
+    this.showAuthModal = false;
+    this.currentUser = this.storage.getUser();
+    // Reload reviews to check if user has review
+    if (this.item?._id) {
+      this.loadReviews(this.item._id);
+    }
+  }
+
+  closeAuthModal(): void {
+    this.showAuthModal = false;
+  }
 }

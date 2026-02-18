@@ -78,6 +78,7 @@ export class AuthService {
   updateCurrentUser(user: User): void {
     this.storage.saveUser(user);
     this.currentUserSubject.next(user);
+    this.isAuthenticatedSubject.next(true);
   }
 
   isAuthenticated(): boolean {

@@ -60,15 +60,15 @@
       (click)="handleNotificationClick(notification)">
       
       <!-- User Avatar -->
-      <div class="notification-avatar">
-        <img *ngIf="getUserAvatar(notification)" 
+      <div class="notification-avatar" [attr.data-initial]="getUserName(notification).charAt(0).toUpperCase()">
+        <img *ngIf="getUserAvatar(notification) && !avatarFailed[notification._id]" 
              [src]="getUserAvatar(notification)" 
              [alt]="getUserName(notification)"
              class="avatar-image"
              crossorigin="anonymous"
              referrerpolicy="no-referrer"
-             (error)="$event.target.style.display='none'" />
-        <span *ngIf="!getUserAvatar(notification)" class="avatar-initial">
+             (error)="onAvatarError(notification._id)" />
+        <span *ngIf="!getUserAvatar(notification) || avatarFailed[notification._id]" class="avatar-initial">
           {{ getUserName(notification).charAt(0).toUpperCase() || 'U' }}
         </span>
         <div class="notification-type-badge" [class]="getNotificationIconClass(notification.type)">
@@ -110,6 +110,7 @@
             [reviewId]="notification.metadata.reviewId"
             [reviewOwnerId]="getReviewOwnerId(notification)"
             [initialStats]="getReactionStats(notification)"
+            [userReaction]="getUserReaction(notification)"
             [compact]="true"
             (reactionChanged)="onReactionChanged(notification, $event)">
           </app-reaction-buttons>

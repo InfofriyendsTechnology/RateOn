@@ -351,11 +351,9 @@ export class ProfileComponent implements OnInit {
   
   onAvatarError(event: any) {
     this.avatarFailed = true;
-    event.target.style.display = 'none';
   }
   
   onCoverError(event: any) {
     this.coverFailed = true;
-    event.target.style.display = 'none';
   }
 }

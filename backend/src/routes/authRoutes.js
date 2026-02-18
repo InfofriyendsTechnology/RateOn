@@ -17,10 +17,23 @@ router.post("/login", login.validator, login.handler);
 router.post("/logout", auth, logout.handler);
 
 // User Google OAuth
-router.get("/google", passport.authenticate('google', { 
-    scope: ['profile', 'email'],
-    session: false 
-}));
+router.get("/google", (req, res, next) => {
+    // Save state parameter (return URL) in session-like storage
+    const state = req.query.state;
+    if (state) {
+        // Store state in cookie that will be available during callback
+        res.cookie('oauth_state', state, { 
+            httpOnly: true, 
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 5 * 60 * 1000 // 5 minutes
+        });
+    }
+    
+    passport.authenticate('google', { 
+        scope: ['profile', 'email'],
+        session: false 
+    })(req, res, next);
+});
 
 router.get("/google/callback", 
     passport.authenticate('google', { 

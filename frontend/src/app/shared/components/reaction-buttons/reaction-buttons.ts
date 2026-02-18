@@ -18,6 +18,7 @@ export class ReactionButtons implements OnInit, OnDestroy {
   @Input() userReaction?: 'helpful' | 'not_helpful' | null = null;
   @Input() compact: boolean = false; // Compact mode shows only icons
   @Output() reactionChanged = new EventEmitter<{ type: 'helpful' | 'not_helpful' | null; stats: ReactionStats }>();
+  @Output() authRequired = new EventEmitter<void>();
 
   stats: ReactionStats = { helpful: 0, notHelpful: 0, total: 0 };
   currentUserReaction: 'helpful' | 'not_helpful' | null = null;
@@ -64,7 +65,7 @@ export class ReactionButtons implements OnInit, OnDestroy {
   toggleReaction(type: 'helpful' | 'not_helpful'): void {
     // Check if user is authenticated
     if (!this.currentUserId) {
-      this.toastService.error('Please log in to react to reviews');
+      this.authRequired.emit();
       return;
     }
 

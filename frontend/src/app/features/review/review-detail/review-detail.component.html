@@ -95,7 +95,8 @@
         [reviewOwnerId]="review.userId?._id"
         [initialStats]="getReactionStats()"
         [userReaction]="getUserReaction()"
-        (reactionChanged)="handleReactionChange($event)">
+        (reactionChanged)="handleReactionChange($event)"
+        (authRequired)="handleAuthRequired()">
       </app-reaction-buttons>
     </div>
 
@@ -184,3 +185,10 @@
     </div>
   </div>
 </div>
+
+<!-- Auth Modal -->
+<app-auth-modal 
+  *ngIf="showAuthModal"
+  (authSuccess)="onAuthSuccess()"
+  (close)="closeAuthModal()">
+</app-auth-modal>

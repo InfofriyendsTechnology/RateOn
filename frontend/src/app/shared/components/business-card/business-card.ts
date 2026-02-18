@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Business } from '../../../core/services/business';
 import { LucideAngularModule, MapPin, ShoppingBag, CheckCircle, Star, Package, MessageSquare, ImageOff, Edit } from 'lucide-angular';
-import { ReviewService } from '../../../core/services/review';
 
 @Component({
   selector: 'app-business-card',
@@ -30,34 +29,15 @@ export class BusinessCard implements OnInit {
   displayItemsCount = 0;
   
   constructor(
-    private router: Router,
-    private reviewService: ReviewService
+    private router: Router
   ) {}
   
   ngOnInit(): void {
-    // Start with what backend gives us
+    // Backend now provides comprehensive stats (business + item reviews merged)
+    // Use averageRating and reviewCount which now include both business and item reviews
     this.displayAverageRating = this.business.averageRating || 0;
     this.displayReviewCount = this.business.reviewCount || 0;
     this.displayItemsCount = this.business.itemsCount || 0;
-
-    // If backend stats are missing/zero but this business has reviews,
-    // fallback: compute from reviews API just like detail page.
-    if (!this.displayReviewCount) {
-      this.reviewService.getReviewsByBusiness(this.business._id, { limit: 100 }).subscribe({
-        next: (response: any) => {
-          const data = response.data || response;
-          const reviews = data.reviews || data || [];
-          this.displayReviewCount = reviews.length;
-          if (reviews.length > 0) {
-            const sum = reviews.reduce((acc: number, r: any) => acc + (r.rating || 0), 0);
-            this.displayAverageRating = sum / reviews.length;
-          }
-        },
-        error: () => {
-          // Keep existing values on error
-        }
-      });
-    }
   }
   
   onBusinessClick(): void {

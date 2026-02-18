@@ -112,6 +112,5 @@ public themeService: ThemeService,
   
   onAvatarError(event: any) {
     this.avatarFailed = true;
-    event.target.style.display = 'none';
   }
 }

@@ -53,12 +53,18 @@
       <div class="item-info-card" *ngIf="reviewType === 'business' && business">
         <div class="item-image-container">
           <img 
-            *ngIf="business.images && business.images.length > 0"
-            [src]="business.images[0]" 
+            *ngIf="business.logo"
+            [src]="business.logo" 
             [alt]="business.name"
             class="item-image"
           />
-          <div *ngIf="!business.images || business.images.length === 0" class="image-placeholder">
+          <img 
+            *ngIf="!business.logo && business.coverImages && business.coverImages.length > 0"
+            [src]="business.coverImages[0]" 
+            [alt]="business.name"
+            class="item-image"
+          />
+          <div *ngIf="!business.logo && (!business.coverImages || business.coverImages.length === 0)" class="image-placeholder">
             <lucide-icon [img]="Building" [size]="48"></lucide-icon>
             <span>NO IMAGE</span>
           </div>

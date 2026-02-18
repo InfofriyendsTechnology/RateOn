@@ -83,8 +83,8 @@ export class UserNotificationsService {
 
 const base = (() => { try { return new URL(environment.apiUrl, window.location.origin).origin; } catch { return window.location.origin; } })();
     this.socket = io(base, {
-      path: '/notifications',
-      transports: ['websocket'],
+      path: '/socket.io/',
+      transports: ['websocket', 'polling'],
       auth: { token }
     });
 

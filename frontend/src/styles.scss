@@ -344,6 +344,24 @@ a {
   text-decoration: none;
 }
 
+/* Global Avatar Image Error Handling */
+.avatar-image,
+.user-avatar-img,
+.reviewer-avatar img,
+.notification-avatar img {
+  &::before {
+    content: '';
+    display: none;
+  }
+  
+  /* Hide broken image icon on error */
+  &:not([src]),
+  &[src=""],
+  &[src="null"] {
+    display: none !important;
+  }
+}
+
 .container {
   width: 100%;
   max-width: 1200px;

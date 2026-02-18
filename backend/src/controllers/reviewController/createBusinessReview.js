@@ -3,6 +3,7 @@ import { Review, Business, User } from '../../models/index.js';
 import responseHandler from '../../utils/responseHandler.js';
 import validator from '../../utils/validator.js';
 import { logActivity } from '../../utils/activityTracker.js';
+import NotificationService from '../../utils/notificationService.js';
 
 export default {
     validator: validator({
@@ -38,8 +39,8 @@ export default {
             return responseHandler.notFound(res, 'Business not found');
         }
 
-        // Check if user already reviewed this business
-        const existingReview = await Review.findOne({ userId, businessId, reviewType: 'business' });
+        // Check if user already reviewed this business (only active reviews)
+        const existingReview = await Review.findOne({ userId, businessId, reviewType: 'business', isActive: true });
         if (existingReview) {
             return responseHandler.conflict(res, 'You have already reviewed this business. Please edit your existing review.');
         }
@@ -58,7 +59,7 @@ export default {
         await review.save();
 
         // Update business rating - calculate from all business reviews
-        const businessReviews = await Review.find({ businessId, reviewType: 'business' });
+        const businessReviews = await Review.find({ businessId, reviewType: 'business', isActive: true });
         
         if (businessReviews.length > 0) {
             const totalRating = businessReviews.reduce((sum, r) => sum + r.rating, 0);
@@ -75,6 +76,11 @@ export default {
             business.rating.count = businessReviews.length;
             business.rating.distribution = distribution;
             
+            // Update stats for backward compatibility
+            business.stats = business.stats || {};
+            business.stats.totalReviews = businessReviews.length;
+            business.stats.avgRating = avgRating;
+            
             await business.save();
         }
 
@@ -90,6 +96,20 @@ export default {
             { type: 'Review', id: review._id },
             { hasPhotos: images && images.length > 0, businessId, reviewType: 'business' }
         );
+
+        // Create notification for business owner
+        const businessOwnerId = business.owner;
+        if (businessOwnerId && businessOwnerId.toString() !== userId.toString()) {
+            await NotificationService.notifyNewReview(
+                {
+                    _id: review._id,
+                    userId,
+                    businessId,
+                    rating
+                },
+                businessOwnerId
+            );
+        }
 
         // Populate review data for response
         await review.populate([

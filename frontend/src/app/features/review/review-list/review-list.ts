@@ -4,11 +4,13 @@ import { RouterModule } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { ReviewService } from '../../../core/services/review';
 import { ReactionButtons } from '../../../shared/components/reaction-buttons/reaction-buttons';
+import { AuthModalComponent } from '../../../shared/components/auth-modal/auth-modal.component';
+import { StorageService } from '../../../core/services/storage';
 
 @Component({
   selector: 'app-review-list',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactionButtons],
+  imports: [CommonModule, RouterModule, ReactionButtons, AuthModalComponent],
   templateUrl: './review-list.html',
   styleUrl: './review-list.scss',
 })
@@ -45,9 +47,17 @@ export class ReviewList implements OnInit, OnDestroy {
   filterRating: number = 0;
   ratingOptions = [0, 1, 2, 3, 4, 5];
 
-  constructor(private reviewService: ReviewService) {}
+  // Auth
+  showAuthModal = false;
+  currentUser: any = null;
+
+  constructor(
+    private reviewService: ReviewService,
+    private storage: StorageService
+  ) {}
 
   ngOnInit(): void {
+    this.currentUser = this.storage.getUser();
     this.loadReviews();
   }
 
@@ -181,5 +191,19 @@ export class ReviewList implements OnInit, OnDestroy {
       range.push(i);
     }
     return range;
+  }
+
+  handleAuthRequired(): void {
+    this.showAuthModal = true;
+  }
+
+  onAuthSuccess(): void {
+    this.showAuthModal = false;
+    this.currentUser = this.storage.getUser();
+    this.loadReviews();
+  }
+
+  closeAuthModal(): void {
+    this.showAuthModal = false;
   }
 }

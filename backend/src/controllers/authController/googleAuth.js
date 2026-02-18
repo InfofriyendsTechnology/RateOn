@@ -28,11 +28,20 @@ export default {
 
             userResponse.verificationBadges = user.getVerificationBadges();
 
+            // Get return URL from cookie if exists
+            const returnUrl = req.cookies?.oauth_state || null;
+            
+            // Clear the state cookie
+            if (returnUrl) {
+                res.clearCookie('oauth_state');
+            }
+
             // Redirect to frontend with token and user data
             const userData = encodeURIComponent(JSON.stringify({
                 token,
                 user: userResponse,
-                userType: 'user'
+                userType: 'user',
+                returnUrl
             }));
 
             return res.redirect(`${frontendUrl}/auth/callback?data=${userData}`);

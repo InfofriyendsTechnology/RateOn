@@ -85,7 +85,7 @@ export class HomeComponent implements OnInit {
     
     // If user is business owner, redirect to business dashboard
     if (storedUser.role === 'business_owner') {
-      this.router.navigate(['/business/dashboard']);
+      this.router.navigate(['/owner']);
       return;
     }
     
@@ -264,12 +264,10 @@ export class HomeComponent implements OnInit {
   
   onAvatarError(event: any) {
     this.avatarFailed = true;
-    event.target.style.display = 'none';
   }
   
   onCoverError(event: any) {
     this.coverFailed = true;
-    event.target.style.display = 'none';
   }
 
   openBusinessOwnerModal() {

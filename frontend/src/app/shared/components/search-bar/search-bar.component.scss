@@ -7,21 +7,22 @@
     position: relative;
     display: flex;
     align-items: center;
-    background: #121212;
-    border: 1px solid #333;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
     border-radius: 24px;
     padding: 0 1.25rem;
     transition: all 0.2s ease;
 
     &:focus-within {
-      border-color: #C0C0C0;
-      box-shadow: 0 0 0 1px #C0C0C0;
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
     }
 
     .search-icon {
       font-size: 20px;
-      color: #C0C0C0;
+      color: var(--text-tertiary);
       margin-right: 0.75rem;
+      flex-shrink: 0;
     }
 
     .search-input {
@@ -30,40 +31,43 @@
       outline: none;
       padding: 0.875rem 0;
       font-size: 1rem;
-      color: #ffffff;
+      color: var(--text-primary);
       background: transparent;
 
       &::placeholder {
-        color: #666;
+        color: var(--text-tertiary);
+        opacity: 0.7;
       }
     }
 
     .loading-icon {
       font-size: 20px;
-      color: #C0C0C0;
+      color: var(--color-accent);
       margin-right: 0.5rem;
       animation: spin 1s linear infinite;
+      flex-shrink: 0;
     }
 
     .clear-btn {
       padding: 0.25rem;
       border: none;
       background: transparent;
-      color: #a1a1a1;
+      color: var(--text-tertiary);
       cursor: pointer;
       border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
       transition: all 0.2s ease;
+      flex-shrink: 0;
 
       i {
         font-size: 18px;
       }
 
       &:hover {
-        background: #333;
-        color: #ffffff;
+        background: var(--bg-hover);
+        color: var(--text-primary);
       }
     }
   }
@@ -73,10 +77,10 @@
     top: calc(100% + 0.5rem);
     left: 0;
     right: 0;
-    background: #121212;
-    border: 1px solid #333;
+    background: var(--bg-secondary);
+    border: 2px solid var(--border-color);
     border-radius: 12px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    box-shadow: var(--shadow-xl);
     max-height: 400px;
     overflow-y: auto;
     z-index: 1000;
@@ -86,14 +90,14 @@
       padding: 0.5rem 0;
 
       &:not(:last-child) {
-        border-bottom: 1px solid #333;
+        border-bottom: 1px solid var(--border-color);
       }
 
       .section-title {
         padding: 0.5rem 1rem;
         font-size: 0.75rem;
         font-weight: 600;
-        color: #a1a1a1;
+        color: var(--text-tertiary);
         text-transform: uppercase;
         letter-spacing: 0.5px;
       }
@@ -108,7 +112,7 @@
 
         i {
           font-size: 18px;
-          color: #C0C0C0;
+          color: var(--color-accent);
           flex-shrink: 0;
         }
 
@@ -118,7 +122,7 @@
 
           .suggestion-name {
             font-size: 0.9375rem;
-            color: #ffffff;
+            color: var(--text-primary);
             font-weight: 500;
             white-space: nowrap;
             overflow: hidden;
@@ -127,7 +131,7 @@
 
           .suggestion-subtitle {
             font-size: 0.8125rem;
-            color: #a1a1a1;
+            color: var(--text-tertiary);
             margin-top: 0.125rem;
           }
         }
@@ -136,7 +140,7 @@
           padding: 0.25rem;
           border: none;
           background: transparent;
-          color: #666;
+          color: var(--text-tertiary);
           cursor: pointer;
           border-radius: 4px;
           display: flex;
@@ -150,13 +154,13 @@
           }
 
           &:hover {
-            background: #333;
+            background: var(--bg-hover);
             color: #ef4444;
           }
         }
 
         &:hover {
-          background: #1a1a1a;
+          background: var(--bg-hover);
 
           .remove-recent-btn {
             opacity: 1;
@@ -164,7 +168,7 @@
         }
 
         &.selected {
-          background: #1a1a1a;
+          background: var(--bg-hover);
 
           .remove-recent-btn {
             opacity: 1;
@@ -176,7 +180,7 @@
     .no-results {
       padding: 2rem 1rem;
       text-align: center;
-      color: #a1a1a1;
+      color: var(--text-tertiary);
 
       i {
         font-size: 48px;

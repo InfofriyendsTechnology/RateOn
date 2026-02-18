@@ -9,5 +9,6 @@ export { default as deleteReview } from './deleteReview.js';
 export { default as getReviewWithReplies } from './getReviewWithReplies.js';
 export { default as getReviewStatistics } from './getReviewStatistics.js';
 export { default as reportReview } from './reportReview.js';
+export { default as replyToReview } from './replyToReview.js';
 
 

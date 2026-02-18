@@ -55,6 +55,9 @@ export class NotificationsPageComponent implements OnInit, OnDestroy {
   replyText: { [key: string]: string } = {};
   submittingReply = false;
   
+  // Avatar error tracking
+  avatarFailed: { [key: string]: boolean } = {};
+  
   // Subscriptions
   private subscriptions: Subscription[] = [];
 
@@ -68,10 +71,14 @@ export class NotificationsPageComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadNotifications();
     this.setupRealtimeUpdates();
+    this.setupVisibilityListener();
   }
 
   ngOnDestroy() {
     this.subscriptions.forEach(sub => sub.unsubscribe());
+    if (typeof document !== 'undefined') {
+      document.removeEventListener('visibilitychange', this.handleVisibilityChange);
+    }
   }
 
   setupRealtimeUpdates() {
@@ -89,6 +96,20 @@ export class NotificationsPageComponent implements OnInit, OnDestroy {
 
     this.subscriptions.push(newNotifSub, unreadSub);
   }
+  
+  private handleVisibilityChange = () => {
+    if (typeof document !== 'undefined' && !document.hidden) {
+      // Page became visible - reload notifications to get fresh data
+      this.loadNotifications();
+    }
+  }
+  
+  setupVisibilityListener() {
+    // Refresh notifications when user returns to the page
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', this.handleVisibilityChange);
+    }
+  }
 
   loadNotifications() {
     this.loading = true;
@@ -98,10 +119,6 @@ export class NotificationsPageComponent implements OnInit, OnDestroy {
           this.notifications = response.data.notifications || [];
           this.unreadCount = response.data.unreadCount || 0;
           this.hasMore = response.data.hasMore || false;
-          
-          // Debug: Log first notification to check structure
-          if (this.notifications.length > 0) {
-          }
           
           this.updateStats();
           this.applyFilters();
@@ -114,7 +131,7 @@ export class NotificationsPageComponent implements OnInit, OnDestroy {
       }
     });
   }
-
+  
   loadMore() {
     if (this.loadingMore || !this.hasMore) return;
     
@@ -304,6 +321,10 @@ export class NotificationsPageComponent implements OnInit, OnDestroy {
     }
     return 'Someone';
   }
+  
+  onAvatarError(notificationId: string): void {
+    this.avatarFailed[notificationId] = true;
+  }
 
   getActionText(type: string): string {
     switch (type) {
@@ -359,9 +380,14 @@ export class NotificationsPageComponent implements OnInit, OnDestroy {
     }
     return { helpful: 0, notHelpful: 0, total: 0 };
   }
+  
+  getUserReaction(notification: AppNotification): 'helpful' | 'not_helpful' | null {
+    // Get user's current reaction from notification metadata
+    return notification.metadata?.userReaction || null;
+  }
 
   onReactionChanged(notification: AppNotification, event: any): void {
-    // Update the notification's reaction stats
+    // Update the notification's reaction stats immediately for responsive UI
     if (!notification.metadata) {
       notification.metadata = {} as any;
     }
@@ -370,6 +396,9 @@ export class NotificationsPageComponent implements OnInit, OnDestroy {
     }
     notification.metadata.reactions.helpful = event.stats.helpful;
     notification.metadata.reactions.notHelpful = event.stats.notHelpful;
+    
+    // Update user's reaction state
+    notification.metadata.userReaction = event.type;
   }
 
   startReply(notificationId: string, event: Event) {

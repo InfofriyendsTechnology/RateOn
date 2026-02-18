@@ -449,16 +449,7 @@
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.business-modal {
+.modal-content {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: 16px;
@@ -478,6 +469,20 @@
     border: none;
     margin: 0;
   }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.business-modal {
+  // Styles specific to business modal
+  // Base styles inherited from .modal-content
   
   .btn-close-modal,
   .btn-back-modal {
@@ -545,6 +550,18 @@
     
     @media (max-width: 768px) {
       padding: 1rem 1.5rem 0.75rem;
+    }
+  }
+  
+  .modal-body {
+    padding: 0 1.5rem 1.5rem;
+    flex: 1;
+    overflow-y: auto;
+    display: block;
+    width: 100%;
+    
+    @media (max-width: 768px) {
+      padding: 1.5rem;
     }
   }
   

@@ -12,7 +12,7 @@ export default {
             minPrice,
             availability,
             page = 1,
-            limit = 20,
+            limit = 0, // Default 0 = no limit (fetch ALL items)
             sortBy = 'stats.averageRating',
             order = 'desc'
         } = req.query;
@@ -48,18 +48,25 @@ export default {
             sort.score = { $meta: 'textScore' };
         }
 
-        const skip = (parseInt(page) - 1) * parseInt(limit);
+        // If limit is specified and not 0, apply pagination
+        const shouldPaginate = limit && parseInt(limit) > 0;
+        const skip = shouldPaginate ? (parseInt(page) - 1) * parseInt(limit) : 0;
+
+        let query = Item.find(filter)
+            .sort(sort)
+            .populate({
+                path: 'businessId',
+                select: 'name location.city location.address'
+            })
+            .select('-__v');
+
+        // Only apply pagination if limit is specified
+        if (shouldPaginate) {
+            query = query.skip(skip).limit(parseInt(limit));
+        }
 
         const [items, total] = await Promise.all([
-            Item.find(filter)
-                .sort(sort)
-                .skip(skip)
-                .limit(parseInt(limit))
-                .populate({
-                    path: 'businessId',
-                    select: 'name location.city location.address'
-                })
-                .select('-__v'),
+            query,
             Item.countDocuments(filter)
         ]);
         
@@ -88,7 +95,7 @@ export default {
                     total,
                     page: parseInt(page),
                     limit: parseInt(limit),
-                    totalPages: Math.ceil(total / parseInt(limit))
+                    totalPages: shouldPaginate ? Math.ceil(total / parseInt(limit)) : 1
                 }
             }
         );

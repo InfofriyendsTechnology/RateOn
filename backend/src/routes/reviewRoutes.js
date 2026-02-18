@@ -72,6 +72,13 @@ router.post('/:id/report',
     reviewController.reportReview.handler
 );
 
+// Business owner reply to review (requires authentication and ownership)
+router.post('/:id/reply',
+    auth,
+    reviewController.replyToReview.validator,
+    reviewController.replyToReview.handler
+);
+
 export default router;
 
 

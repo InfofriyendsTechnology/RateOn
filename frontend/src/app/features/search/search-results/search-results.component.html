@@ -1,26 +1,37 @@
 <div class="search-results-page">
   <div class="search-content">
-    <!-- Results Section -->
+      <!-- Results Section -->
     <main class="results-section">
       
       <!-- Combined Header with Search and Title -->
       <div class="results-header">
-        <div class="header-top">
-          <div class="results-info">
-            <h1 class="results-title">
-              @if (searchQuery) {
-                "{{ searchQuery }}"
-              } @else {
-                Explore
-              }
-            </h1>
-            <p class="results-count">{{ totalResults }} results</p>
+        <!-- Navigation Row -->
+        <div class="nav-row">
+          <div class="nav-breadcrumb-section">
+            <app-breadcrumbs [crumbs]="breadcrumbs"></app-breadcrumbs>
           </div>
-          <div class="search-bar-compact">
-            <app-search-bar 
-              (search)="onSearchChange($event)">
-            </app-search-bar>
+          
+          <div class="header-actions">
+            <div class="search-bar-compact">
+              <app-search-bar 
+                (search)="onSearchChange($event)">
+              </app-search-bar>
+            </div>
+            
+            <button 
+              class="theme-toggle-btn" 
+              (click)="toggleTheme()" 
+              [attr.aria-label]="themeService.isDarkMode() ? 'Switch to light mode' : 'Switch to dark mode'">
+              <lucide-icon *ngIf="themeService.isDarkMode()" [img]="Sun" [size]="20"></lucide-icon>
+              <lucide-icon *ngIf="!themeService.isDarkMode()" [img]="Moon" [size]="20"></lucide-icon>
+            </button>
           </div>
+        </div>
+        
+        <!-- Title Row -->
+        <div class="title-row">
+          <h1 class="results-title">Explore</h1>
+          <p class="results-count">{{ totalResults }} results</p>
         </div>
 
         <!-- Tabs -->
@@ -42,11 +53,19 @@
         </div>
       </div>
 
-      <!-- Loading State -->
-      @if (loading) {
-        <div class="loading-state">
-          <i class="lucide lucide-loader-2"></i>
-          <p>Searching...</p>
+      <!-- Loading State with Skeletons -->
+      @if (loading && businesses.length === 0 && items.length === 0) {
+        <div class="results-grid">
+          @for (i of [1,2,3,4,5,6,7,8,9,10]; track i) {
+            <div class="skeleton-card">
+              <div class="skeleton-image"></div>
+              <div class="skeleton-content">
+                <div class="skeleton-title"></div>
+                <div class="skeleton-text"></div>
+                <div class="skeleton-text short"></div>
+              </div>
+            </div>
+          }
         </div>
       }
 
@@ -55,7 +74,7 @@
         <div class="results-grid">
           @for (business of businesses; track business.id) {
             <app-business-card 
-              [business]="transformBusinessForCard(business)"
+              [business]="business"
               [hasUserReview]="hasUserReviewedBusiness(business.id)"></app-business-card>
           }
         </div>
@@ -83,38 +102,12 @@
         </div>
       }
 
-      <!-- Pagination -->
-      @if (!loading && totalResults > pageSize) {
-        <div class="pagination">
-          <button 
-            class="pagination-btn"
-            [disabled]="currentPage === 1"
-            (click)="onPageChange(currentPage - 1)">
-            <i class="lucide lucide-chevron-left"></i>
-            Previous
-          </button>
-
-          <div class="pagination-numbers">
-            @for (page of getPageNumbers(); track $index) {
-              @if (page === -1) {
-                <span class="pagination-ellipsis">...</span>
-              } @else {
-                <button 
-                  class="pagination-number"
-                  [class.active]="page === currentPage"
-                  (click)="onPageChange(page)">
-                  {{ page }}
-                </button>
-              }
-            }
-          </div>
-
-          <button 
-            class="pagination-btn"
-            [disabled]="currentPage === getTotalPages()"
-            (click)="onPageChange(currentPage + 1)">
-            Next
-            <i class="lucide lucide-chevron-right"></i>
+      <!-- Load More -->
+      @if ((activeTab === 'businesses' ? businesses.length < totalResults : items.length < totalResults)) {
+        <div class="load-more-section">
+          <button class="load-more-btn" (click)="loadMore()">
+            <span>Load More</span>
+            <i class="lucide lucide-chevron-down"></i>
           </button>
         </div>
       }

@@ -1,8 +1,8 @@
 <div class="landing-page">
-  <!-- Modern Header (Shown when logged in) -->
-  <header *ngIf="isLoggedIn" class="modern-header">
+  <!-- Unified Header for All Users -->
+  <header class="modern-header">
     <div class="header-container">
-      <div class="header-logo">
+      <div class="header-logo" [routerLink]="['/']">
         <img 
           *ngIf="themeService.isDarkMode()" 
           src="/LOGO_WHITE.png" 
@@ -18,8 +18,20 @@
       <div class="header-spacer"></div>
       
       <div class="header-actions">
-        <!-- User Menu -->
-        <div class="user-menu">
+        <!-- Show Login/Signup for non-authenticated users -->
+        <div *ngIf="!isLoggedIn" class="auth-buttons">
+          <a routerLink="/auth/login" class="btn btn-outline">
+            <lucide-icon [img]="LogIn" [size]="18"></lucide-icon>
+            <span>Login</span>
+          </a>
+          <a routerLink="/auth/register" class="btn btn-primary">
+            <lucide-icon [img]="UserPlus" [size]="18"></lucide-icon>
+            <span>Sign Up</span>
+          </a>
+        </div>
+        
+        <!-- User Menu for authenticated users -->
+        <div *ngIf="isLoggedIn" class="user-menu">
           <button class="user-avatar-btn" (click)="toggleUserMenu()">
             <img *ngIf="user?.avatar" [src]="user.avatar" alt="Profile" />
             <div *ngIf="!user?.avatar" class="avatar-placeholder-small">
@@ -52,56 +64,110 @@
     </div>
   </header>
 
-  <!-- Hero Banner Section (Shown when NOT logged in) -->
-  <section *ngIf="!isLoggedIn" class="hero-banner">
+  <!-- Hero Section with Search -->
+  <section class="hero-section">
     <div class="hero-overlay"></div>
     <div class="hero-content">
-      <div class="hero-logo">
-        <img 
-          *ngIf="themeService.isDarkMode()" 
-          src="/LOGO_WHITE.png" 
-          alt="RateOn" 
-        />
-        <img 
-          *ngIf="!themeService.isDarkMode()" 
-          src="/LOGO_BLACK.png" 
-          alt="RateOn" 
-        />
-      </div>
       <h1 class="hero-title">Review What Matters</h1>
       <p class="hero-tagline">Rate specific items, not just businesses. Build trust through transparency and honest feedback.</p>
-      <div class="hero-actions">
-        <a routerLink="/auth/login" [queryParams]="{auto: 'google'}" class="btn btn-primary btn-lg">
-          <lucide-icon [img]="LogIn" [size]="20"></lucide-icon>
-          <span>Login</span>
-        </a>
-        <a routerLink="/auth/register" [queryParams]="{auto: 'google'}" class="btn btn-primary btn-lg">
-          <lucide-icon [img]="UserPlus" [size]="20"></lucide-icon>
-          <span>Sign Up</span>
-        </a>
+      
+      <!-- Prominent Search Bar -->
+      <div class="hero-search">
+        <app-search-bar (search)="onSearch($event)"></app-search-bar>
+      </div>
+      
+      <div class="hero-stats">
+        <div class="stat-item">
+          <lucide-icon [img]="Building2" [size]="24"></lucide-icon>
+          <span>{{ totalBusinesses }}+ Businesses</span>
+        </div>
+        <div class="stat-item">
+          <lucide-icon [img]="Package" [size]="24"></lucide-icon>
+          <span>{{ totalItems }}+ Items</span>
+        </div>
+        <div class="stat-item">
+          <lucide-icon [img]="Star" [size]="24"></lucide-icon>
+          <span>{{ totalReviews }}+ Reviews</span>
+        </div>
       </div>
     </div>
   </section>
-  
-  <!-- Welcome Section (Shown when logged in) -->
-  <section *ngIf="isLoggedIn" class="welcome-section">
+
+  <!-- Featured Businesses Section -->
+  <section class="section featured-businesses">
     <div class="container">
-      <div class="welcome-content">
-        <p class="greeting-text">{{ greeting }}</p>
-        <h1 class="welcome-title">Welcome back, <span class="username-highlight">{{ user?.username }}</span></h1>
-        <p class="welcome-subtitle">Ready to discover amazing places and share your experiences?</p>
-        
-        <!-- Action Buttons -->
-        <div class="action-buttons">
-          <button class="action-btn primary" (click)="navigateToExplore()">
-            <lucide-icon [img]="Compass" [size]="24"></lucide-icon>
-            <span>Explore</span>
-          </button>
-          <button class="action-btn secondary" (click)="navigateToDashboard()">
-            <lucide-icon [img]="TrendingUp" [size]="24"></lucide-icon>
-            <span>My Home</span>
-          </button>
+      <div class="section-header">
+        <h2>Featured Businesses</h2>
+        <p class="section-subtitle">Discover top-rated places in your area</p>
+      </div>
+      
+      <div *ngIf="loadingBusinesses" class="loading-grid">
+        <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5,6]">
+          <div class="skeleton-image"></div>
+          <div class="skeleton-content">
+            <div class="skeleton-line skeleton-title"></div>
+            <div class="skeleton-line skeleton-subtitle"></div>
+            <div class="skeleton-line skeleton-text"></div>
+          </div>
         </div>
+      </div>
+      
+      <div *ngIf="!loadingBusinesses && featuredBusinesses.length > 0" class="businesses-grid">
+        <app-business-card 
+          *ngFor="let business of featuredBusinesses"
+          [business]="business">
+        </app-business-card>
+      </div>
+      
+      <div *ngIf="!loadingBusinesses && featuredBusinesses.length === 0" class="empty-state">
+        <p>No businesses found</p>
+      </div>
+      
+      <div class="section-footer">
+        <button class="btn btn-outline btn-lg" (click)="viewAllBusinesses()">
+          View All Businesses
+          <lucide-icon [img]="Building2" [size]="20"></lucide-icon>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Items Section -->
+  <section class="section featured-items">
+    <div class="container">
+      <div class="section-header">
+        <h2>Featured Items</h2>
+        <p class="section-subtitle">Popular items reviewed by our community</p>
+      </div>
+      
+      <div *ngIf="loadingItems" class="loading-grid">
+        <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5,6]">
+          <div class="skeleton-image"></div>
+          <div class="skeleton-content">
+            <div class="skeleton-line skeleton-title"></div>
+            <div class="skeleton-line skeleton-subtitle"></div>
+            <div class="skeleton-line skeleton-text"></div>
+          </div>
+        </div>
+      </div>
+      
+      <div *ngIf="!loadingItems && featuredItems.length > 0" class="items-grid">
+        <app-item-card 
+          *ngFor="let item of featuredItems"
+          [item]="item"
+          (cardClick)="router.navigate(['/item', $event._id])">
+        </app-item-card>
+      </div>
+      
+      <div *ngIf="!loadingItems && featuredItems.length === 0" class="empty-state">
+        <p>No items found</p>
+      </div>
+      
+      <div class="section-footer">
+        <button class="btn btn-outline btn-lg" (click)="viewAllItems()">
+          View All Items
+          <lucide-icon [img]="Package" [size]="20"></lucide-icon>
+        </button>
       </div>
     </div>
   </section>
@@ -272,13 +338,19 @@
   <!-- CTA Section -->
   <section class="section cta">
     <div class="container">
-      <h2>Start Reviewing Today</h2>
-      <p>Join our community and make your voice heard</p>
+      <h2 *ngIf="!isLoggedIn">Start Reviewing Today</h2>
+      <h2 *ngIf="isLoggedIn">Ready to Share Your Experience?</h2>
+      <p *ngIf="!isLoggedIn">Join our community and make your voice heard</p>
+      <p *ngIf="isLoggedIn">Find businesses and items to review</p>
       <div class="cta-actions">
-        <a routerLink="/auth/register" class="btn btn-primary btn-lg">
+        <a *ngIf="!isLoggedIn" routerLink="/auth/register" class="btn btn-primary btn-lg">
           <lucide-icon [img]="UserPlus" [size]="22"></lucide-icon>
           <span>Create Free Account</span>
         </a>
+        <button *ngIf="isLoggedIn" class="btn btn-primary btn-lg" (click)="viewAllBusinesses()">
+          <lucide-icon [img]="Search" [size]="22"></lucide-icon>
+          <span>Explore & Review</span>
+        </button>
       </div>
     </div>
   </section>

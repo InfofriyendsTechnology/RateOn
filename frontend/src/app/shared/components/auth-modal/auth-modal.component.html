@@ -8,10 +8,10 @@
       <!-- Google Login (Default View) -->
       <div *ngIf="!showEmailForm" class="google-auth">
         <h2>Sign in to continue</h2>
-        <p class="subtitle">You need to be logged in to write a review</p>
+        <p class="subtitle">You need to be logged in to perform this action</p>
 
         <button 
-          class="btn btn-yellow btn-lg btn-block google-btn"
+          class="btn btn-primary btn-lg btn-block google-btn"
           (click)="continueWithGoogle()"
           [disabled]="isLoading">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -74,7 +74,7 @@
 
           <button 
             type="submit"
-            class="btn btn-yellow btn-lg btn-block"
+            class="btn btn-primary btn-lg btn-block"
             [disabled]="isLoading">
             {{ isLoading ? 'Signing in...' : 'Sign In' }}
           </button>

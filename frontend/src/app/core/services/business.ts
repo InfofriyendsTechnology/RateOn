@@ -9,7 +9,9 @@ export interface Business {
   type: string;
   category: string;
   description?: string;
-  images: string[];
+  logo?: string;
+  coverImages?: string[];
+  images?: string[]; // Deprecated, kept for backward compatibility
   location: {
     address: string;
     city: string;

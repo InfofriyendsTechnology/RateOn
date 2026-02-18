@@ -1,29 +1,35 @@
 <div class="business-public-view-container" *ngIf="!loading && business">
+  <!-- Top Navigation Bar -->
+  <div class="top-nav-bar">
+    <app-breadcrumbs [crumbs]="breadcrumbs"></app-breadcrumbs>
+    <button class="theme-toggle-btn" (click)="toggleTheme()" aria-label="Toggle theme">
+      <lucide-icon *ngIf="themeService.isDarkMode()" [img]="Sun" [size]="24"></lucide-icon>
+      <lucide-icon *ngIf="!themeService.isDarkMode()" [img]="Moon" [size]="24"></lucide-icon>
+    </button>
+  </div>
+  
   <!-- Business Info Header -->
   <div class="business-header">
-    <div class="business-logo" *ngIf="business.logo; else logoPlaceholder">
-      <img [src]="business.logo" [alt]="business.name" />
+    <div class="business-logo" [class.placeholder]="!business?.logo">
+      <img *ngIf="business?.logo" [src]="business.logo" [alt]="business.name" />
+      <lucide-icon *ngIf="!business?.logo" [img]="Building" [size]="48"></lucide-icon>
     </div>
-    <ng-template #logoPlaceholder>
-      <div class="business-logo placeholder">
-        <lucide-icon [img]="Building" [size]="48"></lucide-icon>
-      </div>
-    </ng-template>
     <div class="business-header-content">
       <div class="header-top">
         <div class="header-left">
           <h1 class="business-name">{{ business.name }}</h1>
           <div class="business-meta">
             <span class="category-badge">{{ business.category || business.type }}</span>
-            <div class="rating-stars" *ngIf="business.rating?.average || business.stats?.avgRating">
+            <div class="rating-stars" *ngIf="business.averageRating || business.rating?.average || business.stats?.avgRating">
               <span class="stars">
-                <lucide-icon *ngFor="let star of [1,2,3,4,5]" 
-                  [img]="Star" 
-                  [size]="18"
-                  [attr.fill]="getStarFill(star, business.rating?.average || business.stats?.avgRating || 0)"
-                  [style.color]="getStarColor(star, business.rating?.average || business.stats?.avgRating || 0)"></lucide-icon>
+                <span *ngFor="let star of [1,2,3,4,5]" 
+                  class="star"
+                  [class.filled]="star <= (business.averageRating || business.rating?.average || business.stats?.avgRating || 0)"
+                  [class.empty]="star > (business.averageRating || business.rating?.average || business.stats?.avgRating || 0)">
+                  ★
+                </span>
               </span>
-              <span class="rating-text">{{ (business.rating?.average || business.stats?.avgRating || 0).toFixed(1) }} ({{ business.stats?.totalReviews || business.rating?.count || 0 }} reviews)</span>
+              <span class="rating-text">{{ (business.averageRating || business.rating?.average || business.stats?.avgRating || 0).toFixed(1) }} ({{ business.reviewCount || business.stats?.totalReviews || business.rating?.count || 0 }} reviews)</span>
             </div>
           </div>
         </div>
@@ -171,12 +177,17 @@
         <!-- Review Header -->
         <div class="review-header">
           <div class="reviewer-info">
-            <div class="reviewer-avatar" [class.has-image]="review.userId?.profile?.avatar">
-              <img *ngIf="review.userId?.profile?.avatar" 
-                   [src]="review.userId.profile.avatar" 
+            <div class="reviewer-avatar">
+              <img *ngIf="getReviewerAvatar(review) && !reviewAvatarFailed[review._id]" 
+                   [src]="getReviewerAvatar(review)" 
                    [alt]="review.userId?.name || 'User'"
-                   class="avatar-image" />
-              <lucide-icon *ngIf="!review.userId?.profile?.avatar" [img]="User" [size]="24"></lucide-icon>
+                   class="avatar-image"
+                   crossorigin="anonymous"
+                   referrerpolicy="no-referrer"
+                   (error)="onReviewAvatarError(review._id)" />
+              <div *ngIf="!getReviewerAvatar(review) || reviewAvatarFailed[review._id]" class="avatar-fallback">
+                {{ getReviewerInitial(review) }}
+              </div>
             </div>
             <div class="reviewer-details">
               <h4 class="reviewer-name">{{ review.userId?.name || review.userId?.username || 'Anonymous' }}</h4>
@@ -279,11 +290,16 @@
             <div class="reply-header">
               <div class="reply-user-info">
                 <div class="reply-author-avatar business-badge">
-                  <img *ngIf="review.replies[0].userId?.profile?.avatar" 
-                       [src]="review.replies[0].userId.profile.avatar" 
+                  <img *ngIf="getReplyAvatar(review.replies[0]) && !replyAvatarFailed[review.replies[0]._id]" 
+                       [src]="getReplyAvatar(review.replies[0])" 
                        [alt]="review.replies[0].userId?.name"
-                       class="avatar-small" />
-                  <lucide-icon *ngIf="!review.replies[0].userId?.profile?.avatar" [img]="Building" [size]="18"></lucide-icon>
+                       class="avatar-small"
+                       crossorigin="anonymous"
+                       referrerpolicy="no-referrer"
+                       (error)="onReplyAvatarError(review.replies[0]._id)" />
+                  <div *ngIf="!getReplyAvatar(review.replies[0]) || replyAvatarFailed[review.replies[0]._id]" class="avatar-fallback-small">
+                    {{ getReplyInitial(review.replies[0]) }}
+                  </div>
                 </div>
                 <div class="reply-info">
                   <span class="reply-author">
@@ -370,4 +386,51 @@
   <h2>Business Not Found</h2>
   <p>Sorry, we couldn't find the business you're looking for.</p>
 </div>
+
+<!-- Delete Review Confirmation Modal -->
+<div *ngIf="showDeleteReviewModal" class="modal-overlay" (click)="cancelDeleteReview()">
+  <div class="modal-content delete-modal" (click)="$event.stopPropagation()">
+    <button class="btn-close-modal" (click)="cancelDeleteReview()" aria-label="Close">
+      <lucide-icon [img]="X" [size]="20"></lucide-icon>
+    </button>
+    
+    <div class="modal-header">
+      <div class="warning-icon">
+        <lucide-icon [img]="Trash2" [size]="48"></lucide-icon>
+      </div>
+      <h3>Delete Review</h3>
+      <p class="danger-text">This action cannot be undone!</p>
+    </div>
+    
+    <div class="modal-body">
+      <p class="warning-text">
+        Are you sure you want to permanently delete your review?
+      </p>
+      
+      <div class="review-preview" *ngIf="reviewToDelete">
+        <div class="preview-rating">
+          <span *ngFor="let star of [1,2,3,4,5]" class="star" [class.filled]="star <= reviewToDelete.rating">★</span>
+        </div>
+        <p class="preview-comment">{{ reviewToDelete.comment || reviewToDelete.reviewText }}</p>
+      </div>
+    </div>
+    
+    <div class="modal-actions">
+      <button class="btn-modal-cancel" (click)="cancelDeleteReview()" [disabled]="deletingReview">
+        Cancel
+      </button>
+      <button class="btn-modal-danger" (click)="confirmDeleteReview()" [disabled]="deletingReview">
+        <lucide-icon [img]="Trash2" [size]="16"></lucide-icon>
+        {{ deletingReview ? 'Deleting...' : 'Delete Review' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Auth Modal -->
+<app-auth-modal 
+  *ngIf="showAuthModal"
+  (authSuccess)="onAuthSuccess()"
+  (close)="closeAuthModal()">
+</app-auth-modal>
  

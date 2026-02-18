@@ -51,9 +51,9 @@
           <span>{{ business.contact.phone }}</span>
         </div>
 
-        <div class="info-item" *ngIf="business.rating">
+        <div class="info-item" *ngIf="business.rating?.average || business.stats?.avgRating">
           <lucide-icon [img]="Star" [size]="16"></lucide-icon>
-          <span>{{ business.rating.toFixed(1) }} Rating</span>
+          <span>{{ (business.rating?.average || business.stats?.avgRating || 0).toFixed(1) }} Rating</span>
         </div>
       </div>
 

@@ -13,6 +13,7 @@ import leaderboardRoutes from "./leaderboardRoutes.js";
 import reportRoutes from "./reportRoutes.js";
 import adminRoutes from "./adminRoutes.js";
 import notificationRoutes from "./notificationRoutes.js";
+import statsRoutes from "./statsRoutes.js";
 
 const router = Router();
 
@@ -30,6 +31,7 @@ router.use("/activity", activityRoutes);
 router.use("/leaderboard", leaderboardRoutes);
 router.use("/reports", reportRoutes);
 router.use("/admin", adminRoutes);
+router.use("/stats", statsRoutes);
 
 export default router;
 

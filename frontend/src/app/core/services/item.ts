@@ -69,6 +69,7 @@ export class ItemService {
 
   searchItems(query: string, filters?: any): Observable<any> {
     let params = new HttpParams().set('search', query);
+    // Don't set limit - this will fetch ALL items from backend
     if (filters) {
       Object.keys(filters).forEach(key => {
         if (filters[key]) {

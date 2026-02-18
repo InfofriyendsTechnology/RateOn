@@ -14,6 +14,8 @@ import { ItemManagementComponent } from './features/business/item-management/ite
 import { EditBusinessComponent } from './features/business/edit-business/edit-business';
 import { BusinessDetail as BusinessOwnerDetail } from './features/business/business-detail/business-detail';
 import { AccountSettingsComponent } from './features/business/account-settings/account-settings';
+import { NotificationsPageComponent } from './features/business/notifications/notifications';
+import { ReviewsManagementComponent } from './features/business/reviews/reviews';
 import { WriteReview } from './features/review/write-review/write-review';
 import { BusinessPublicView } from './features/business/public-view/business-public-view';
 import { ItemPublicView } from './features/item/item-public-view/item-public-view';
@@ -50,8 +52,14 @@ export const routes: Routes = [
     component: HomeComponent,
     canActivate: [authGuard]
   },
-  // Redirect old profile route to owner profile
-  { path: 'profile', redirectTo: 'owner/profile', pathMatch: 'full' },
+  // User profile (all authenticated users)
+  { 
+    path: 'profile', 
+    component: ProfileComponent,
+    canActivate: [authGuard]
+  },
+  // Settings redirect to profile (for regular users)
+  { path: 'settings', redirectTo: 'profile', pathMatch: 'full' },
   
   // Business owner dashboard (requires business_owner role)
   { 
@@ -63,6 +71,8 @@ export const routes: Routes = [
       { path: 'businesses/:id', component: BusinessOwnerDetail },
       { path: 'businesses/:businessId/items', component: ItemManagementComponent },
       { path: 'businesses/:id/edit', component: EditBusinessComponent },
+      { path: 'reviews', component: ReviewsManagementComponent },
+      { path: 'notifications', component: NotificationsPageComponent },
       { path: 'settings', component: AccountSettingsComponent },
       { path: 'profile', component: ProfileComponent }
     ]

@@ -2,7 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LucideAngularModule, MapPin, Phone, Globe, Star, Clock, Building, Package, ImageIcon, ChevronUp, Info, Edit, User, MoreVertical, Trash, ThumbsUp, ThumbsDown, MessageSquare, Edit2, Trash2 } from 'lucide-angular';
+import { Location } from '@angular/common';
+import { LucideAngularModule, MapPin, Phone, Globe, Star, Clock, Building, Package, ImageIcon, ChevronUp, Info, Edit, User, MoreVertical, Trash, ThumbsUp, ThumbsDown, MessageSquare, Edit2, Trash2, X, Home, Sun, Moon } from 'lucide-angular';
+import { ThemeService } from '../../../core/services/theme';
 import { BusinessService } from '../../../core/services/business';
 import { ItemService } from '../../../core/services/item';
 import { ReviewService } from '../../../core/services/review';
@@ -11,11 +13,13 @@ import { NotificationService } from '../../../core/services/notification.service
 import { ReactionService } from '../../../core/services/reaction.service';
 import { ReplyService, CreateReplyRequest } from '../../../core/services/reply.service';
 import { ItemCard } from '../../../shared/components/item-card/item-card';
+import { BreadcrumbsComponent, Crumb } from '../../../shared/components/breadcrumbs/breadcrumbs';
+import { AuthModalComponent } from '../../../shared/components/auth-modal/auth-modal.component';
 
 @Component({
   selector: 'app-business-public-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, ItemCard],
+  imports: [CommonModule, FormsModule, LucideAngularModule, ItemCard, BreadcrumbsComponent, AuthModalComponent],
   templateUrl: './business-public-view.html',
   styleUrl: './business-public-view.scss',
 })
@@ -38,9 +42,15 @@ export class BusinessPublicView implements OnInit {
   editReplyText: { [key: string]: string } = {};
   submittingEdit = false;
   loadingReplies: { [key: string]: boolean } = {};
+  reviewAvatarFailed: { [key: string]: boolean } = {};
+  replyAvatarFailed: { [key: string]: boolean } = {};
   showAllPhotos = false;
   showAllHours = false;
   activeTab: 'items' | 'reviews' = 'items';
+  showDeleteReviewModal = false;
+  reviewToDelete: any = null;
+  deletingReview = false;
+  showAuthModal = false;
   readonly MapPin = MapPin;
   readonly Phone = Phone;
   readonly Globe = Globe;
@@ -60,11 +70,19 @@ export class BusinessPublicView implements OnInit {
   readonly MessageSquare = MessageSquare;
   readonly Edit2 = Edit2;
   readonly Trash2 = Trash2;
+  readonly X = X;
+  readonly Home = Home;
+  readonly Sun = Sun;
+  readonly Moon = Moon;
   readonly Math = Math;
+  
+  breadcrumbs: Crumb[] = [];
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private location: Location,
+    public themeService: ThemeService,
     private businessService: BusinessService,
     private itemService: ItemService,
     private reviewService: ReviewService,
@@ -105,10 +123,12 @@ export class BusinessPublicView implements OnInit {
         const data = resp.data || resp;
         this.business = data.business || data;
         console.log('Business Data:', this.business);
+        console.log('Logo:', this.business.logo);
         console.log('Description:', this.business.description);
         console.log('Location:', this.business.location);
         console.log('Contact:', this.business.contact);
         console.log('Hours:', this.business.businessHours);
+        this.updateBreadcrumbs();
         this.loading = false;
       },
       error: () => { 
@@ -175,7 +195,7 @@ export class BusinessPublicView implements OnInit {
 
   writeBusinessReview() {
     if (!this.currentUser) {
-      this.notification.showError('Please login to write a review');
+      this.showAuthModal = true;
       return;
     }
     
@@ -273,21 +293,33 @@ export class BusinessPublicView implements OnInit {
 
   deleteReview(review: any) {
     this.activeReviewMenu = null;
+    this.reviewToDelete = review;
+    this.showDeleteReviewModal = true;
+  }
+  
+  confirmDeleteReview() {
+    if (!this.reviewToDelete) return;
     
-    if (!confirm('Are you sure you want to delete this review? This action cannot be undone.')) {
-      return;
-    }
-
-    this.reviewService.deleteReview(review._id).subscribe({
+    this.deletingReview = true;
+    this.reviewService.deleteReview(this.reviewToDelete._id).subscribe({
       next: () => {
         this.notification.showSuccess('Review deleted successfully');
+        this.showDeleteReviewModal = false;
+        this.reviewToDelete = null;
+        this.deletingReview = false;
         // Reload reviews
         this.loadBusinessReviews(this.business._id);
       },
       error: (err: any) => {
         this.notification.showError(err.error?.message || 'Failed to delete review');
+        this.deletingReview = false;
       }
     });
+  }
+  
+  cancelDeleteReview() {
+    this.showDeleteReviewModal = false;
+    this.reviewToDelete = null;
   }
 
   toggleReplies(reviewId: string) {
@@ -330,7 +362,7 @@ export class BusinessPublicView implements OnInit {
 
   toggleReaction(review: any, type: 'helpful' | 'not_helpful') {
     if (!this.currentUser) {
-      this.notification.showError('Please login to react to reviews');
+      this.showAuthModal = true;
       return;
     }
 
@@ -360,7 +392,7 @@ export class BusinessPublicView implements OnInit {
 
   startReply(reviewId: string) {
     if (!this.currentUser) {
-      this.notification.showError('Please login to reply to reviews');
+      this.showAuthModal = true;
       return;
     }
     this.replyingToReview = reviewId;
@@ -475,6 +507,81 @@ export class BusinessPublicView implements OnInit {
       }
     });
   }
+
+  // Avatar helper methods
+  getReviewerAvatar(review: any): string | null {
+    const userId = review.userId;
+    if (!userId) return null;
+    
+    // Check for Google profile picture
+    if (userId.profilePicture) {
+      return userId.profilePicture;
+    }
+    
+    return null;
+  }
+
+  getReviewerInitial(review: any): string {
+    const userId = review.userId;
+    if (!userId) return '?';
+    
+    const name = userId.name || userId.username || 'User';
+    return name.charAt(0).toUpperCase();
+  }
+
+  onReviewAvatarError(reviewId: string): void {
+    this.reviewAvatarFailed[reviewId] = true;
+  }
+
+  getReplyAvatar(reply: any): string | null {
+    const userId = reply?.userId;
+    if (!userId) return null;
+    
+    // Check for Google profile picture
+    if (userId.profilePicture) {
+      return userId.profilePicture;
+    }
+    
+    return null;
+  }
+
+  getReplyInitial(reply: any): string {
+    const userId = reply?.userId;
+    if (!userId) return '?';
+    
+    const name = userId.name || userId.username || 'User';
+    return name.charAt(0).toUpperCase();
+  }
+
+  onReplyAvatarError(replyId: string): void {
+    this.replyAvatarFailed[replyId] = true;
+  }
   
+  updateBreadcrumbs(): void {
+    if (this.business) {
+      this.breadcrumbs = [
+        { label: 'Home', link: '/', icon: this.Home },
+        { label: 'Businesses', link: '/search?tab=businesses' },
+        { label: this.business.name }
+      ];
+    }
+  }
+  
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+  }
+
+  onAuthSuccess(): void {
+    this.showAuthModal = false;
+    this.currentUser = this.storage.getUser();
+    // Reload reviews to check if user has review
+    if (this.business?._id) {
+      this.loadBusinessReviews(this.business._id);
+    }
+  }
+
+  closeAuthModal(): void {
+    this.showAuthModal = false;
+  }
 }
  

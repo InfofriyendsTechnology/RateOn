@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth';
 import { ToastService } from '../../../core/services/toast';
 import { environment } from '../../../../environments/environment';
@@ -26,13 +27,20 @@ export class AuthModalComponent {
 
   constructor(
     private authService: AuthService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private router: Router
   ) {}
 
   continueWithGoogle() {
     this.isLoading = true;
-    // Redirect to Google OAuth
-    window.location.href = `${environment.apiUrl}/auth/google`;
+    
+    // Save the current URL for redirect after authentication
+    const returnUrl = this.router.url;
+    sessionStorage.setItem('auth_return_url', returnUrl);
+    
+    // Redirect to Google OAuth with state parameter
+    const state = encodeURIComponent(returnUrl);
+    window.location.href = `${environment.apiUrl}/auth/google?state=${state}`;
   }
 
   showEmailLogin() {

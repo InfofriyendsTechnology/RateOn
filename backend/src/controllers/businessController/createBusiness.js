@@ -7,7 +7,7 @@ export default {
     validator: validator({
         body: Joi.object({
             name: Joi.string().trim().max(200).required(),
-            type: Joi.string().valid('restaurant', 'cafe', 'shop', 'service', 'other').required(),
+            type: Joi.string().trim().max(50).required(),
             category: Joi.string().trim().required(),
             subcategory: Joi.string().trim().optional(),
             description: Joi.string().max(2000).optional(),
@@ -23,10 +23,10 @@ export default {
                 }).required()
             }).required(),
             contact: Joi.object({
-                phone: Joi.string().optional(),
-                whatsapp: Joi.string().optional(),
-                email: Joi.string().email().optional(),
-                website: Joi.string().uri().optional()
+                phone: Joi.string().allow('').optional(),
+                whatsapp: Joi.string().allow('').optional(),
+                email: Joi.string().email().allow('').optional(),
+                website: Joi.string().uri().allow('').optional()
             }).optional(),
             businessHours: Joi.array().items(
                 Joi.object({
