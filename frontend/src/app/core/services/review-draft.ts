@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 
 export interface ReviewDraft {
-  itemId: string;
+  itemId?: string;
   businessId: string;
+  reviewType?: 'item' | 'business';
   rating: number;
   title?: string;
   comment: string;

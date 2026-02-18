@@ -71,6 +71,9 @@ export class WriteReview implements OnInit {
     const reviewId = this.route.snapshot.queryParamMap.get('reviewId');
     const isEdit = this.route.snapshot.queryParamMap.get('edit') === 'true';
     
+    // Check for saved draft and restore it
+    this.restoreDraftIfExists();
+    
     // Determine review type
     this.reviewType = reviewType === 'business' ? 'business' : 'item';
     
@@ -363,6 +366,10 @@ export class WriteReview implements OnInit {
           const message = this.isEditMode ? 'Business review updated successfully!' : 'Business review submitted successfully!';
           this.notificationService.showSuccess(message);
           this.submitting = false;
+          
+          // Clear draft after successful submission
+          this.reviewDraftService.clearDraft();
+          
           this.router.navigate(['/business', this.business!._id]);
         },
         error: (err: any) => {
@@ -416,6 +423,9 @@ export class WriteReview implements OnInit {
           const message = this.isEditMode ? 'Review updated successfully!' : 'Review submitted successfully!';
           this.notificationService.showSuccess(message);
           this.submitting = false;
+          
+          // Clear draft after successful submission
+          this.reviewDraftService.clearDraft();
           
           // Navigate back to item detail page
           if (this.item?._id) {
@@ -489,14 +499,19 @@ export class WriteReview implements OnInit {
       ? this.item.businessId 
       : (this.item?.businessId as any)?._id || this.business?._id;
 
-    if (this.item && businessId) {
-      this.reviewDraftService.saveDraft({
-        itemId: this.item._id,
-        businessId: businessId,
-        rating: this.rating,
-        comment: this.reviewText
-      });
+    const draft: any = {
+      businessId: businessId,
+      reviewType: this.reviewType,
+      rating: this.rating,
+      comment: this.reviewText
+    };
+    
+    // Add itemId only for item reviews
+    if (this.reviewType === 'item' && this.item) {
+      draft.itemId = this.item._id;
     }
+    
+    this.reviewDraftService.saveDraft(draft);
 
     // Show auth modal
     this.showAuthModal = true;
@@ -510,13 +525,34 @@ export class WriteReview implements OnInit {
     setTimeout(() => {
       const draft = this.reviewDraftService.getDraft();
       if (draft) {
-        // Draft is already in form, just submit
+        // Restore draft to form
+        this.rating = draft.rating;
+        this.reviewText = draft.comment;
+        
+        // Auto-submit the review
         this.submitReview();
+        
+        // Clear draft after successful submission attempt
+        this.reviewDraftService.clearDraft();
       }
     }, 500);
   }
 
   closeAuthModal() {
     this.showAuthModal = false;
+  }
+  
+  restoreDraftIfExists() {
+    const draft = this.reviewDraftService.getDraft();
+    if (draft && this.authService.isAuthenticated()) {
+      // User is now authenticated, restore the draft to form
+      this.rating = draft.rating;
+      this.reviewText = draft.comment;
+      
+      // Show a notification that draft was restored
+      this.notificationService.showInfo('Your review draft has been restored');
+      
+      // Don't clear draft yet - wait for successful submission
+    }
   }
 }
