@@ -46,4 +46,8 @@ export class FollowService {
   checkFollowStatus(userId: string): Observable<{ isFollowing: boolean }> {
     return this.http.get<{ isFollowing: boolean }>(`${this.apiUrl}/status/${userId}`);
   }
+
+  checkFollowsMe(userId: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/follows-me/${userId}`);
+  }
 }

@@ -28,12 +28,11 @@ followSchema.index({ followingId: 1, createdAt: -1 });
 // Index for getting users a user is following
 followSchema.index({ followerId: 1, createdAt: -1 });
 
-// Prevent self-following
-followSchema.pre('save', function(next) {
-    if (this.followerId.equals(this.followingId)) {
-        next(new Error('Users cannot follow themselves'));
-    } else {
-        next();
+// Prevent self-following (promise style — compatible with Mongoose 6+)
+followSchema.pre('save', function() {
+    if (this.followerId && this.followingId &&
+        this.followerId.toString() === this.followingId.toString()) {
+        throw new Error('Users cannot follow themselves');
     }
 });
 

@@ -17,14 +17,6 @@
                 (search)="onSearchChange($event)">
               </app-search-bar>
             </div>
-            
-            <button 
-              class="theme-toggle-btn" 
-              (click)="toggleTheme()" 
-              [attr.aria-label]="themeService.isDarkMode() ? 'Switch to light mode' : 'Switch to dark mode'">
-              <lucide-icon *ngIf="themeService.isDarkMode()" [img]="Sun" [size]="20"></lucide-icon>
-              <lucide-icon *ngIf="!themeService.isDarkMode()" [img]="Moon" [size]="20"></lucide-icon>
-            </button>
           </div>
         </div>
         

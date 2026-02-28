@@ -1,0 +1,35 @@
+.global-theme-toggle {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  z-index: 9999;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+  backdrop-filter: blur(8px);
+
+  lucide-icon {
+    display: flex;
+  }
+
+  &:hover {
+    background: var(--bg-hover);
+    border-color: #fbbf24;
+    color: #fbbf24;
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(251, 191, 36, 0.25);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}

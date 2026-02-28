@@ -332,6 +332,20 @@ export class ReviewsManagementComponent implements OnInit, OnDestroy {
     }
   }
   
+  viewUserProfile(review: any): void {
+    const userId = review.userId?._id || review.userId;
+    if (userId) this.router.navigate(['/user', userId]);
+  }
+
+  viewItem(review: any): void {
+    const itemId = review.itemId?._id || review.itemId;
+    if (itemId) this.router.navigate(['/item', itemId]);
+  }
+
+  isVerified(review: any): boolean {
+    return review.userId?.registrationMethod === 'google' || review.userId?.isEmailVerified === true;
+  }
+
   onAvatarError(reviewId: string): void {
     this.avatarFailed[reviewId] = true;
   }

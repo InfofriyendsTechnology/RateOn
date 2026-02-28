@@ -2,10 +2,6 @@
   <!-- Top Navigation Bar -->
   <div class="top-nav-bar">
     <app-breadcrumbs [crumbs]="breadcrumbs"></app-breadcrumbs>
-    <button class="theme-toggle-btn" (click)="toggleTheme()" aria-label="Toggle theme">
-      <lucide-icon *ngIf="themeService.isDarkMode()" [img]="Sun" [size]="24"></lucide-icon>
-      <lucide-icon *ngIf="!themeService.isDarkMode()" [img]="Moon" [size]="24"></lucide-icon>
-    </button>
   </div>
   
   <!-- Business Info Header -->
@@ -176,7 +172,7 @@
       <div class="review-card" *ngFor="let review of businessReviews">
         <!-- Review Header -->
         <div class="review-header">
-          <div class="reviewer-info">
+          <div class="reviewer-info" (click)="navigateToUserProfile(review)" style="cursor: pointer;" title="View profile">
             <div class="reviewer-avatar">
               <img *ngIf="getReviewerAvatar(review) && !reviewAvatarFailed[review._id]" 
                    [src]="getReviewerAvatar(review)" 
@@ -288,7 +284,7 @@
         <div class="replies-section" *ngIf="review.replies?.length > 0 && isRepliesExpanded(review._id) && !loadingReplies[review._id]">
           <div class="reply-card">
             <div class="reply-header">
-              <div class="reply-user-info">
+              <div class="reply-user-info" (click)="navigateToReplyAuthor(review.replies[0])" style="cursor: pointer;" title="View profile">
                 <div class="reply-author-avatar business-badge">
                   <img *ngIf="getReplyAvatar(review.replies[0]) && !replyAvatarFailed[review.replies[0]._id]" 
                        [src]="getReplyAvatar(review.replies[0])" 

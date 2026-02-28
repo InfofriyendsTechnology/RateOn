@@ -5,14 +5,15 @@ import { Router } from '@angular/router';
 import { StorageService } from '../../../core/services/storage';
 import { UserService } from '../../../core/services/user';
 import { ReviewService } from '../../../core/services/review';
-import { LucideAngularModule, User, Edit, Mail, Phone, MapPin, Shield, Star, FileText, Users, UserPlus, ThumbsUp, Camera, Trash2, X, Check, ArrowLeft, Award, Image } from 'lucide-angular';
+import { LucideAngularModule, User, Edit, Mail, Phone, MapPin, Shield, Star, FileText, Users, UserPlus, ThumbsUp, Camera, Trash2, X, Check, ArrowLeft, Award, Image, Search, Building2, ChevronRight } from 'lucide-angular';
 import { ToastService } from '../../../core/services/toast';
 import { ThemeService } from '../../../core/services/theme';
+import { BreadcrumbsComponent } from '../../../shared/components/breadcrumbs/breadcrumbs';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, BreadcrumbsComponent],
   templateUrl: './profile.html',
   styleUrl: './profile.scss',
 })
@@ -36,6 +37,9 @@ export class ProfileComponent implements OnInit {
   readonly ArrowLeft = ArrowLeft;
   readonly Award = Award;
   readonly Image = Image;
+  readonly Search = Search;
+  readonly Building2 = Building2;
+  readonly ChevronRight = ChevronRight;
 
   user: any = null;
   isEditing: boolean = false;
@@ -45,6 +49,8 @@ export class ProfileComponent implements OnInit {
   selectedCoverFile: File | null = null;
   coverPreviewUrl: string | null = null;
   saving = false;
+  converting = false;
+  starPositions: any[] = [];
   
   // Delete modal
   showDeleteModal: boolean = false;
@@ -67,7 +73,7 @@ export class ProfileComponent implements OnInit {
 
   constructor(
     private storage: StorageService,
-    private router: Router,
+    public router: Router,
     private userService: UserService,
     private reviewService: ReviewService,
     private toast: ToastService,
@@ -110,7 +116,17 @@ export class ProfileComponent implements OnInit {
     });
 
     this.resetEditForm();
+    this.generateStarPositions();
     this.loadReviews();
+  }
+
+  generateStarPositions() {
+    this.starPositions = Array(5).fill(0).map(() => ({
+      left: Math.random() * 80 + 10,
+      top: Math.random() * 60 + 20,
+      size: Math.random() > 0.5 ? 12 : 16,
+      delay: Math.random() * 5
+    }));
   }
   
   loadReviews() {
@@ -140,6 +156,71 @@ export class ProfileComponent implements OnInit {
   getLevelName(level: number): string {
     const levels = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
     return levels[Math.min(level - 1, levels.length - 1)] || 'Bronze';
+  }
+
+  getLevelClass(level: string): string {
+    const map: any = { 'Bronze': 'level-bronze', 'Silver': 'level-silver', 'Gold': 'level-gold', 'Platinum': 'level-platinum', 'Diamond': 'level-diamond' };
+    return map[level] || 'level-bronze';
+  }
+
+  getNextLevel(): string {
+    const levels = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
+    const idx = levels.indexOf(this.user?.level || 'Bronze');
+    return levels[Math.min(idx + 1, levels.length - 1)] || 'Diamond';
+  }
+
+  getTrustScoreCircumference(): number { return 2 * Math.PI * 70; }
+
+  getTrustScoreOffset(): number {
+    const c = this.getTrustScoreCircumference();
+    return c - ((this.user?.trustScore || 0) / 100) * c;
+  }
+
+  getTrustColor(): string {
+    const s = this.user?.trustScore || 0;
+    if (s >= 80) return '#10b981';
+    if (s >= 60) return '#3b82f6';
+    if (s >= 40) return '#fbbf24';
+    return '#f59e0b';
+  }
+
+  getTrustLabel(): string {
+    const s = this.user?.trustScore || 0;
+    if (s >= 80) return 'Expert';
+    if (s >= 60) return 'Trusted';
+    if (s >= 40) return 'Active';
+    return 'Beginner';
+  }
+
+  writeReview(): void { this.router.navigate(['/search']); }
+
+  convertToBusiness(): void {
+    if (this.converting) return;
+    this.converting = true;
+
+    this.userService.becomeBusinessOwner().subscribe({
+      next: (response: any) => {
+        const userData = response.data?.user || response.user;
+        const token = response.data?.token || response.token;
+
+        if (token) this.storage.saveToken(token);
+        if (userData) this.storage.saveUser(userData);
+
+        this.converting = false;
+        this.toast.success('You are now a Business Owner! 🎉');
+
+        setTimeout(() => this.router.navigate(['/business/dashboard']), 500);
+      },
+      error: (error: any) => {
+        if (error?.error?.message?.includes('already a business owner')) {
+          this.converting = false;
+          this.router.navigate(['/business/dashboard']);
+        } else {
+          this.toast.error(error?.error?.message || 'Failed to convert account');
+          this.converting = false;
+        }
+      }
+    });
   }
 
   getRoleName(role: string): string {
@@ -296,7 +377,7 @@ export class ProfileComponent implements OnInit {
   }
 
   navigateToHome(): void {
-    this.router.navigate(['/home']);
+    this.router.navigate(['/']);
   }
 
   openDeleteModal(): void {
@@ -352,8 +433,31 @@ export class ProfileComponent implements OnInit {
   onAvatarError(event: any) {
     this.avatarFailed = true;
   }
+
+  getInitial(): string {
+    if (this.user?.firstName) return this.user.firstName.charAt(0).toUpperCase();
+    if (this.user?.username)  return this.user.username.charAt(0).toUpperCase();
+    return '?';
+  }
   
   onCoverError(event: any) {
     this.coverFailed = true;
+  }
+
+  getBannerGradient(): string {
+    const name = (this.user?.username || '').toLowerCase();
+    const palettes = [
+      'linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%)',
+      'linear-gradient(135deg, #0d0d0d 0%, #1a0533 40%, #2d0b5a 100%)',
+      'linear-gradient(135deg, #0a0a0a 0%, #0d1b2a 40%, #1b2838 100%)',
+      'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
+      'linear-gradient(135deg, #141e30 0%, #243b55 100%)',
+      'linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)',
+      'linear-gradient(135deg, #1f1c2c 0%, #928dab 100%)',
+      'linear-gradient(135deg, #200122 0%, #6f0000 100%)',
+    ];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = (hash * 31 + name.charCodeAt(i)) & 0xffff;
+    return palettes[hash % palettes.length];
   }
 }

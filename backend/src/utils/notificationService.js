@@ -323,6 +323,38 @@ class NotificationService {
             throw error;
         }
     }
+
+    /**
+     * Notify a user when someone follows them
+     * @param {String} followerId - The user who followed
+     * @param {String} followingId - The user who was followed (receives notification)
+     */
+    static async notifyFollow(followerId, followingId) {
+        try {
+            if (followerId.toString() === followingId.toString()) return null;
+
+            const follower = await User.findById(followerId).select('username');
+            if (!follower) return null;
+
+            const notification = await Notification.create({
+                userId: followingId,
+                type: 'follow',
+                entityType: 'user',
+                entityId: followerId,
+                triggeredBy: followerId,
+                message: `${follower.username} started following you`,
+                metadata: { followerId },
+                link: `/user/${followerId}`
+            });
+
+            await notification.populate('triggeredBy', 'username profile.avatar');
+            emitNotificationToUser(followingId.toString(), notification);
+
+            return notification;
+        } catch (error) {
+            return null;
+        }
+    }
 }
 
 export default NotificationService;

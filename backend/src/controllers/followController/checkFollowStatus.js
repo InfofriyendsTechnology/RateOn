@@ -3,7 +3,7 @@ import responseHandler from '../../utils/responseHandler.js';
 
 export const checkFollowStatus = async (req, res) => {
     try {
-        const followerId = req.user.userId; // Current logged-in user
+        const followerId = req.user.id; // Current logged-in user
         const { userId: followingId } = req.params;
 
         // Check if following

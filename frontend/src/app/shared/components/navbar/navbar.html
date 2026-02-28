@@ -1,78 +1,98 @@
 <nav class="navbar">
   <div class="container">
     <div class="nav-content">
+
+      <!-- Logo -->
       <a routerLink="/" class="logo">
         <img *ngIf="!themeService.isDarkMode()" src="/LOGO_BLACK.png" alt="RateOn" class="logo-img">
         <img *ngIf="themeService.isDarkMode()" src="/LOGO_WHITE.png" alt="RateOn" class="logo-img">
       </a>
 
-      <div class="nav-links" [class.active]="isMenuOpen">
-        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">
-          <lucide-icon [img]="Home" [size]="18" [strokeWidth]="2"></lucide-icon>
-          <span>Home</span>
-        </a>
-        <a routerLink="/explore" routerLinkActive="active" class="nav-link">
-          <lucide-icon [img]="Compass" [size]="18" [strokeWidth]="2"></lucide-icon>
-          <span>Explore</span>
-        </a>
-        <a routerLink="/leaderboard" routerLinkActive="active" class="nav-link">
-          <lucide-icon [img]="Trophy" [size]="18" [strokeWidth]="2"></lucide-icon>
-          <span>Leaderboard</span>
-        </a>
-        
-        <!-- Theme Toggle -->
-        <button class="theme-toggle" (click)="themeService.toggleTheme()" 
-                [attr.aria-label]="themeService.isDarkMode() ? 'Switch to light mode' : 'Switch to dark mode'">
-          <lucide-icon *ngIf="themeService.isDarkMode()" [img]="Sun" [size]="18" [strokeWidth]="2"></lucide-icon>
-          <lucide-icon *ngIf="!themeService.isDarkMode()" [img]="Moon" [size]="18" [strokeWidth]="2"></lucide-icon>
-        </button>
-        
-        <ng-container *ngIf="!isLoggedIn">
-          <div class="nav-divider"></div>
-          <a routerLink="/auth/login" routerLinkActive="active" class="nav-link nav-link-secondary">
-            <lucide-icon [img]="LogIn" [size]="18" [strokeWidth]="2"></lucide-icon>
-            <span>Login</span>
-          </a>
-          <a routerLink="/auth/register" routerLinkActive="active" class="btn-primary">
-            <lucide-icon [img]="UserPlus" [size]="18" [strokeWidth]="2"></lucide-icon>
-            <span>Sign Up</span>
-          </a>
-        </ng-container>
-        
-        <ng-container *ngIf="isLoggedIn">
-          <div class="nav-divider"></div>
-          <a [routerLink]="getDashboardLink()" routerLinkActive="active" class="nav-link">
-            <lucide-icon *ngIf="!isBusinessOwner" [img]="Home" [size]="18" [strokeWidth]="2"></lucide-icon>
-            <lucide-icon *ngIf="isBusinessOwner" [img]="Building2" [size]="18" [strokeWidth]="2"></lucide-icon>
-            <span>{{ isBusinessOwner ? 'Dashboard' : 'Home' }}</span>
-          </a>
+      <div class="nav-actions">
 
-          <!-- Notifications -->
-          <div class="notif-wrapper" style="position:relative;">
+        <!-- ── LOGGED IN ─────────────────────────────────── -->
+        <ng-container *ngIf="isLoggedIn">
+
+          <!-- Notification Bell -->
+          <div class="notif-wrapper">
             <app-notification-bell [count]="unreadCount" (openPanel)="panelOpen = !panelOpen"></app-notification-bell>
             <app-notification-panel [open]="panelOpen" (closed)="panelOpen = false"></app-notification-panel>
           </div>
 
-          <div class="user-badge">
-            <img *ngIf="getUserAvatar() && !avatarFailed" [src]="getUserAvatar()" [alt]="currentUser?.username" 
-                 class="user-avatar-img" crossorigin="anonymous" referrerpolicy="no-referrer"
-                 (error)="onAvatarError($event)">
-            <div *ngIf="!getUserAvatar() || avatarFailed" class="user-avatar-fallback">
-              {{ getUserInitial() }}
-            </div>
-            <span>{{ currentUser?.username }}</span>
-          </div>
-          <button (click)="openLogoutModal()" class="btn-logout">
-            <lucide-icon [img]="LogOut" [size]="18" [strokeWidth]="2"></lucide-icon>
-            <span>Logout</span>
-          </button>
-        </ng-container>
-      </div>
+          <!-- Profile Avatar — click opens full menu -->
+          <div class="avatar-wrap">
+            <button class="avatar-btn" (click)="toggleProfileDropdown(); $event.stopPropagation()" title="Menu">
+              <img *ngIf="getUserAvatar() && !avatarFailed" [src]="getUserAvatar()" [alt]="currentUser?.username"
+                   class="av-img" crossorigin="anonymous" referrerpolicy="no-referrer" (error)="onAvatarError($event)">
+              <div *ngIf="!getUserAvatar() || avatarFailed" class="av-init">{{ getUserInitial() }}</div>
+            </button>
 
-      <button class="menu-toggle" (click)="toggleMenu()" [attr.aria-label]="isMenuOpen ? 'Close menu' : 'Open menu'">
-        <lucide-icon *ngIf="!isMenuOpen" [img]="Menu" [size]="24" [strokeWidth]="2"></lucide-icon>
-        <lucide-icon *ngIf="isMenuOpen" [img]="X" [size]="24" [strokeWidth]="2"></lucide-icon>
-      </button>
+            <!-- Full Dropdown Menu -->
+            <div *ngIf="showProfileDropdown" class="profile-menu" (click)="$event.stopPropagation()">
+
+              <!-- User info -->
+              <div class="pm-user">
+                <div class="pm-avatar">
+                  <img *ngIf="getUserAvatar() && !avatarFailed" [src]="getUserAvatar()" class="pm-av-img"
+                       crossorigin="anonymous" referrerpolicy="no-referrer" (error)="onAvatarError($event)">
+                  <div *ngIf="!getUserAvatar() || avatarFailed" class="pm-av-init">{{ getUserInitial() }}</div>
+                </div>
+                <div class="pm-user-info">
+                  <strong>{{ currentUser?.username }}</strong>
+                  <span>{{ currentUser?.email }}</span>
+                </div>
+              </div>
+
+              <div class="pm-sep"></div>
+
+              <!-- View Profile -->
+              <a routerLink="/profile" routerLinkActive="pm-active" class="pm-item" (click)="showProfileDropdown = false">
+                <lucide-icon [img]="User" [size]="16" [strokeWidth]="2"></lucide-icon>
+                <span>My Profile</span>
+              </a>
+
+              <div class="pm-sep"></div>
+
+              <!-- Nav Links -->
+              <a routerLink="/" routerLinkActive="pm-active" [routerLinkActiveOptions]="{exact:true}" class="pm-item" (click)="showProfileDropdown = false">
+                <lucide-icon [img]="Home" [size]="16" [strokeWidth]="2"></lucide-icon>
+                <span>Home</span>
+              </a>
+              <a routerLink="/search" routerLinkActive="pm-active" class="pm-item" (click)="showProfileDropdown = false">
+                <lucide-icon [img]="Compass" [size]="16" [strokeWidth]="2"></lucide-icon>
+                <span>Explore</span>
+              </a>
+              <a routerLink="/my-reviews" routerLinkActive="pm-active" class="pm-item" (click)="showProfileDropdown = false">
+                <lucide-icon [img]="FileText" [size]="16" [strokeWidth]="2"></lucide-icon>
+                <span>My Reviews</span>
+              </a>
+              <a *ngIf="isBusinessOwner" routerLink="/owner" routerLinkActive="pm-active" class="pm-item" (click)="showProfileDropdown = false">
+                <lucide-icon [img]="Building2" [size]="16" [strokeWidth]="2"></lucide-icon>
+                <span>Dashboard</span>
+              </a>
+
+              <div class="pm-sep"></div>
+
+              <!-- Logout -->
+              <button class="pm-item pm-logout" (click)="openLogoutModal(); showProfileDropdown = false">
+                <lucide-icon [img]="LogOut" [size]="16" [strokeWidth]="2"></lucide-icon>
+                <span>Logout</span>
+              </button>
+
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- ── NOT LOGGED IN ─────────────────────────────── -->
+        <ng-container *ngIf="!isLoggedIn">
+          <a routerLink="/auth/login" class="nl-login">Login</a>
+          <a routerLink="/auth/register" class="nl-signup">
+            <lucide-icon [img]="UserPlus" [size]="16" [strokeWidth]="2"></lucide-icon>
+            Sign Up
+          </a>
+        </ng-container>
+
+      </div>
     </div>
   </div>
 </nav>
@@ -84,15 +104,12 @@
       <h3>Logout Confirmation</h3>
       <p>Are you sure you want to logout?</p>
     </div>
-    
     <div class="modal-actions">
       <button class="btn-modal-danger" (click)="confirmLogout()">
         <lucide-icon [img]="LogOut" [size]="18"></lucide-icon>
         Logout
       </button>
-      <button class="btn-modal-cancel" (click)="closeLogoutModal()">
-        Cancel
-      </button>
+      <button class="btn-modal-cancel" (click)="closeLogoutModal()">Cancel</button>
     </div>
   </div>
 </div>

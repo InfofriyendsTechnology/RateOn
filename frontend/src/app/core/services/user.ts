@@ -81,4 +81,8 @@ export class UserService {
       headers: this.getAuthHeaders()
     });
   }
+
+  getUserById(userId: string): Observable<any> {
+    return this.http.get(`${this.apiUrl}/user/${userId}`);
+  }
 }

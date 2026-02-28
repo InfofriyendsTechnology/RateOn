@@ -1,4 +1,5 @@
 import { User } from "../../models/index.js";
+import Business from "../../models/BusinessModel.js";
 import responseHandler from "../../utils/responseHandler.js";
 
 export default {
@@ -18,7 +19,16 @@ export default {
                 return responseHandler.error(res, "This user account is not active");
             }
 
-            return responseHandler.success(res, "User profile retrieved successfully", user);
+            // Fetch businesses owned by this user
+            const businesses = await Business.find({ owner: userId, isActive: true })
+                .select('_id name logo category type rating stats')
+                .lean();
+
+            return responseHandler.success(res, "User profile retrieved successfully", {
+                ...user,
+                businesses,
+                businessCount: businesses.length
+            });
 
         } catch (error) {
             return responseHandler.error(res, error?.message || "Failed to fetch user profile");

@@ -4,7 +4,8 @@ import {
     unfollowUser, 
     getFollowers, 
     getFollowing, 
-    checkFollowStatus 
+    checkFollowStatus,
+    checkFollowsMe
 } from '../controllers/followController/index.js';
 import auth from '../middleware/auth.js';
 
@@ -23,6 +24,9 @@ router.get('/following/:userId', getFollowing);
 
 // Check if current user is following another user
 router.get('/status/:userId', checkFollowStatus);
+
+// Check if another user is following the current user
+router.get('/follows-me/:userId', checkFollowsMe);
 
 export default router;
 

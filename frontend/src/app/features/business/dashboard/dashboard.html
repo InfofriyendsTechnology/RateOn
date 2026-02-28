@@ -86,9 +86,6 @@
         <button class="sidebar-toggle mobile-only" (click)="toggleSidebar(); $event.stopPropagation()">
           <lucide-icon [img]="Menu" [size]="20"></lucide-icon>
         </button>
-        <button class="theme-toggle" (click)="toggleTheme(); $event.stopPropagation()">
-          <lucide-icon [img]="isDarkMode ? Sun : Moon" [size]="20"></lucide-icon>
-        </button>
         <button class="notification-bell" [routerLink]="['/owner/notifications']" title="View notifications">
           <lucide-icon [img]="Bell" [size]="20"></lucide-icon>
           <span class="notification-badge" *ngIf="unreadNotificationsCount > 0">{{ unreadNotificationsCount }}</span>

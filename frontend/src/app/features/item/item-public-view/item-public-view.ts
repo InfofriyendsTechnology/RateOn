@@ -605,6 +605,15 @@ export class ItemPublicView implements OnInit {
     this.reviewAvatarFailed[reviewId] = true;
   }
 
+  navigateToUserProfile(review: any): void {
+    const user = review.userId;
+    if (!user) return;
+    const userId = typeof user === 'object' ? user._id : user;
+    if (userId) {
+      this.router.navigate(['/user', userId]);
+    }
+  }
+
   getReplyAvatar(reply: any): string | null {
     const userId = reply?.userId;
     if (!userId) return null;

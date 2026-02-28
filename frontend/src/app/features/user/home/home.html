@@ -1,88 +1,24 @@
+<app-navbar></app-navbar>
 <div class="home-container">
-  <!-- Profile Header Section -->
-  <div class="profile-header">
-    <div class="profile-cover" [class.has-custom]="user?.coverPhoto">
-      <!-- Custom Cover Photo -->
-      <img 
-        *ngIf="user?.coverPhoto && !coverFailed" 
-        [src]="user.coverPhoto" 
-        (error)="onCoverError($event)"
-        alt="Cover"
-        class="cover-img"
-      />
-      
-      <!-- Default Branded Cover -->
-      <div *ngIf="!user?.coverPhoto || coverFailed" class="default-cover">
-        <!-- Background gradient -->
-        <div class="cover-gradient"></div>
-        
-        <!-- Simple small grid pattern -->
-        <div class="cover-grid-pattern">
-          <svg class="grid-svg" viewBox="0 0 800 200" preserveAspectRatio="xMidYMid slice">
-            <defs>
-              <pattern id="grid" width="15" height="15" patternUnits="userSpaceOnUse">
-                <rect width="15" height="15" fill="none" stroke="rgba(251, 191, 36, 0.12)" stroke-width="0.5"/>
-              </pattern>
-            </defs>
-            <rect width="800" height="200" fill="url(#grid)" />
-          </svg>
-        </div>
-        
-        <!-- Star animations for reviews -->
-        <div class="cover-stars">
-          <div *ngFor="let star of starPositions" class="floating-star" [style.left.%]="star.left" [style.top.%]="star.top" [style.animation-delay.s]="star.delay">
-            <lucide-icon [img]="Star" [size]="star.size"></lucide-icon>
-          </div>
-        </div>
-        
-        <!-- Logo in top right corner -->
-        <div class="cover-logo-corner">
-          <img 
-            *ngIf="themeService.isDarkMode()" 
-            src="/LOGO_WHITE.png" 
-            alt="RateOn" 
-          />
-          <img 
-            *ngIf="!themeService.isDarkMode()" 
-            src="/LOGO_BLACK.png" 
-            alt="RateOn" 
-          />
-          <div class="logo-glow"></div>
-        </div>
+  <!-- Welcome Header -->
+  <div class="welcome-header">
+    <div class="welcome-profile">
+      <!-- Profile Picture -->
+      <div class="welcome-avatar">
+        <img *ngIf="user?.avatar && !avatarFailed" [src]="user.avatar" (error)="onAvatarError($event)" alt="Profile" class="welcome-avatar-img" referrerpolicy="no-referrer" crossorigin="anonymous" />
+        <div *ngIf="!user?.avatar || avatarFailed" class="welcome-avatar-placeholder">{{ getInitial() }}</div>
+      </div>
+      <!-- Name + Email -->
+      <div class="welcome-text">
+        <p class="welcome-greeting">Welcome back 👋</p>
+        <h1 class="welcome-name">{{ user?.firstName || user?.username || 'User' }}<span *ngIf="user?.lastName"> {{ user.lastName }}</span></h1>
+        <p class="welcome-email">{{ user?.email }}</p>
       </div>
     </div>
-    
-    <div class="profile-main">
-      <div class="avatar-wrapper">
-        <img 
-          *ngIf="user?.avatar && !avatarFailed" 
-          [src]="user.avatar" 
-          (error)="onAvatarError($event)"
-          alt="Profile"
-          class="avatar-img"
-        >
-        <div *ngIf="!user?.avatar || avatarFailed" class="avatar-placeholder">
-          <lucide-icon [img]="User" [size]="56"></lucide-icon>
-        </div>
-      </div>
-      
-      <div class="profile-info">
-        <h1 class="profile-name">
-          {{ user?.firstName || user?.username || 'User' }}
-          <span *ngIf="user?.lastName"> {{ user.lastName }}</span>
-        </h1>
-        <p class="profile-username">@{{ user?.username }}</p>
-        <p class="profile-bio" *ngIf="user?.bio">{{ user.bio }}</p>
-        <p class="profile-bio" *ngIf="!user?.bio">Food enthusiast • Reviewer • Explorer</p>
-      </div>
-      
-      <div class="profile-action">
-        <button class="btn-edit-profile" (click)="navigateToProfile()">
-          <lucide-icon [img]="Edit" [size]="18"></lucide-icon>
-          Edit Profile
-        </button>
-      </div>
-    </div>
+    <button class="btn-write-review" (click)="writeReview()">
+      <lucide-icon [img]="Edit" [size]="18"></lucide-icon>
+      Write a Review
+    </button>
   </div>
 
   <!-- Stats Grid -->
@@ -201,25 +137,48 @@
 
     <div *ngIf="!loadingReviews && recentReviews.length > 0" class="reviews-list">
       <div *ngFor="let review of recentReviews" class="review-card" (click)="viewBusiness(review.businessId)">
-        <div class="review-header">
-          <p class="business-name">{{ review.businessName || 'Business' }}</p>
+
+        <!-- Reviewer Info Row -->
+        <div class="reviewer-info">
+          <div class="reviewer-avatar">
+            <img *ngIf="user?.avatar && !avatarFailed" [src]="user.avatar" alt="Profile" class="reviewer-avatar-img" referrerpolicy="no-referrer" crossorigin="anonymous" />
+            <div *ngIf="!user?.avatar || avatarFailed" class="reviewer-avatar-placeholder">{{ getInitial() }}</div>
+          </div>
+          <div class="reviewer-details">
+            <span class="reviewer-name">{{ user?.firstName || user?.username }}</span>
+            <span class="review-date-inline">{{ formatDate(review.createdAt) }}</span>
+          </div>
           <div class="review-rating">
             <lucide-icon 
               *ngFor="let star of getRatingArray(review.rating)" 
-              [img]="Star" 
-              [size]="16"
-              class="star-filled"
+              [img]="Star" [size]="14" class="star-filled"
             ></lucide-icon>
             <lucide-icon 
               *ngFor="let star of getEmptyStars(review.rating)" 
-              [img]="Star" 
-              [size]="16"
-              class="star-empty"
+              [img]="Star" [size]="14" class="star-empty"
             ></lucide-icon>
           </div>
         </div>
-        <p class="review-text">{{ review.review }}</p>
-        <p class="review-date">{{ formatDate(review.createdAt) }}</p>
+
+        <!-- Business / Item Name -->
+        <div class="review-meta">
+          <p class="business-name">{{ review.businessId?.name || review.businessName || 'Business' }}</p>
+          <p class="item-name" *ngIf="review.itemId?.name">{{ review.itemId.name }}</p>
+        </div>
+
+        <!-- Review Text -->
+        <p class="review-text">{{ review.comment || review.review }}</p>
+
+        <!-- Review Images -->
+        <div *ngIf="review.images && review.images.length > 0" class="review-images">
+          <img 
+            *ngFor="let img of review.images" 
+            [src]="img" 
+            alt="Review photo" 
+            class="review-img-thumb"
+          />
+        </div>
+
       </div>
     </div>
   </div>

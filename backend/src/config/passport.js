@@ -33,6 +33,11 @@ if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_SECRET) {
                 existingEmail.googleId = profile.id;
                 existingEmail.isEmailVerified = true;
                 existingEmail.trustScore = existingEmail.calculateTrustScore();
+                // Update avatar from Google if the user doesn't have one yet
+                if (!existingEmail.profile?.avatar && profile.photos?.[0]?.value) {
+                    existingEmail.profile = existingEmail.profile || {};
+                    existingEmail.profile.avatar = profile.photos[0].value;
+                }
                 await existingEmail.save();
                 return done(null, existingEmail);
             }

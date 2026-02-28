@@ -1,3 +1,9 @@
 <router-outlet></router-outlet>
 <app-toast-container></app-toast-container>
 <app-notification></app-notification>
+
+<!-- Global Fixed Theme Toggle -->
+<button class="global-theme-toggle" (click)="themeService.toggleTheme()" [attr.aria-label]="themeService.isDarkMode() ? 'Switch to light mode' : 'Switch to dark mode'">
+  <lucide-icon *ngIf="themeService.isDarkMode()" [img]="Sun" [size]="16" [strokeWidth]="2"></lucide-icon>
+  <lucide-icon *ngIf="!themeService.isDarkMode()" [img]="Moon" [size]="16" [strokeWidth]="2"></lucide-icon>
+</button>

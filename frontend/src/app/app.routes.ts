@@ -6,7 +6,6 @@ import { LoginComponent } from './features/auth/login/login';
 import { RegisterComponent } from './features/auth/register/register';
 import { CallbackComponent } from './features/auth/callback/callback';
 import { LandingComponent } from './features/home/landing/landing';
-import { HomeComponent } from './features/user/home/home';
 import { ProfileComponent } from './features/user/profile/profile';
 import { BusinessDashboardComponent } from './features/business/dashboard/dashboard';
 import { BusinessesComponent } from './features/business/businesses/businesses';
@@ -20,6 +19,8 @@ import { WriteReview } from './features/review/write-review/write-review';
 import { BusinessPublicView } from './features/business/public-view/business-public-view';
 import { ItemPublicView } from './features/item/item-public-view/item-public-view';
 import { SearchResultsComponent } from './features/search/search-results/search-results.component';
+import { MyReviewsComponent } from './features/user/my-reviews/my-reviews';
+import { UserPublicProfile } from './features/social/user-public-profile/user-public-profile';
 import { AdminLoginComponent } from './features/admin/login/admin-login.component';
 import { AdminShellComponent } from './features/admin/shell/admin-shell.component';
 import { AdminDashboardComponent } from './features/admin/dashboard/admin-dashboard.component';
@@ -46,16 +47,18 @@ export const routes: Routes = [
     ]
   },
   
-  // User home (all authenticated users)
-  { 
-    path: 'home', 
-    component: HomeComponent,
-    canActivate: [authGuard]
-  },
+  // Redirect old /home to / (now handled by landing with auth dashboard)
+  { path: 'home', redirectTo: '', pathMatch: 'full' },
   // User profile (all authenticated users)
   { 
     path: 'profile', 
     component: ProfileComponent,
+    canActivate: [authGuard]
+  },
+  // My reviews page
+  {
+    path: 'my-reviews',
+    component: MyReviewsComponent,
     canActivate: [authGuard]
   },
   // Settings redirect to profile (for regular users)
@@ -91,6 +94,7 @@ export const routes: Routes = [
   // Public views (no auth required)
   { path: 'business/:id', component: BusinessPublicView },
   { path: 'item/:id', component: ItemPublicView },
+  { path: 'user/:id', component: UserPublicProfile },
   { path: 'search', component: SearchResultsComponent },
   
   // Fallback

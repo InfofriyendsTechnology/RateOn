@@ -9,11 +9,12 @@ import { ReactionButtons } from '../../../shared/components/reaction-buttons/rea
 import { ReplyThreadComponent } from '../../../shared/components/reply-thread/reply-thread.component';
 import { AuthModalComponent } from '../../../shared/components/auth-modal/auth-modal.component';
 import { StorageService } from '../../../core/services/storage';
+import { BreadcrumbsComponent } from '../../../shared/components/breadcrumbs/breadcrumbs';
 
 @Component({
   selector: 'app-review-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, ReactionButtons, ReplyThreadComponent, AuthModalComponent],
+  imports: [CommonModule, FormsModule, RouterModule, ReactionButtons, ReplyThreadComponent, AuthModalComponent, BreadcrumbsComponent],
   templateUrl: './review-detail.component.html',
   styleUrls: ['./review-detail.component.scss']
 })

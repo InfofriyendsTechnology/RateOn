@@ -47,7 +47,7 @@ export default {
             .sort(sort)
             .skip(skip)
             .limit(parseInt(limit))
-            .populate('userId', 'name username profile trustScore level')
+            .populate('userId', 'name username profile trustScore level registrationMethod isEmailVerified')
             .populate('itemId', 'name images')
             .lean();
 

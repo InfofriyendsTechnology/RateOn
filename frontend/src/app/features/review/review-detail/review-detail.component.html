@@ -13,12 +13,14 @@
 
   <!-- Review Content -->
   <div *ngIf="review && !loading" class="review-content">
-    <!-- Back Button -->
-    <button (click)="goBack()" class="btn-back">
-      ← Back
-    </button>
+    <!-- Breadcrumbs -->
+    <app-breadcrumbs [crumbs]="[
+      { label: 'Home', link: '/' },
+      { label: 'My Reviews', link: '/my-reviews' },
+      { label: review.itemId?.name || review.businessId?.name || 'Review' }
+    ]"></app-breadcrumbs>
 
-    <!-- Review Header -->
+    
     <div class="review-header">
       <div class="user-info">
         <img [src]="review.userId?.profile?.avatar || 'assets/default-avatar.png'" 

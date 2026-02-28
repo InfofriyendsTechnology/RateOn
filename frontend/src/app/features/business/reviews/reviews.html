@@ -71,7 +71,12 @@
             </span>
           </div>
           <div class="reviewer-details">
-            <h4 class="reviewer-name">{{ review.userId?.name || review.userId?.firstName || review.userId?.username || 'Anonymous User' }}</h4>
+            <h4 class="reviewer-name">
+              <button class="reviewer-name-link" (click)="viewUserProfile(review)" title="View profile">
+                {{ review.userId?.name || review.userId?.firstName || review.userId?.username || 'Anonymous User' }}
+              </button>
+              <span *ngIf="isVerified(review)" class="verified-badge" title="Verified account">✓</span>
+            </h4>
             <div class="review-meta">
               <div class="rating-stars">
                 <span *ngFor="let i of [1,2,3,4,5]" 
@@ -99,6 +104,16 @@
         </div>
       </div>
       
+      <!-- Review Context (item or business) -->
+      <div class="review-context">
+        <span *ngIf="review.itemId" class="item-chip" (click)="viewItem(review)" title="View item">
+          🛒 {{ review.itemId?.name || 'Item' }}
+        </span>
+        <span *ngIf="!review.itemId" class="business-chip">
+          🏢 Business review
+        </span>
+      </div>
+
       <!-- Review Content -->
       <div class="review-content">
         <p>{{ review.reviewText || review.comment }}</p>

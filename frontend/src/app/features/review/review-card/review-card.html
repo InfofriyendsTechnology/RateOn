@@ -1,1 +1,90 @@
-<p>review-card works!</p>
+<div class="review-card" *ngIf="review">
+
+  <!-- Header: user avatar + name + date -->
+  <div class="rc-header">
+    <div class="rc-user" (click)="navigateToUserProfile($event)" title="View profile">
+      <div class="rc-avatar">
+      <img
+          *ngIf="getUserAvatar() && !avatarFailed"
+          [src]="getUserAvatar()"
+          [alt]="getUserName()"
+          referrerpolicy="no-referrer"
+          crossorigin="anonymous"
+          (error)="onAvatarError()"
+        />
+        <div *ngIf="!getUserAvatar() || avatarFailed" class="rc-avatar-fallback">
+          {{ getUserInitial() }}
+        </div>
+      </div>
+      <div class="rc-user-info">
+        <span class="rc-user-name">{{ getUserName() }}</span>
+        <span class="rc-username" *ngIf="getUsername()">&#64;{{ getUsername() }}</span>
+        <span class="rc-level">Lv {{ getTrustLevel() }}</span>
+      </div>
+    </div>
+    <span class="rc-date">{{ formatDate(review.createdAt) }}</span>
+  </div>
+
+  <!-- Rating stars -->
+  <div class="rc-rating">
+    <span
+      *ngFor="let star of getStarArray()"
+      class="rc-star"
+      [class.filled]="isStarFilled(star)"
+    >&#9733;</span>
+    <span class="rc-rating-num">{{ review.rating }}.0</span>
+  </div>
+
+  <!-- Title + comment -->
+  <div class="rc-body">
+    <h4 class="rc-title" *ngIf="review.title">{{ review.title }}</h4>
+    <p class="rc-comment">{{ review.comment }}</p>
+  </div>
+
+  <!-- Context: item / business (shown on user profile page) -->
+  <div class="rc-context" *ngIf="review.itemId?.name || review.businessId?.name">
+    <span *ngIf="review.itemId?.name" class="rc-context-item">&#128230; {{ review.itemId.name }}</span>
+    <span *ngIf="review.itemId?.name && review.businessId?.name" class="rc-sep">&#8226;</span>
+    <span *ngIf="review.businessId?.name" class="rc-context-biz">&#127978; {{ review.businessId.name }}</span>
+    <span *ngIf="review.businessId?.location?.city" class="rc-city">, {{ review.businessId.location.city }}</span>
+  </div>
+
+  <!-- Review images -->
+  <div class="rc-images" *ngIf="review.images && review.images.length > 0">
+    <img
+      *ngFor="let img of review.images"
+      [src]="img"
+      alt="Review image"
+      class="rc-img-thumb"
+    />
+  </div>
+
+  <!-- Actions: helpful / not-helpful / reply count -->
+  <div class="rc-actions" *ngIf="showActions">
+    <button
+      class="rc-action-btn"
+      [class.helpful-active]="userReaction === 'helpful'"
+      [disabled]="reactionLoading"
+      (click)="onReaction('helpful', $event)"
+      title="Helpful"
+    >
+      <lucide-icon [img]="ThumbsUp" [size]="15"></lucide-icon>
+      <span>{{ getHelpfulCount() }}</span>
+    </button>
+    <button
+      class="rc-action-btn"
+      [class.nothelpful-active]="userReaction === 'not_helpful'"
+      [disabled]="reactionLoading"
+      (click)="onReaction('not_helpful', $event)"
+      title="Not helpful"
+    >
+      <lucide-icon [img]="ThumbsDown" [size]="15"></lucide-icon>
+      <span>{{ getNotHelpfulCount() }}</span>
+    </button>
+    <span class="rc-action-btn rc-replies" *ngIf="getReplyCount() > 0">
+      <lucide-icon [img]="MessageSquare" [size]="14"></lucide-icon>
+      <span>{{ getReplyCount() }}</span>
+    </span>
+  </div>
+
+</div>

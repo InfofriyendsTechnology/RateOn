@@ -1,0 +1,142 @@
+<div class="my-reviews-page">
+
+  <!-- ── Breadcrumbs ── -->
+  <app-breadcrumbs [crumbs]="[
+    { label: 'Home', link: '/' },
+    { label: 'My Reviews' }
+  ]"></app-breadcrumbs>
+
+  <!-- ── Top bar ── -->
+  <div class="top-bar">
+    <div class="top-left">
+      <div class="title-group">
+        <h2>My Reviews</h2>
+        <span class="count-badge" *ngIf="!loading">{{ reviews.length }}</span>
+      </div>
+    </div>
+    <div class="view-toggle">
+      <button [class.active]="viewMode === 'list'" (click)="viewMode = 'list'" title="List view">
+        <lucide-icon [img]="List" [size]="18"></lucide-icon>
+      </button>
+      <button [class.active]="viewMode === 'card'" (click)="viewMode = 'card'" title="Card view">
+        <lucide-icon [img]="LayoutGrid" [size]="18"></lucide-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Loading ── -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading your reviews...</p>
+  </div>
+
+  <!-- ── Empty ── -->
+  <div class="empty-state" *ngIf="!loading && reviews.length === 0">
+    <lucide-icon [img]="FileText" [size]="52"></lucide-icon>
+    <h3>No reviews yet</h3>
+    <p>Start sharing your experiences!</p>
+    <button class="btn-write" (click)="router.navigate(['/'])">
+      Explore &amp; Review
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- LIST VIEW                                             -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="reviews-list" *ngIf="!loading && reviews.length > 0 && viewMode === 'list'">
+    <a class="list-card" *ngFor="let review of reviews" [routerLink]="getTargetLink(review)">
+
+      <!-- Left image -->
+      <div class="lc-image">
+        <img *ngIf="getTargetImage(review)" [src]="getTargetImage(review)" alt="cover" />
+        <div *ngIf="!getTargetImage(review)" class="lc-img-placeholder">
+          <lucide-icon [img]="review.itemId ? Package : Building2" [size]="32"></lucide-icon>
+        </div>
+      </div>
+
+      <!-- Content -->
+      <div class="lc-content">
+        <div class="lc-top">
+          <span class="lc-name">{{ getTargetName(review) }}</span>
+          <span class="lc-type">{{ getTargetType(review) }}</span>
+        </div>
+        <div class="lc-rating">
+          <span *ngFor="let s of getRatingArray(review.rating)" class="star filled">★</span>
+          <span *ngFor="let s of getEmptyStars(review.rating)" class="star empty">★</span>
+          <span class="lc-score">{{ review.rating }}/5</span>
+        </div>
+        <p class="lc-comment" *ngIf="review.comment || review.text">{{ review.comment || review.text }}</p>
+        <div class="lc-footer">
+          <div class="lc-user">
+            <div class="lc-avatar">
+              <img *ngIf="user?.profile?.avatar && !avatarFailed" [src]="user.profile.avatar"
+                (error)="onAvatarError()" referrerpolicy="no-referrer" crossorigin="anonymous" />
+              <div class="lc-initial" *ngIf="!user?.profile?.avatar || avatarFailed">{{ getInitial() }}</div>
+            </div>
+            <span>{{ user?.username || 'You' }}</span>
+          </div>
+          <span class="lc-date">
+            <lucide-icon [img]="Calendar" [size]="12"></lucide-icon>
+            {{ formatDate(review.createdAt) }}
+          </span>
+        </div>
+      </div>
+
+    </a>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════ -->
+  <!-- CARD VIEW  (explore-style grid)                       -->
+  <!-- ══════════════════════════════════════════════════════ -->
+  <div class="reviews-grid" *ngIf="!loading && reviews.length > 0 && viewMode === 'card'">
+    <a class="grid-card" *ngFor="let review of reviews" [routerLink]="getTargetLink(review)">
+
+      <!-- Image -->
+      <div class="gc-image">
+        <img *ngIf="getTargetImage(review)" [src]="getTargetImage(review)" alt="cover" />
+        <div *ngIf="!getTargetImage(review)" class="gc-img-placeholder">
+          <lucide-icon [img]="review.itemId ? Package : Building2" [size]="40"></lucide-icon>
+        </div>
+        <!-- Badge overlay -->
+        <span class="gc-type-badge">{{ getTargetType(review) }}</span>
+      </div>
+
+      <!-- Content -->
+      <div class="gc-content">
+
+        <!-- Rating row -->
+        <div class="gc-rating-row">
+          <div class="gc-stars">
+            <span *ngFor="let s of getRatingArray(review.rating)" class="star filled">★</span>
+            <span *ngFor="let s of getEmptyStars(review.rating)" class="star empty">★</span>
+            <span class="gc-score">{{ review.rating | number:'1.1-1' }}</span>
+          </div>
+        </div>
+
+        <!-- Name -->
+        <h3 class="gc-name">{{ getTargetName(review) }}</h3>
+
+        <!-- Comment -->
+        <p class="gc-comment" *ngIf="review.comment || review.text">{{ review.comment || review.text }}</p>
+
+        <!-- Footer -->
+        <div class="gc-footer">
+          <div class="gc-user">
+            <div class="gc-avatar">
+              <img *ngIf="user?.profile?.avatar && !avatarFailed" [src]="user.profile.avatar"
+                (error)="onAvatarError()" referrerpolicy="no-referrer" crossorigin="anonymous" />
+              <div class="gc-initial" *ngIf="!user?.profile?.avatar || avatarFailed">{{ getInitial() }}</div>
+            </div>
+            <span class="gc-username">{{ user?.username || 'You' }}</span>
+          </div>
+          <span class="gc-date">
+            <lucide-icon [img]="Calendar" [size]="11"></lucide-icon>
+            {{ formatDate(review.createdAt) }}
+          </span>
+        </div>
+      </div>
+
+    </a>
+  </div>
+
+</div>

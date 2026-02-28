@@ -76,6 +76,70 @@ export class NotificationPanelComponent implements OnInit, OnDestroy {
   }
 
   remove(id: string): void {
-    this.notif.deleteNotification(id).subscribe({ next: () => this.notif.seedUnreadCount() });
+    this.notif.deleteNotification(id).subscribe({ next: () => {
+      this.notifications = this.notifications.filter(n => n._id !== id);
+      this.notif.seedUnreadCount();
+    }});
+  }
+
+  setFilter(f: 'all' | 'read' | 'unread'): void {
+    this.filter = f;
+    this.load(true);
+  }
+
+  getNotifIcon(type: string): string {
+    const map: Record<string, string> = {
+      follow: '👤',
+      new_review: '⭐',
+      review_reply: '💬',
+      reply_to_reply: '↩️',
+      review_reaction: '👍',
+      business_response: '🏢',
+      mention: '📣',
+    };
+    return map[type] || '🔔';
+  }
+
+  getTriggeredByAvatar(n: AppNotification): string | null {
+    if (typeof n.triggeredBy === 'object' && n.triggeredBy?.profile?.avatar) {
+      return n.triggeredBy.profile.avatar;
+    }
+    return null;
+  }
+
+  getTriggeredByInitial(n: AppNotification): string {
+    if (typeof n.triggeredBy === 'object' && n.triggeredBy?.username) {
+      return n.triggeredBy.username.charAt(0).toUpperCase();
+    }
+    return '?';
+  }
+
+  getNotifLink(n: AppNotification): string {
+    if (n.link) return n.link;
+    switch (n.type) {
+      case 'follow':
+        const uid = typeof n.triggeredBy === 'object' ? n.triggeredBy._id : n.triggeredBy;
+        return uid ? `/user/${uid}` : '/';
+      case 'new_review':
+      case 'review_reply':
+      case 'reply_to_reply':
+      case 'review_reaction':
+      case 'business_response':
+        return n.metadata?.businessId ? `/business/${n.metadata.businessId}` : '/';
+      default:
+        return '/';
+    }
+  }
+
+  getTimeAgo(dateStr: string): string {
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    if (days < 7) return `${days}d ago`;
+    return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   }
 }

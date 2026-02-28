@@ -7,12 +7,13 @@ import { ReviewService } from '../../../core/services/review';
 import { UserService } from '../../../core/services/user';
 import { ToastService } from '../../../core/services/toast';
 import { LucideAngularModule, Shield, TrendingUp, Edit, Search, Settings, User, FileText, Users, UserPlus, ThumbsUp, Star, Building2, Check, Briefcase, Camera, Award, X } from 'lucide-angular';
+import { Navbar } from '../../../shared/components/navbar/navbar';
 import { ThemeService } from '../../../core/services/theme';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule],
+  imports: [CommonModule, FormsModule, LucideAngularModule, Navbar],
   templateUrl: './home.html',
   styleUrls: ['./home.scss'],
 })
@@ -264,6 +265,12 @@ export class HomeComponent implements OnInit {
   
   onAvatarError(event: any) {
     this.avatarFailed = true;
+  }
+
+  getInitial(): string {
+    if (this.user?.firstName) return this.user.firstName.charAt(0).toUpperCase();
+    if (this.user?.username)  return this.user.username.charAt(0).toUpperCase();
+    return '?';
   }
   
   onCoverError(event: any) {

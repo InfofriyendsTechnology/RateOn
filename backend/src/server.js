@@ -10,6 +10,7 @@ import { PORT, FRONTEND_URL } from "./config/config.js";
 import responseHandler from "./utils/responseHandler.js";
 import passportConfig from "./config/passport.js";
 import { initializeSocket } from "./services/websocket/notificationSocket.js";
+import { cleanupOrphanedData, startCleanupScheduler } from "./services/cleanupOrphanedData.js";
 
 const app = express();
 
@@ -65,6 +66,10 @@ const startServer = async () => {
         
         // Initialize WebSocket
         initializeSocket(server);
+
+        // Run orphan cleanup immediately, then every 24h
+        await cleanupOrphanedData();
+        startCleanupScheduler();
         
         server.listen(PORT, () => {
             console.log(`✅ Server Running: ${PORT}`);

@@ -1,12 +1,14 @@
-import { Component, OnInit } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Home, Compass, Trophy, LogIn, UserPlus, LayoutDashboard, User, LogOut, Menu, X, Building2, Moon, Sun } from 'lucide-angular';
+import { LucideAngularModule, Home, LogIn, UserPlus, LayoutDashboard, User, LogOut, Menu, X, Building2, Moon, Sun, Search, FileText, Compass } from 'lucide-angular';
 import { StorageService } from '../../../core/services/storage';
 import { ThemeService } from '../../../core/services/theme';
 import { NotificationBellComponent } from '../notification-bell/notification-bell';
 import { NotificationPanelComponent } from '../notification-panel/notification-panel';
 import { UserNotificationsService } from '../../../core/services/user-notifications.service';
+import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-navbar',
@@ -15,11 +17,9 @@ imports: [RouterLink, RouterLinkActive, CommonModule, LucideAngularModule, Notif
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss',
 })
-export class Navbar implements OnInit {
+export class Navbar implements OnInit, OnDestroy {
   // Lucide Icons
   readonly Home = Home;
-  readonly Compass = Compass;
-  readonly Trophy = Trophy;
   readonly Building2 = Building2;
   readonly LogIn = LogIn;
   readonly UserPlus = UserPlus;
@@ -30,9 +30,21 @@ export class Navbar implements OnInit {
   readonly X = X;
   readonly Moon = Moon;
   readonly Sun = Sun;
+  readonly Search = Search;
+  readonly FileText = FileText;
+  readonly Compass = Compass;
   isMenuOpen = false;
   avatarFailed = false;
-showLogoutModal = false;
+  showLogoutModal = false;
+  showProfileDropdown = false;
+  private routerSub?: Subscription;
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.showProfileDropdown = false;
+    this.isMenuOpen = false;
+    this.panelOpen = false;
+  }
 
   // Notifications UI state
   unreadCount = 0;
@@ -51,6 +63,17 @@ public themeService: ThemeService,
       this.userNotifications.seedUnreadCount();
       this.userNotifications.onUnreadCount().subscribe((c) => (this.unreadCount = c || 0));
     }
+    // Auto-close mobile menu on every navigation
+    this.routerSub = this.router.events
+      .pipe(filter(e => e instanceof NavigationEnd))
+      .subscribe(() => {
+        this.isMenuOpen = false;
+        this.panelOpen = false;
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.routerSub?.unsubscribe();
   }
 
   get isLoggedIn(): boolean {
@@ -67,11 +90,17 @@ public themeService: ThemeService,
   }
   
   getDashboardLink(): string {
-    return this.isBusinessOwner ? '/business/dashboard' : '/home';
+    return '/owner';
   }
 
   toggleMenu() {
     this.isMenuOpen = !this.isMenuOpen;
+    if (this.isMenuOpen) this.showProfileDropdown = false;
+  }
+
+  toggleProfileDropdown() {
+    this.showProfileDropdown = !this.showProfileDropdown;
+    if (this.showProfileDropdown) this.isMenuOpen = false;
   }
 
   openLogoutModal() {

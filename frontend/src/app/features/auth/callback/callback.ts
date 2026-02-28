@@ -168,7 +168,7 @@ export class CallbackComponent implements OnInit {
           if (!redirectUrl) {
             redirectUrl = authData.user.role === 'business_owner' 
               ? '/owner' 
-              : '/home';
+              : '/';
           }
           
           setTimeout(() => {

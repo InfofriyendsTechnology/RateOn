@@ -24,10 +24,15 @@ import {
   Home,
   Compass,
   User,
-  LogOut
+  LogOut,
+  Edit,
+  FileText,
+  ThumbsUp,
+  Settings
 } from 'lucide-angular';
 import { ThemeService } from '../../../core/services/theme';
 import { StorageService } from '../../../core/services/storage';
+import { AuthService } from '../../../core/services/auth';
 import { BusinessService } from '../../../core/services/business';
 import { ItemService } from '../../../core/services/item';
 import { HttpClient } from '@angular/common/http';
@@ -35,11 +40,12 @@ import { environment } from '../../../../environments/environment';
 import { SearchBarComponent } from '../../../shared/components/search-bar/search-bar.component';
 import { BusinessCard } from '../../../shared/components/business-card/business-card';
 import { ItemCard } from '../../../shared/components/item-card/item-card';
+import { Navbar } from '../../../shared/components/navbar/navbar';
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [RouterLink, LucideAngularModule, CommonModule, SearchBarComponent, BusinessCard, ItemCard],
+  imports: [RouterLink, LucideAngularModule, CommonModule, SearchBarComponent, BusinessCard, ItemCard, Navbar],
   templateUrl: './landing.html',
   styleUrls: ['./landing.scss']
 })
@@ -67,12 +73,17 @@ export class LandingComponent implements OnInit {
   readonly Compass = Compass;
   readonly User = User;
   readonly LogOut = LogOut;
+  readonly Edit = Edit;
+  readonly FileText = FileText;
+  readonly ThumbsUp = ThumbsUp;
+  readonly Settings = Settings;
   
   isLoggedIn = false;
   user: any = null;
   showUserMenu = false;
   showLogoutModal = false;
   greeting = '';
+  avatarFailed = false;
   
   // Public content - visible to all users
   featuredBusinesses: any[] = [];
@@ -87,19 +98,36 @@ export class LandingComponent implements OnInit {
     public themeService: ThemeService,
     public router: Router,
     private storage: StorageService,
+    private authService: AuthService,
     private businessService: BusinessService,
     private itemService: ItemService,
     private http: HttpClient
   ) {}
   
   ngOnInit() {
-    // Check if user is logged in
+    // Check if user is logged in — check BOTH token + user, same as AuthService
     const storedUser = this.storage.getUser();
-    if (storedUser) {
+    const token = this.storage.getToken();
+    if (storedUser && token) {
+      // Redirect business owners to their dashboard
+      if (storedUser.role === 'business_owner') {
+        this.router.navigate(['/owner']);
+        return;
+      }
       this.isLoggedIn = true;
       this.user = {
+        id: storedUser.id || storedUser._id,
         username: storedUser.username || 'User',
-        avatar: storedUser.profile?.avatar || null
+        email: storedUser.email || '',
+        trustScore: storedUser.trustScore || 50,
+        level: this.getLevelName(storedUser.level || 1),
+        totalReviews: storedUser.stats?.totalReviews || 0,
+        totalFollowers: storedUser.stats?.totalFollowers || 0,
+        totalFollowing: storedUser.stats?.totalFollowing || 0,
+        helpfulReactions: storedUser.stats?.helpfulReactions || 0,
+        avatar: storedUser.profile?.avatar || null,
+        firstName: storedUser.profile?.firstName || '',
+        lastName: storedUser.profile?.lastName || '',
       };
       this.setTimeBasedGreeting();
     }
@@ -110,6 +138,55 @@ export class LandingComponent implements OnInit {
     this.loadFeaturedItems();
   }
   
+  getLevelName(level: number): string {
+    const levels = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
+    return levels[Math.min(level - 1, levels.length - 1)] || 'Bronze';
+  }
+
+  getLevelClass(level: string): string {
+    const map: any = { 'Bronze': 'level-bronze', 'Silver': 'level-silver', 'Gold': 'level-gold', 'Platinum': 'level-platinum', 'Diamond': 'level-diamond' };
+    return map[level] || 'level-bronze';
+  }
+
+  getNextLevel(): string {
+    const levels = ['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'];
+    const idx = levels.indexOf(this.user?.level || 'Bronze');
+    return levels[Math.min(idx + 1, levels.length - 1)] || 'Diamond';
+  }
+
+  getTrustScoreCircumference(): number { return 2 * Math.PI * 70; }
+
+  getTrustScoreOffset(): number {
+    const c = this.getTrustScoreCircumference();
+    return c - ((this.user?.trustScore || 0) / 100) * c;
+  }
+
+  getTrustColor(): string {
+    const s = this.user?.trustScore || 0;
+    if (s >= 80) return '#10b981';
+    if (s >= 60) return '#3b82f6';
+    if (s >= 40) return '#fbbf24';
+    return '#f59e0b';
+  }
+
+  getTrustLabel(): string {
+    const s = this.user?.trustScore || 0;
+    if (s >= 80) return 'Expert';
+    if (s >= 60) return 'Trusted';
+    if (s >= 40) return 'Active';
+    return 'Beginner';
+  }
+
+  onAvatarError() { this.avatarFailed = true; }
+
+  getInitial(): string {
+    if (this.user?.firstName) return this.user.firstName.charAt(0).toUpperCase();
+    if (this.user?.username)  return this.user.username.charAt(0).toUpperCase();
+    return '?';
+  }
+
+  writeReview() { this.router.navigate(['/search']); }
+
   setTimeBasedGreeting() {
     const hour = new Date().getHours();
     

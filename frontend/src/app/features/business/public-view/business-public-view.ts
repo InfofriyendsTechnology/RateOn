@@ -556,6 +556,24 @@ export class BusinessPublicView implements OnInit {
   onReplyAvatarError(replyId: string): void {
     this.replyAvatarFailed[replyId] = true;
   }
+
+  navigateToUserProfile(review: any): void {
+    const user = review.userId;
+    if (!user) return;
+    const userId = typeof user === 'object' ? user._id : user;
+    if (userId) {
+      this.router.navigate(['/user', userId]);
+    }
+  }
+
+  navigateToReplyAuthor(reply: any): void {
+    const user = reply?.userId;
+    if (!user) return;
+    const userId = typeof user === 'object' ? user._id : user;
+    if (userId) {
+      this.router.navigate(['/user', userId]);
+    }
+  }
   
   updateBreadcrumbs(): void {
     if (this.business) {

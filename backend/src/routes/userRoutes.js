@@ -8,6 +8,7 @@ import {
     deleteUserProfile
 } from '../controllers/userController/profile.js';
 import { becomeBusinessOwner } from '../controllers/userController/index.js';
+import getUserById from '../controllers/userController/getUserById.js';
 
 const router = Router();
 
@@ -19,6 +20,9 @@ router.delete('/profile', auth, deleteUserProfile);
 
 // Role conversion
 router.post('/become-business-owner', auth, becomeBusinessOwner.handler);
+
+// Public profile view by user ID (no auth required)
+router.get('/:userId', getUserById.handler);
 
 export default router;
 

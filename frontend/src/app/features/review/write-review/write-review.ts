@@ -31,16 +31,20 @@ export class WriteReview implements OnInit {
   business: Business | null = null;
   existingReview: any = null;
   isEditMode = false;
-  isViewMode = false; // View-only mode when user has existing review
-  reviewType: 'item' | 'business' = 'item'; // Determines if reviewing business or item
-  
+  isViewMode = false;
+  reviewType: 'item' | 'business' = 'item';
+
+  // All reviews for the sidebar
+  allReviews: any[] = [];
+  loadingReviews = false;
+
   // Review Form Data
   rating = 0;
   reviewText = '';
   selectedFiles: File[] = [];
   imagePreviewUrls: string[] = [];
   existingImageUrls: string[] = [];
-  
+
   // UI State
   loading = false;
   submitting = false;
@@ -70,6 +74,12 @@ export class WriteReview implements OnInit {
     const reviewType = this.route.snapshot.queryParamMap.get('reviewType');
     const reviewId = this.route.snapshot.queryParamMap.get('reviewId');
     const isEdit = this.route.snapshot.queryParamMap.get('edit') === 'true';
+
+    // No context at all — go to explore
+    if (!itemId && !businessId) {
+      this.router.navigate(['/']);
+      return;
+    }
     
     // Check for saved draft and restore it
     this.restoreDraftIfExists();
@@ -78,37 +88,33 @@ export class WriteReview implements OnInit {
     this.reviewType = reviewType === 'business' ? 'business' : 'item';
     
     if (this.reviewType === 'business') {
-      // Business review mode
       if (businessId) {
         this.loadBusinessDetails(businessId);
-        
-        // Check if editing existing business review
+        this.loadAllReviews(null, businessId);
         if (isEdit && reviewId) {
           this.isEditMode = true;
           this.loadExistingBusinessReview(reviewId);
         } else if (isEdit) {
-          // Edit mode without reviewId - will fetch and go to edit mode directly
           this.checkExistingBusinessReview(businessId, true);
         } else {
-          // Check if user already has a review for this business
           this.checkExistingBusinessReview(businessId, false);
         }
       } else {
-        this.error = 'Invalid review request. Business not specified.';
+        // businessId missing for business review — go to explore
+        this.router.navigate(['/']);
       }
     } else {
-      // Item review mode
       if (itemId) {
         this.loadItemDetails(itemId);
         this.checkExistingReview(itemId, isEdit);
+        this.loadAllReviews(itemId, null);
       }
-      
       if (businessId) {
         this.loadBusinessDetails(businessId);
       }
-      
       if (!itemId || !businessId) {
-        this.error = 'Invalid review request. Item or Business not specified.';
+        // Missing required params — go to explore
+        this.router.navigate(['/']);
       }
     }
   }
@@ -126,6 +132,47 @@ export class WriteReview implements OnInit {
         this.loading = false;
       }
     });
+  }
+
+  loadAllReviews(itemId: string | null, businessId: string | null) {
+    this.loadingReviews = true;
+    const obs = itemId
+      ? this.reviewService.getReviewsByItem(itemId)
+      : this.reviewService.getReviewsByBusiness(businessId!, { reviewType: 'business' });
+    obs.subscribe({
+      next: (response: any) => {
+        const data = response.data || response;
+        this.allReviews = data.reviews || data || [];
+        this.loadingReviews = false;
+      },
+      error: () => { this.loadingReviews = false; }
+    });
+  }
+
+  getReviewerName(review: any): string {
+    return review.userId?.name || review.userId?.username || review.user?.name || 'Anonymous';
+  }
+
+  getReviewerInitial(review: any): string {
+    const name = this.getReviewerName(review);
+    return name.charAt(0).toUpperCase();
+  }
+
+  getReviewerAvatar(review: any): string {
+    return review.userId?.avatar || review.user?.avatar || '';
+  }
+
+  getStarsArray(rating: number): number[] {
+    return Array(Math.round(rating)).fill(0);
+  }
+
+  getEmptyStarsArray(rating: number): number[] {
+    return Array(5 - Math.round(rating)).fill(0);
+  }
+
+  formatDate(date: string): string {
+    if (!date) return '';
+    return new Date(date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
   }
 
   loadBusinessDetails(businessId: string) {

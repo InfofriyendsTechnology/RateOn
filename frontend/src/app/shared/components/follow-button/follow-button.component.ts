@@ -38,9 +38,9 @@ export class FollowButtonComponent implements OnInit, OnDestroy {
     this.isFollowing = this.initialIsFollowing;
     this.followerCount = this.initialFollowerCount;
 
-    // Get current user
+    // Get current user (backend may return _id or id)
     const user = this.authService.getCurrentUser();
-    this.currentUserId = user?._id || null;
+    this.currentUserId = (user as any)?._id || (user as any)?.id || null;
 
     // Can't follow yourself
     if (this.currentUserId && this.currentUserId === this.userId) {

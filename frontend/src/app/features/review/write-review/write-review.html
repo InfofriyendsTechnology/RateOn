@@ -1,242 +1,212 @@
-<div class="write-review-container">
+<div class="write-review-page">
+
   <!-- Loading State -->
-  <div *ngIf="loading" class="loading">
+  <div *ngIf="loading" class="full-loading">
     <div class="spinner"></div>
     <p>Loading...</p>
   </div>
 
   <!-- Error State -->
-  <div *ngIf="error && !loading" class="error-state">
+  <div *ngIf="error && !loading" class="full-error">
+    <lucide-icon [img]="Package" [size]="52"></lucide-icon>
     <p>{{error}}</p>
-    <button (click)="cancel()" class="btn-secondary">Go Back</button>
+    <button (click)="cancel()" class="btn-back">Go Back</button>
   </div>
 
-  <!-- Review Form -->
-  <div *ngIf="!loading && !error" class="review-form">
-    <!-- Header -->
-    <div class="form-header">
-      <h1>{{isViewMode ? 'Your Review' : (isEditMode ? 'Edit Review' : 'Write Review')}}</h1>
-      <button 
-        *ngIf="isViewMode" 
-        class="edit-mode-btn"
-        (click)="enableEditMode()"
-      >
-        <lucide-icon [img]="Star" [size]="16"></lucide-icon>
-        Edit
-      </button>
-    </div>
+  <!-- Main Page Grid -->
+  <div *ngIf="!loading && !error" class="page-grid">
 
-    <!-- Left Column: Item/Business Info -->
-    <div class="item-info-section">
-      <!-- Item Review Info -->
-      <div class="item-info-card" *ngIf="reviewType === 'item' && item && business">
-        <div class="item-image-container">
-          <img 
-            *ngIf="item.images && item.images.length > 0"
-            [src]="item.images[0]" 
-            [alt]="item.name"
-            class="item-image"
-          />
-          <div *ngIf="!item.images || item.images.length === 0" class="image-placeholder">
-            <lucide-icon [img]="Package" [size]="48"></lucide-icon>
-            <span>NO IMAGE</span>
-          </div>
-        </div>
-        <div class="item-details">
-          <h3>{{item.name}}</h3>
-          <p class="business-name">at {{business.name}}</p>
-          <p class="item-description">{{item.description}}</p>
-        </div>
-      </div>
-      
-      <!-- Business Review Info -->
-      <div class="item-info-card" *ngIf="reviewType === 'business' && business">
-        <div class="item-image-container">
-          <img 
-            *ngIf="business.logo"
-            [src]="business.logo" 
-            [alt]="business.name"
-            class="item-image"
-          />
-          <img 
-            *ngIf="!business.logo && business.coverImages && business.coverImages.length > 0"
-            [src]="business.coverImages[0]" 
-            [alt]="business.name"
-            class="item-image"
-          />
-          <div *ngIf="!business.logo && (!business.coverImages || business.coverImages.length === 0)" class="image-placeholder">
-            <lucide-icon [img]="Building" [size]="48"></lucide-icon>
-            <span>NO IMAGE</span>
-          </div>
-        </div>
-        <div class="item-details">
-          <h3>{{business.name}}</h3>
-          <p class="business-name" *ngIf="business.category">{{business.category}}</p>
-          <p class="item-description" *ngIf="business.location">{{business.location.city}}, {{business.location.state}}</p>
-        </div>
-      </div>
-    </div>
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
 
-    <!-- Right Column: Review Form -->
-    <div class="review-form-section">
-      <!-- Rating Section -->
-    <div class="rating-section">
-      <label>Your Rating *</label>
-      <div class="star-rating" [class.readonly]="isViewMode">
-        <span
-          *ngFor="let star of [1, 2, 3, 4, 5]"
-          [class]="'star ' + getStarClass(star)"
-          (click)="!isViewMode && setRating(star)"
-          (mouseenter)="!isViewMode && setHoveredRating(star)"
-          (mouseleave)="!isViewMode && clearHoveredRating()"
-          [style.cursor]="isViewMode ? 'default' : 'pointer'"
-        >
-          ★
-        </span>
-      </div>
-      <p class="rating-text" *ngIf="rating > 0">
-        {{getRatingLabel()}} ({{rating}}/5)
-      </p>
-      <p class="error-text" *ngIf="showValidation && rating === 0 && !isViewMode">
-        Please select at least 1 star
-      </p>
-    </div>
-
-    <!-- Review Text Section -->
-    <div class="review-text-section">
-      <label for="reviewText">Your Review *</label>
-      <textarea 
-        id="reviewText"
-        [(ngModel)]="reviewText"
-        [readonly]="isViewMode"
-        [placeholder]="isViewMode ? '' : (reviewType === 'business' ? 'Share your experience with this business. What did you like? What could be better? (Minimum 10 characters)' : 'Share your experience with this item. What did you like? What could be better? (Minimum 10 characters)')"
-        rows="6"
-        class="review-textarea"
-        [class.readonly]="isViewMode"
-      ></textarea>
-      <div class="char-count" *ngIf="!isViewMode">
-        <span [class.valid]="reviewText.length >= 10">{{reviewText.length}} / 10 characters</span>
-        <span *ngIf="showValidation && reviewText.length < 10" class="error-text">
-          Minimum 10 characters required
-        </span>
-      </div>
-    </div>
-
-    <!-- Image Upload Section -->
-    <div class="image-upload-section">
-      <label>{{isViewMode ? 'Photos' : 'Add Photos (Optional)'}}</label>
-      <p class="help-text" *ngIf="!isViewMode">Maximum {{maxImages}} images, up to 5MB each</p>
-      
-      <div class="upload-area" *ngIf="!isViewMode">
-        <input 
-          type="file" 
-          #fileInput
-          (change)="onFileSelected($event)"
-          accept="image/*"
-          multiple
-          [disabled]="selectedFiles.length >= maxImages"
-          style="display: none;"
-        />
-        
-        <button 
-          type="button"
-          (click)="fileInput.click()"
-          [disabled]="selectedFiles.length >= maxImages"
-          class="upload-btn"
-        >
-          <lucide-icon [img]="Upload" [size]="20"></lucide-icon>
-          Choose Images
+      <!-- Back row -->
+      <div class="back-row">
+        <button class="back-btn" (click)="cancel()">
+          <lucide-icon [img]="ArrowLeft" [size]="16"></lucide-icon>
+          Back
+        </button>
+        <button *ngIf="isViewMode" class="edit-btn" (click)="enableEditMode()">
+          <lucide-icon [img]="Star" [size]="15"></lucide-icon>
+          Edit Review
         </button>
       </div>
 
-      <!-- Image Previews -->
-      <div class="image-previews" *ngIf="imagePreviewUrls.length > 0">
-        <div 
-          *ngFor="let preview of imagePreviewUrls; let i = index" 
-          class="preview-item"
-          [class.readonly]="isViewMode"
-        >
-          <img [src]="preview" alt="Preview">
-          <button 
-            *ngIf="!isViewMode"
-            type="button"
-            (click)="removeImage(i)"
-            class="remove-btn"
-          >
-            <lucide-icon [img]="X" [size]="16"></lucide-icon>
-          </button>
+      <!-- Entity Card (explore style) -->
+      <div class="entity-card" *ngIf="reviewType === 'item' && item">
+        <div class="ec-image">
+          <img *ngIf="item.images && item.images.length > 0" [src]="item.images[0]" [alt]="item.name" />
+          <div *ngIf="!item.images || item.images.length === 0" class="ec-img-placeholder">
+            <lucide-icon [img]="Package" [size]="40"></lucide-icon>
+          </div>
+          <span class="ec-badge">Item Review</span>
+        </div>
+        <div class="ec-body">
+          <h3 class="ec-name">{{item.name}}</h3>
+          <p class="ec-sub" *ngIf="business">at <strong>{{business.name}}</strong></p>
+          <p class="ec-desc" *ngIf="item.description">{{item.description}}</p>
         </div>
       </div>
-    </div>
 
-    <!-- Form Actions -->
-    <div class="form-actions" *ngIf="!isViewMode">
-      <button 
-        type="button"
-        (click)="cancel()"
-        [disabled]="submitting"
-        class="btn-cancel"
-      >
-        Cancel
-      </button>
-      
-      <button 
-        type="button"
-        (click)="submitReview()"
-        [disabled]="!isFormValid() || submitting"
-        class="btn-submit"
-      >
-        <span *ngIf="!submitting">{{isEditMode ? 'Update Review' : 'Submit Review'}}</span>
-        <span *ngIf="submitting">
-          <span class="spinner-small"></span>
-          {{isEditMode ? 'Updating...' : 'Submitting...'}}
-        </span>
-      </button>
-    </div>
-    
-    <!-- View Mode Actions -->
-    <div class="form-actions" *ngIf="isViewMode">
-      <button 
-        type="button"
-        (click)="cancel()"
-        class="btn-cancel"
-      >
-        Back
-      </button>
-    </div>
+      <div class="entity-card" *ngIf="reviewType === 'business' && business">
+        <div class="ec-image">
+          <img *ngIf="business.logo" [src]="business.logo" [alt]="business.name" />
+          <img *ngIf="!business.logo && business.coverImages && business.coverImages.length > 0" [src]="business.coverImages[0]" [alt]="business.name" />
+          <div *ngIf="!business.logo && (!business.coverImages || business.coverImages.length === 0)" class="ec-img-placeholder">
+            <lucide-icon [img]="Building" [size]="40"></lucide-icon>
+          </div>
+          <span class="ec-badge">Business Review</span>
+        </div>
+        <div class="ec-body">
+          <h3 class="ec-name">{{business.name}}</h3>
+          <p class="ec-sub" *ngIf="business.category">{{business.category}}</p>
+          <p class="ec-desc" *ngIf="business.location">{{business.location.city}}, {{business.location.state}}</p>
+        </div>
+      </div>
 
-    <!-- Form Guidelines -->
-    <div class="guidelines" *ngIf="!isViewMode">
-      <h4>Review Guidelines</h4>
-      <ul>
-        <li>
-          <lucide-icon [img]="Check" [size]="16"></lucide-icon>
-          <span>Be honest and specific about your experience</span>
-        </li>
-        <li *ngIf="reviewType === 'item'">
-          <lucide-icon [img]="Check" [size]="16"></lucide-icon>
-          <span>Focus on the item, not the business overall</span>
-        </li>
-        <li *ngIf="reviewType === 'business'">
-          <lucide-icon [img]="Check" [size]="16"></lucide-icon>
-          <span>Share your overall experience with the business</span>
-        </li>
-        <li>
-          <lucide-icon [img]="Check" [size]="16"></lucide-icon>
-          <span>Avoid inappropriate or offensive language</span>
-        </li>
-        <li>
-          <lucide-icon [img]="Check" [size]="16"></lucide-icon>
-          <span>Photos help others make better decisions</span>
-        </li>
-      </ul>
-    </div>
-    </div>
-  </div>
+      <!-- Rating Card -->
+      <div class="form-card">
+        <div class="fc-label">
+          <lucide-icon [img]="Star" [size]="15"></lucide-icon>
+          Your Rating *
+        </div>
+        <div class="star-rating" [class.readonly]="isViewMode">
+          <span
+            *ngFor="let star of [1,2,3,4,5]"
+            [class]="'star ' + getStarClass(star)"
+            (click)="!isViewMode && setRating(star)"
+            (mouseenter)="!isViewMode && setHoveredRating(star)"
+            (mouseleave)="!isViewMode && clearHoveredRating()"
+            [style.cursor]="isViewMode ? 'default' : 'pointer'"
+          >★</span>
+        </div>
+        <p class="rating-label" *ngIf="rating > 0">{{getRatingLabel()}} · {{rating}}/5</p>
+        <p class="err-text" *ngIf="showValidation && rating === 0 && !isViewMode">Please select at least 1 star</p>
+      </div>
+
+      <!-- Review Text Card -->
+      <div class="form-card">
+        <div class="fc-label">
+          <lucide-icon [img]="Check" [size]="15"></lucide-icon>
+          Your Review *
+        </div>
+        <textarea
+          [(ngModel)]="reviewText"
+          [readonly]="isViewMode"
+          [placeholder]="isViewMode ? '' : (reviewType === 'business' ? 'Share your experience with this business… (min 10 characters)' : 'Share your experience with this item… (min 10 characters)')"
+          rows="5"
+          class="review-textarea"
+          [class.readonly]="isViewMode"
+        ></textarea>
+        <div class="char-count" *ngIf="!isViewMode">
+          <span [class.valid]="reviewText.length >= 10">{{reviewText.length}} / 10 min</span>
+          <span *ngIf="showValidation && reviewText.length < 10" class="err-text">Min 10 characters required</span>
+        </div>
+      </div>
+
+      <!-- Photos Card -->
+      <div class="form-card">
+        <div class="fc-label">
+          <lucide-icon [img]="Upload" [size]="15"></lucide-icon>
+          {{isViewMode ? 'Photos' : 'Add Photos (Optional)'}}
+        </div>
+        <p class="hint-text" *ngIf="!isViewMode">Max {{maxImages}} images · 5MB each</p>
+        <div *ngIf="!isViewMode">
+          <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" multiple [disabled]="selectedFiles.length >= maxImages" style="display:none" />
+          <button type="button" (click)="fileInput.click()" [disabled]="selectedFiles.length >= maxImages" class="upload-btn">
+            <lucide-icon [img]="Upload" [size]="16"></lucide-icon>
+            Choose Images
+          </button>
+        </div>
+        <div class="img-previews" *ngIf="imagePreviewUrls.length > 0">
+          <div *ngFor="let preview of imagePreviewUrls; let i = index" class="preview-thumb">
+            <img [src]="preview" alt="Preview" />
+            <button *ngIf="!isViewMode" type="button" (click)="removeImage(i)" class="remove-img">
+              <lucide-icon [img]="X" [size]="13"></lucide-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Guidelines Card -->
+      <div class="form-card guidelines-card" *ngIf="!isViewMode">
+        <div class="fc-label">
+          <lucide-icon [img]="Check" [size]="15"></lucide-icon>
+          Review Guidelines
+        </div>
+        <ul class="guide-list">
+          <li>Be honest and specific about your experience</li>
+          <li *ngIf="reviewType === 'item'">Focus on the item, not the overall business</li>
+          <li *ngIf="reviewType === 'business'">Share your overall experience with this business</li>
+          <li>Avoid inappropriate or offensive language</li>
+          <li>Photos help others make better decisions</li>
+        </ul>
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions" *ngIf="!isViewMode">
+        <button type="button" (click)="cancel()" [disabled]="submitting" class="btn-cancel">Cancel</button>
+        <button type="button" (click)="submitReview()" [disabled]="!isFormValid() || submitting" class="btn-submit">
+          <span *ngIf="!submitting">{{isEditMode ? 'Update Review' : 'Submit Review'}}</span>
+          <span *ngIf="submitting" class="submitting-row">
+            <span class="spinner-sm"></span>
+            {{isEditMode ? 'Updating…' : 'Submitting…'}}
+          </span>
+        </button>
+      </div>
+      <div class="form-actions" *ngIf="isViewMode">
+        <button type="button" (click)="cancel()" class="btn-cancel">Back</button>
+      </div>
+
+    </div><!-- /left-panel -->
+
+    <!-- RIGHT SIDEBAR -->
+    <aside class="reviews-sidebar">
+      <div class="sidebar-head">
+        <h3>All Reviews</h3>
+        <span class="count-badge" *ngIf="!loadingReviews">{{allReviews.length}}</span>
+      </div>
+
+      <div class="sidebar-loading" *ngIf="loadingReviews">
+        <div class="spinner-sm"></div>
+        <span>Loading…</span>
+      </div>
+
+      <div class="sidebar-empty" *ngIf="!loadingReviews && allReviews.length === 0">
+        <lucide-icon [img]="Star" [size]="32"></lucide-icon>
+        <p>No reviews yet.<br/>Be the first!</p>
+      </div>
+
+      <div class="review-list" *ngIf="!loadingReviews && allReviews.length > 0">
+        <div class="review-item" *ngFor="let review of allReviews">
+          <div class="ri-header">
+            <div class="ri-avatar">
+              <img *ngIf="getReviewerAvatar(review)" [src]="getReviewerAvatar(review)" [alt]="getReviewerName(review)" crossorigin="anonymous" referrerpolicy="no-referrer" />
+              <span *ngIf="!getReviewerAvatar(review)" class="ri-initial">{{getReviewerInitial(review)}}</span>
+            </div>
+            <div class="ri-info">
+              <span class="ri-name">{{getReviewerName(review)}}</span>
+              <div class="ri-stars">
+                <span *ngFor="let s of getStarsArray(review.rating)" class="star filled">★</span>
+                <span *ngFor="let s of getEmptyStarsArray(review.rating)" class="star empty">★</span>
+                <span class="ri-num">{{review.rating}}/5</span>
+              </div>
+            </div>
+            <span class="ri-date">{{formatDate(review.createdAt)}}</span>
+          </div>
+          <p class="ri-comment" *ngIf="review.comment || review.reviewText">{{review.comment || review.reviewText}}</p>
+          <div class="ri-images" *ngIf="review.images && review.images.length > 0">
+            <img *ngFor="let img of review.images.slice(0, 3)" [src]="img" alt="" class="ri-img" />
+            <span *ngIf="review.images.length > 3" class="ri-more">+{{review.images.length - 3}}</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </div><!-- /page-grid -->
 </div>
 
 <!-- Auth Modal -->
-<app-auth-modal 
+<app-auth-modal
   *ngIf="showAuthModal"
   (authSuccess)="onAuthSuccess()"
   (close)="closeAuthModal()"

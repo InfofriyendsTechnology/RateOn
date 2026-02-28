@@ -1,23 +1,55 @@
 <section class="notif-panel" *ngIf="open">
   <header class="panel-header">
     <h3>Notifications</h3>
-    <div class="actions">
-      <button class="btn" (click)="markAllRead()">Mark all as read</button>
-      <button class="btn btn-ghost" (click)="closed.emit()">Close</button>
+    <div class="header-actions">
+      <button class="btn-mark-all" (click)="markAllRead()" title="Mark all as read">✓ All read</button>
+      <button class="btn-close" (click)="closed.emit()">✕</button>
     </div>
   </header>
 
+  <div class="filter-tabs">
+    <button class="filter-tab" [class.active]="filter === 'all'" (click)="setFilter('all')">All</button>
+    <button class="filter-tab" [class.active]="filter === 'unread'" (click)="setFilter('unread')">Unread</button>
+    <button class="filter-tab" [class.active]="filter === 'read'" (click)="setFilter('read')">Read</button>
+  </div>
+
   <ul class="notif-list">
+    <li *ngIf="notifications.length === 0 && !loading" class="notif-empty">
+      <span class="empty-icon">🔔</span>
+      <p>No notifications yet</p>
+    </li>
+
     <li *ngFor="let n of notifications" class="notif-item" [class.unread]="!n.isRead">
-      <a [routerLink]="n.link || '/'" (click)="markRead(n._id)">
-        <div class="message">{{ n.message }}</div>
-        <div class="meta">{{ n.type }} · {{ n.createdAt | date:'short' }}</div>
+      <a [routerLink]="getNotifLink(n)" (click)="markRead(n._id); closed.emit()" class="notif-link">
+        <div class="notif-left">
+          <div class="notif-avatar-wrap">
+            <img
+              *ngIf="getTriggeredByAvatar(n)"
+              [src]="getTriggeredByAvatar(n)"
+              class="notif-avatar"
+              referrerpolicy="no-referrer"
+              crossorigin="anonymous"
+              (error)="$any($event.target).style.display='none'"
+            />
+            <div *ngIf="!getTriggeredByAvatar(n)" class="notif-avatar-fallback">{{ getTriggeredByInitial(n) }}</div>
+            <span class="notif-type-badge">{{ getNotifIcon(n.type) }}</span>
+          </div>
+        </div>
+        <div class="notif-content">
+          <p class="notif-message">{{ n.message }}</p>
+          <span class="notif-time">{{ getTimeAgo(n.createdAt) }}</span>
+        </div>
+        <div *ngIf="!n.isRead" class="notif-unread-dot"></div>
       </a>
-      <button class="delete" (click)="remove(n._id)" aria-label="Delete">×</button>
+      <button class="btn-delete" (click)="remove(n._id)" title="Delete">✕</button>
     </li>
   </ul>
 
-  <footer class="panel-footer" *ngIf="hasMore">
-    <button class="btn" [disabled]="loading" (click)="loadMore()">Load more</button>
+  <div class="notif-loading" *ngIf="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <footer class="panel-footer" *ngIf="hasMore && !loading">
+    <button class="btn-load-more" (click)="loadMore()">Load more</button>
   </footer>
 </section>

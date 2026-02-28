@@ -1,1 +1,237 @@
-<p>user-public-profile works!</p>
+<div class="profile-container">
+
+  <!-- Breadcrumbs -->
+  <div class="profile-breadcrumb">
+    <app-breadcrumbs [crumbs]="[
+      { label: 'Home', link: '/' },
+      { label: getUserName() || 'Profile' }
+    ]"></app-breadcrumbs>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-state-full">
+    <div class="upp-spinner"></div>
+    <p>Loading profile...</p>
+  </div>
+
+  <!-- Not Found -->
+  <div *ngIf="!loading && notFound" class="not-found-state">
+    <div class="nf-icon">&#128581;</div>
+    <h2>User Not Found</h2>
+    <p>This account may have been deleted or doesn't exist.</p>
+    <button class="btn-back" (click)="goBack()">
+      <lucide-icon [img]="ChevronLeft" [size]="18"></lucide-icon> Go back
+    </button>
+  </div>
+
+  <!-- Profile Content -->
+  <div *ngIf="!loading && !notFound && profileUser">
+
+    <!-- Profile Header Section -->
+    <div class="profile-header-section">
+
+      <!-- Header Badge (own profile only) -->
+      <div class="header-buttons" *ngIf="isOwnProfile">
+        <span class="badge-you">Your Profile</span>
+      </div>
+
+      <!-- Cover Photo -->
+      <div class="profile-cover">
+        <div class="default-cover">
+          <div class="cover-gradient"
+            [ngStyle]="{'background': themeService.isDarkMode()
+              ? 'linear-gradient(135deg, #0a0a0a 0%, #121212 25%, #0d0d0d 50%, #050505 100%)'
+              : 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 25%, #f1f5f9 50%, #e8edf5 100%)'}"
+          ></div>
+          <div class="cover-grid-pattern">
+            <svg class="grid-svg" viewBox="0 0 800 200" preserveAspectRatio="xMidYMid slice">
+              <defs>
+                <pattern id="grid-public" width="15" height="15" patternUnits="userSpaceOnUse">
+                  <rect width="15" height="15" fill="none"
+                    [attr.stroke]="themeService.isDarkMode() ? 'rgba(251,191,36,0.15)' : 'rgba(180,120,0,0.3)'"
+                    stroke-width="0.5"/>
+                </pattern>
+              </defs>
+              <rect width="800" height="200" fill="url(#grid-public)" />
+            </svg>
+          </div>
+          <div class="cover-stars">
+            <div
+              *ngFor="let star of starPositions"
+              class="floating-star"
+              [style.left.%]="star.left"
+              [style.top.%]="star.top"
+              [style.animation-delay.s]="star.delay"
+            >
+              <lucide-icon [img]="Star" [size]="star.size"></lucide-icon>
+            </div>
+          </div>
+          <div class="cover-logo-corner">
+            <img *ngIf="themeService.isDarkMode()" src="/LOGO_WHITE.png" alt="RateOn" />
+            <img *ngIf="!themeService.isDarkMode()" src="/LOGO_BLACK.png" alt="RateOn" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Avatar + Info -->
+      <div class="profile-main">
+        <div class="avatar-section">
+          <div class="avatar-wrapper">
+            <img
+              *ngIf="getAvatar() && !avatarFailed"
+              [src]="getAvatar()"
+              [alt]="getUserName()"
+              class="avatar-img"
+              crossorigin="anonymous"
+              referrerpolicy="no-referrer"
+              (error)="avatarFailed = true"
+            />
+            <div *ngIf="!getAvatar() || avatarFailed" class="avatar-placeholder">
+              {{ getUserInitial() }}
+            </div>
+          </div>
+        </div>
+        <div class="profile-info">
+          <h1 class="profile-name">
+            {{ getUserName() }}
+            <lucide-icon *ngIf="isVerified()" [img]="BadgeCheck" [size]="26" class="verified-tick" title="Verified"></lucide-icon>
+          </h1>
+          <p class="profile-username">&#64;{{ profileUser.username }}</p>
+          <div class="profile-badges">
+            <span class="level-badge" [title]="'Level ' + (profileUser.level || 1)">{{ getLevelName(profileUser.level || 1) }}</span>
+            <span class="role-badge">{{ getTrustLabel() }}</span>
+            <span class="owner-role-badge" *ngIf="isBusinessOwner()">
+              <lucide-icon [img]="Building2" [size]="11"></lucide-icon>
+              Business Owner
+            </span>
+            <span class="follows-you-badge" *ngIf="profileFollowsMe && !isOwnProfile">
+              <lucide-icon [img]="UserCheck" [size]="11"></lucide-icon>
+              Follows you
+            </span>
+          </div>
+          <p class="profile-bio" *ngIf="profileUser.profile?.bio">{{ profileUser.profile.bio }}</p>
+          <div class="profile-meta">
+            <span class="meta-item" *ngIf="profileUser.profile?.city || profileUser.profile?.location">
+              <lucide-icon [img]="MapPin" [size]="13"></lucide-icon>
+              {{ profileUser.profile.city || profileUser.profile.location }}
+            </span>
+            <span class="meta-item" *ngIf="getJoinDate()">
+              <lucide-icon [img]="Calendar" [size]="13"></lucide-icon>
+              Joined {{ getJoinDate() }}
+            </span>
+          </div>
+          <!-- Follow button — visible to all visitors on other people's profiles -->
+          <div class="profile-actions" *ngIf="!isOwnProfile">
+            <app-follow-button
+              [userId]="profileUserId"
+              [initialFollowerCount]="profileUser.stats?.totalFollowers || 0"
+              [showCount]="false"
+              size="lg"
+              (followChanged)="onFollowChanged($event)"
+            ></app-follow-button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon trust"><lucide-icon [img]="Shield" [size]="24"></lucide-icon></div>
+        <div class="stat-content">
+          <p class="stat-value">{{ profileUser.trustScore || 0 }}</p>
+          <p class="stat-label">Trust Score</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon reviews"><lucide-icon [img]="FileText" [size]="24"></lucide-icon></div>
+        <div class="stat-content">
+          <p class="stat-value">{{ profileUser.stats?.totalReviews || 0 }}</p>
+          <p class="stat-label">Reviews</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon followers"><lucide-icon [img]="Users" [size]="24"></lucide-icon></div>
+        <div class="stat-content">
+          <p class="stat-value">{{ profileUser.stats?.totalFollowers || 0 }}</p>
+          <p class="stat-label">Followers</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon following"><lucide-icon [img]="UserPlus" [size]="24"></lucide-icon></div>
+        <div class="stat-content">
+          <p class="stat-value">{{ profileUser.stats?.totalFollowing || 0 }}</p>
+          <p class="stat-label">Following</p>
+        </div>
+      </div>
+      <div class="stat-card" *ngIf="isBusinessOwner()">
+        <div class="stat-icon businesses"><lucide-icon [img]="Building2" [size]="24"></lucide-icon></div>
+        <div class="stat-content">
+          <p class="stat-value">{{ businessCount }}</p>
+          <p class="stat-label">Businesses</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Businesses Section (only for business owners) -->
+    <div class="businesses-section" *ngIf="isBusinessOwner() && businesses.length > 0">
+      <h2>
+        <lucide-icon [img]="Building2" [size]="22"></lucide-icon>
+        Businesses
+        <span class="review-count">{{ businessCount }}</span>
+      </h2>
+      <div class="businesses-list">
+        <div
+          class="business-card-item"
+          *ngFor="let biz of businesses"
+          (click)="navigateToBusiness(biz._id)"
+          title="View {{ biz.name }}"
+        >
+          <div class="biz-logo">
+            <img *ngIf="biz.logo" [src]="biz.logo" [alt]="biz.name" class="biz-logo-img" />
+            <div *ngIf="!biz.logo" class="biz-logo-placeholder">
+              <lucide-icon [img]="Building2" [size]="22"></lucide-icon>
+            </div>
+          </div>
+          <div class="biz-info">
+            <span class="biz-name">{{ biz.name }}</span>
+            <span class="biz-category">{{ biz.category || biz.type }}</span>
+            <span class="biz-rating" *ngIf="getBusinessRating(biz) > 0">
+              ★ {{ getBusinessRating(biz).toFixed(1) }}
+            </span>
+          </div>
+          <lucide-icon [img]="ChevronLeft" [size]="18" style="transform: rotate(180deg); opacity: 0.5;"></lucide-icon>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reviews Section -->
+    <div class="reviews-section">
+      <h2>
+        <lucide-icon [img]="MessageCircle" [size]="22"></lucide-icon>
+        Reviews
+        <span class="review-count" *ngIf="reviews.length > 0">{{ reviews.length }}</span>
+      </h2>
+
+      <div *ngIf="loadingReviews" class="loading-state">
+        <div class="upp-spinner"></div>
+      </div>
+
+      <div *ngIf="!loadingReviews && reviews.length === 0" class="empty-state">
+        <lucide-icon [img]="FileText" [size]="40"></lucide-icon>
+        <p>No reviews yet</p>
+        <span>This user hasn't written any reviews yet.</span>
+      </div>
+
+      <div *ngIf="!loadingReviews && reviews.length > 0" class="reviews-list">
+        <app-review-card
+          *ngFor="let review of reviews"
+          [review]="review"
+          [reviewUser]="profileUser"
+          [showActions]="true"
+        ></app-review-card>
+      </div>
+    </div>
+
+  </div>
+</div>

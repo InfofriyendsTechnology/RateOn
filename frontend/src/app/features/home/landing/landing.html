@@ -1,71 +1,69 @@
 <div class="landing-page">
-  <!-- Unified Header for All Users -->
-  <header class="modern-header">
-    <div class="header-container">
-      <div class="header-logo" [routerLink]="['/']">
-        <img 
-          *ngIf="themeService.isDarkMode()" 
-          src="/LOGO_WHITE.png" 
-          alt="RateOn" 
-        />
-        <img 
-          *ngIf="!themeService.isDarkMode()" 
-          src="/LOGO_BLACK.png" 
-          alt="RateOn" 
-        />
+  <app-navbar></app-navbar>
+
+  <!-- Home Dashboard — shown only when logged in -->
+  <div *ngIf="isLoggedIn" class="home-dashboard">
+
+    <!-- Hero Banner -->
+    <div class="dash-hero">
+      <div class="dash-hero-grid">
+        <svg viewBox="0 0 1200 260" preserveAspectRatio="xMidYMid slice" width="100%" height="100%">
+          <defs>
+            <pattern id="hero-grid" width="30" height="30" patternUnits="userSpaceOnUse">
+              <rect width="30" height="30" fill="none" stroke="rgba(251,191,36,0.1)" stroke-width="0.5"/>
+            </pattern>
+          </defs>
+          <rect width="1200" height="260" fill="url(#hero-grid)" />
+        </svg>
       </div>
-      
-      <div class="header-spacer"></div>
-      
-      <div class="header-actions">
-        <!-- Show Login/Signup for non-authenticated users -->
-        <div *ngIf="!isLoggedIn" class="auth-buttons">
-          <a routerLink="/auth/login" class="btn btn-outline">
-            <lucide-icon [img]="LogIn" [size]="18"></lucide-icon>
-            <span>Login</span>
-          </a>
-          <a routerLink="/auth/register" class="btn btn-primary">
-            <lucide-icon [img]="UserPlus" [size]="18"></lucide-icon>
-            <span>Sign Up</span>
-          </a>
-        </div>
-        
-        <!-- User Menu for authenticated users -->
-        <div *ngIf="isLoggedIn" class="user-menu">
-          <button class="user-avatar-btn" (click)="toggleUserMenu()">
-            <img *ngIf="user?.avatar" [src]="user.avatar" alt="Profile" />
-            <div *ngIf="!user?.avatar" class="avatar-placeholder-small">
-              <lucide-icon [img]="User" [size]="20"></lucide-icon>
-            </div>
-          </button>
-          
-          <!-- Dropdown Menu -->
-          <div *ngIf="showUserMenu" class="user-dropdown">
-            <div class="dropdown-header">
-              <p class="dropdown-name">{{ user?.username }}</p>
-            </div>
-            <div class="dropdown-divider"></div>
-            <button class="dropdown-item" (click)="navigateToProfile(); toggleUserMenu()">
-              <lucide-icon [img]="User" [size]="18"></lucide-icon>
-              <span>Profile</span>
-            </button>
-            <button class="dropdown-item" (click)="navigateToDashboard(); toggleUserMenu()">
-              <lucide-icon [img]="Home" [size]="18"></lucide-icon>
-              <span>Home</span>
-            </button>
-            <div class="dropdown-divider"></div>
-            <button class="dropdown-item danger" (click)="openLogoutModal(); toggleUserMenu()">
-              <lucide-icon [img]="LogOut" [size]="18"></lucide-icon>
-              <span>Logout</span>
-            </button>
+
+      <div class="dash-hero-content">
+        <div class="dash-hero-profile">
+          <div class="dash-hero-avatar">
+            <img *ngIf="user?.avatar && !avatarFailed" [src]="user.avatar" (error)="onAvatarError()" alt="Profile" referrerpolicy="no-referrer" crossorigin="anonymous" />
+            <div *ngIf="!user?.avatar || avatarFailed" class="dash-hero-initial">{{ getInitial() }}</div>
+          </div>
+          <div class="dash-hero-info">
+            <p class="dash-hero-greeting">{{ greeting || 'Welcome back' }} 👋</p>
+            <h1 class="dash-hero-name">{{ user?.firstName || user?.username || 'User' }}<span *ngIf="user?.lastName"> {{ user.lastName }}</span></h1>
+            <p class="dash-hero-email">{{ user?.email }}</p>
           </div>
         </div>
+        <button class="dash-btn-review" (click)="writeReview()">
+          <lucide-icon [img]="Edit" [size]="18"></lucide-icon>
+          Write a Review
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="dash-actions">
+      <p class="dash-section-title">Quick Actions</p>
+      <div class="dash-actions-grid">
+        <button class="dash-action-btn" (click)="writeReview()">
+          <lucide-icon [img]="Edit" [size]="24"></lucide-icon>
+          <span>Write Review</span>
+        </button>
+        <button class="dash-action-btn" (click)="navigateToExplore()">
+          <lucide-icon [img]="Compass" [size]="24"></lucide-icon>
+          <span>Explore</span>
+        </button>
+        <button class="dash-action-btn" (click)="navigateToProfile()">
+          <lucide-icon [img]="User" [size]="24"></lucide-icon>
+          <span>My Profile</span>
+        </button>
+        <button class="dash-action-btn" (click)="viewAllBusinesses()">
+          <lucide-icon [img]="Search" [size]="24"></lucide-icon>
+          <span>Search</span>
+        </button>
       </div>
     </div>
-  </header>
+
+  </div>
 
   <!-- Hero Section with Search -->
-  <section class="hero-section">
+  <section class="hero-section" *ngIf="!isLoggedIn">
     <div class="hero-overlay"></div>
     <div class="hero-content">
       <h1 class="hero-title">Review What Matters</h1>
@@ -173,7 +171,7 @@
   </section>
 
   <!-- What is RateOn -->
-  <section class="section what-is">
+  <section class="section what-is" *ngIf="!isLoggedIn">
     <div class="container">
       <div class="section-header">
         <h2>What is RateOn?</h2>
@@ -200,7 +198,7 @@
   </section>
 
   <!-- How It Works -->
-  <section class="section how-it-works">
+  <section class="section how-it-works" *ngIf="!isLoggedIn">
     <div class="container">
       <div class="section-header">
         <h2>How It Works</h2>
@@ -227,7 +225,7 @@
   </section>
 
   <!-- Features -->
-  <section class="section features">
+  <section class="section features" *ngIf="!isLoggedIn">
     <div class="container">
       <div class="section-header">
         <h2>Features</h2>
@@ -269,7 +267,7 @@
   </section>
 
   <!-- For Businesses -->
-  <section class="section for-businesses">
+  <section class="section for-businesses" *ngIf="!isLoggedIn">
     <div class="container">
       <div class="section-header">
         <h2>For Business Owners</h2>
@@ -296,7 +294,7 @@
   </section>
 
   <!-- Why Choose RateOn -->
-  <section class="section why-choose">
+  <section class="section why-choose" *ngIf="!isLoggedIn">
     <div class="container">
       <div class="section-header">
         <h2>Why Choose RateOn?</h2>
@@ -387,30 +385,5 @@
       <p class="footer-copyright">&copy; 2026 RateOn. All rights reserved.</p>
     </div>
   </footer>
-
-  <!-- Fixed Theme Toggle Button (Always visible at bottom-right) -->
-  <button class="theme-toggle-fixed" (click)="toggleTheme()" aria-label="Toggle theme">
-    <lucide-icon *ngIf="themeService.isDarkMode()" [img]="Sun" [size]="24"></lucide-icon>
-    <lucide-icon *ngIf="!themeService.isDarkMode()" [img]="Moon" [size]="24"></lucide-icon>
-  </button>
 </div>
 
-<!-- Logout Confirmation Modal -->
-<div *ngIf="showLogoutModal" class="modal-overlay" (click)="closeLogoutModal()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3>Logout Confirmation</h3>
-      <p>Are you sure you want to logout?</p>
-    </div>
-    
-    <div class="modal-actions">
-      <button class="btn-modal-danger" (click)="confirmLogout()">
-        <lucide-icon [img]="LogOut" [size]="18"></lucide-icon>
-        Logout
-      </button>
-      <button class="btn-modal-cancel" (click)="closeLogoutModal()">
-        Cancel
-      </button>
-    </div>
-  </div>
-</div>

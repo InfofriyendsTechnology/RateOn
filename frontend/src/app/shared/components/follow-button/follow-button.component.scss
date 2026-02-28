@@ -19,7 +19,7 @@
 
     &:focus {
       outline: none;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+      box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.3);
     }
 
     // Sizes
@@ -43,18 +43,18 @@
 
     // States - Primary (Not Following)
     &.follow-btn-primary {
-      background: #3b82f6;
-      color: #fff;
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: #000;
 
       &:hover:not(:disabled) {
-        background: #2563eb;
+        filter: brightness(1.08);
         transform: translateY(-1px);
-        box-shadow: 0 4px 6px rgba(59, 130, 246, 0.3);
+        box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
       }
 
       &:active:not(:disabled) {
         transform: translateY(0);
-        box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
+        box-shadow: 0 2px 6px rgba(251, 191, 36, 0.3);
       }
     }
 
