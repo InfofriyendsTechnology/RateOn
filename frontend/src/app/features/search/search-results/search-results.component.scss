@@ -150,8 +150,8 @@
             }
 
             &.active {
-              color: var(--color-accent);
-              border-bottom-color: var(--color-accent);
+              color: var(--text-primary);
+              border-bottom-color: #fbbf24;
             }
           }
         }
@@ -199,8 +199,8 @@
           transition: all 0.2s ease;
 
           &:hover {
-            border-color: var(--color-accent);
-            box-shadow: var(--silver-glow);
+            border-color: #fbbf24;
+            box-shadow: 0 4px 14px rgba(251, 191, 36, 0.2);
             transform: translateY(-2px);
           }
 

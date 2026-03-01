@@ -7,7 +7,7 @@ import { AuthService } from '../../../core/services/auth';
 import { ToastService } from '../../../core/services/toast';
 import { ThemeService } from '../../../core/services/theme';
 import { environment } from '../../../../environments/environment';
-import { LucideAngularModule, User, Mail, Shield, CheckCircle, Eye, Building, X, AlertTriangle, Trash2, Palette, Sun, Moon, Bell, Key, ExternalLink, BarChart3 } from 'lucide-angular';
+import { LucideAngularModule, User, Mail, Shield, CheckCircle, Eye, Building, X, AlertTriangle, Trash2, Palette, Sun, Moon, Bell, Key, ExternalLink, BarChart3, Settings } from 'lucide-angular';
 
 @Component({
   selector: 'app-account-settings',
@@ -66,6 +66,7 @@ export class AccountSettingsComponent implements OnInit {
   readonly Key = Key;
   readonly ExternalLink = ExternalLink;
   readonly BarChart3 = BarChart3;
+  readonly Settings = Settings;
   
   constructor(
     private authService: AuthService,

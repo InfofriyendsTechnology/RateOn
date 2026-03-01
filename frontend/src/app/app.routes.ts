@@ -30,6 +30,7 @@ import { SeedComponent } from './features/admin/seed/seed.component';
 import { AdminUsersComponent } from './features/admin/users/admin-users.component';
 import { AdminAnalyticsComponent } from './features/admin/analytics/admin-analytics.component';
 import { AdminSettingsComponent } from './features/admin/settings/admin-settings.component';
+import { BusinessAnalyticsComponent } from './features/business/analytics/business-analytics.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -90,6 +91,7 @@ export const routes: Routes = [
       { path: 'businesses/:businessId/items', component: ItemManagementComponent },
       { path: 'businesses/:id/edit', component: EditBusinessComponent },
       { path: 'reviews', component: ReviewsManagementComponent },
+      { path: 'analytics', component: BusinessAnalyticsComponent },
       { path: 'notifications', component: NotificationsPageComponent },
       { path: 'settings', component: AccountSettingsComponent },
       { path: 'profile', component: ProfileComponent }

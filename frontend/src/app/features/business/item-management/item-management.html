@@ -1,179 +1,165 @@
-<div class="items-page">
-  <!-- Header -->
-  <div class="page-header">
-    <app-breadcrumbs [crumbs]="[
-      { label: 'Dashboard', link: '/owner' },
-      { label: 'My Businesses', link: '/owner/businesses' },
-      { label: 'Manage Items' }
-    ]"></app-breadcrumbs>
+﻿<div class="items-page">
+
+  <!-- ── Header Card ── -->
+  <div class="page-header-card">
+    <div class="header-left">
+      <div class="header-icon">
+        <lucide-icon [img]="Package" [size]="22"></lucide-icon>
+      </div>
+      <div class="header-text">
+        <h1>{{ business?.name || 'Manage Items' }}</h1>
+        <p class="subtitle">{{ items.length }} item{{ items.length !== 1 ? 's' : '' }}</p>
+      </div>
+    </div>
+    <div class="header-right" *ngIf="businessId">
+      <button class="btn-add" (click)="openAddModal()">
+        <lucide-icon [img]="Plus" [size]="16"></lucide-icon>
+        Add Item
+      </button>
+    </div>
   </div>
-  
+
   <!-- Loading -->
-  <div *ngIf="loading" class="loading-state">
+  <div class="loading-container" *ngIf="loading">
     <div class="spinner"></div>
     <p>Loading items...</p>
   </div>
-  
+
   <!-- Empty State -->
-  <div *ngIf="!loading && items.length === 0" class="empty-state">
-    <lucide-icon [img]="Package" [size]="64" class="empty-icon"></lucide-icon>
+  <div class="empty-state" *ngIf="!loading && items.length === 0">
+    <div class="empty-icon-wrap">
+      <lucide-icon [img]="Package" [size]="32"></lucide-icon>
+    </div>
     <h3>No Items Yet</h3>
-    <p>Start by adding your first menu item.</p>
-    <button *ngIf="businessId" (click)="openAddModal()" class="btn-primary">
+    <p>Start adding items to your menu.</p>
+    <button *ngIf="businessId" (click)="openAddModal()" class="btn-create">
       <lucide-icon [img]="Plus" [size]="16"></lucide-icon>
       Add Your First Item
     </button>
   </div>
-  
+
   <!-- Items Grid -->
   <div class="items-grid" *ngIf="!loading && items.length > 0">
     <div *ngFor="let item of items" class="item-card">
+
+      <!-- Image -->
       <div class="item-image">
-        <ng-container *ngIf="hasImage(item) && !imageLoadFailed[item._id]; else noImageTpl">
-          <img 
-            [src]="getItemImage(item)"
-            [alt]="item.name"
-          
-            (error)="onItemImageError(item)"
-          >
+        <ng-container *ngIf="hasImage(item) && !imageLoadFailed[item._id]; else noImgTpl">
+          <img [src]="getItemImage(item)" [alt]="item.name" (error)="onItemImageError(item)">
         </ng-container>
-        <ng-template #noImageTpl>
+        <ng-template #noImgTpl>
           <div class="no-image">
-            <lucide-icon [img]="ImageIcon" [size]="28"></lucide-icon>
+            <lucide-icon [img]="ImageIcon" [size]="26"></lucide-icon>
             <span>No image</span>
           </div>
         </ng-template>
+        <div class="price-badge">
+          <lucide-icon [img]="IndianRupee" [size]="11"></lucide-icon>
+          {{ item.price }}
+        </div>
       </div>
-      
+
+      <!-- Info -->
       <div class="item-info">
-        <h3>{{item.name}}</h3>
-        <p class="category" *ngIf="item.category">{{item.category}}</p>
-        <p class="description" *ngIf="item.description">{{item.description}}</p>
-        
-        <div class="item-stats">
-          <div class="stat">
-            <lucide-icon [img]="Star" [size]="14"></lucide-icon>
-            <span>{{($any(item).stats?.averageRating || 0) | number:'1.1-1'}}</span>
-          </div>
-          <div class="stat">
-            <lucide-icon [img]="MessageSquare" [size]="14"></lucide-icon>
-            <span>{{($any(item).stats?.totalReviews || 0)}}</span>
-          </div>
+        <div class="item-header">
+          <h3>{{ item.name }}</h3>
+          <span class="cat-badge" *ngIf="item.category">{{ item.category }}</span>
         </div>
-        
-        <div class="item-footer">
-          <div class="price">
-            <lucide-icon [img]="IndianRupee" [size]="16"></lucide-icon>
-            <span>{{item.price}}</span>
-          </div>
-          <div class="item-actions">
-            <button (click)="openEditModal(item)" class="btn-edit">
-              <lucide-icon [img]="Edit2" [size]="14"></lucide-icon>
-              Edit
-            </button>
-            <button (click)="deleteItem(item)" class="btn-delete">
-              <lucide-icon [img]="Trash2" [size]="14"></lucide-icon>
-            </button>
-          </div>
+        <p class="item-desc" *ngIf="item.description">{{ item.description }}</p>
+
+        <!-- Stats -->
+        <div class="item-stats">
+          <span class="istat">
+            <lucide-icon [img]="Star" [size]="12"></lucide-icon>
+            {{ ($any(item).stats?.averageRating || 0) | number:'1.1-1' }}
+          </span>
+          <span class="istat">
+            <lucide-icon [img]="MessageSquare" [size]="12"></lucide-icon>
+            {{ $any(item).stats?.totalReviews || 0 }} reviews
+          </span>
+        </div>
+
+        <!-- Actions -->
+        <div class="item-actions">
+          <button (click)="openEditModal(item)" class="btn-edit">
+            <lucide-icon [img]="Edit2" [size]="13"></lucide-icon>
+            Edit
+          </button>
+          <button (click)="deleteItem(item)" class="btn-del">
+            <lucide-icon [img]="Trash2" [size]="13"></lucide-icon>
+          </button>
         </div>
       </div>
+
     </div>
   </div>
+
 </div>
 
-<!-- Modal -->
+<!-- Add / Edit Modal -->
 <div class="modal-overlay" *ngIf="showModal" (click)="closeModal()">
-  <div class="modal" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h2>{{editMode ? 'Edit' : 'Add'}} Item</h2>
-      <button (click)="closeModal()" class="btn-close">
-        <lucide-icon [img]="X" [size]="20"></lucide-icon>
+  <div class="modal-box" (click)="$event.stopPropagation()">
+
+    <div class="modal-head">
+      <div class="modal-head-left">
+        <div class="modal-icon">
+          <lucide-icon [img]="editMode ? Edit2 : Plus" [size]="15"></lucide-icon>
+        </div>
+        <h3>{{ editMode ? 'Edit' : 'Add' }} Item</h3>
+      </div>
+      <button (click)="closeModal()" class="modal-close">
+        <lucide-icon [img]="X" [size]="18"></lucide-icon>
       </button>
     </div>
-    
+
     <div class="modal-body">
       <form>
         <div class="form-group">
-          <label>Name *</label>
-          <input 
-            [(ngModel)]="itemForm.name" 
-            name="name"
-            placeholder="Item name" 
-            class="form-input"
-          >
+          <label>Name <span class="req">*</span></label>
+          <input [(ngModel)]="itemForm.name" name="name" placeholder="Item name" class="form-input">
         </div>
-        
+
         <div class="form-group">
           <label>Description</label>
-          <textarea 
-            [(ngModel)]="itemForm.description" 
-            name="description"
-            placeholder="Description..." 
-            class="form-input" 
-            rows="2"
-          ></textarea>
+          <textarea [(ngModel)]="itemForm.description" name="description" placeholder="Short description..." class="form-input" rows="2"></textarea>
         </div>
-        
+
         <div class="form-row">
           <div class="form-group">
-            <label>Price (₹) *</label>
-            <input 
-              [(ngModel)]="itemForm.price" 
-              name="price"
-              type="number" 
-              placeholder="0" 
-              class="form-input"
-              min="0"
-            >
+            <label>Price (Rs.) <span class="req">*</span></label>
+            <input [(ngModel)]="itemForm.price" name="price" type="number" placeholder="0" class="form-input" min="0">
           </div>
-          
           <div class="form-group">
             <label>Category</label>
-            <input 
-              [(ngModel)]="itemForm.category" 
-              name="category"
-              placeholder="Category" 
-              class="form-input"
-            >
+            <input [(ngModel)]="itemForm.category" name="category" placeholder="e.g. Snacks" class="form-input">
           </div>
         </div>
-        
+
         <div class="form-group">
           <label>Photos</label>
-          <input 
-            type="file" 
-            #fileInput 
-            (change)="onFileSelected($event)" 
-            accept="image/*" 
-            multiple 
-            hidden
-          >
-          <button 
-            type="button"
-            (click)="fileInput.click()" 
-            class="btn-upload"
-          >
-            <lucide-icon [img]="Upload" [size]="16"></lucide-icon>
+          <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" multiple hidden>
+          <button type="button" (click)="fileInput.click()" class="btn-upload">
+            <lucide-icon [img]="Upload" [size]="15"></lucide-icon>
             Upload Images
           </button>
-          
           <div class="image-previews" *ngIf="imagePreviewUrls.length > 0">
             <div *ngFor="let url of imagePreviewUrls; let i = index" class="preview-item">
               <img [src]="url" alt="Preview">
               <button type="button" (click)="removeImage(i)" class="btn-remove">
-                <lucide-icon [img]="X" [size]="14"></lucide-icon>
+                <lucide-icon [img]="X" [size]="12"></lucide-icon>
               </button>
             </div>
           </div>
         </div>
       </form>
     </div>
-    
-    <div class="modal-footer">
-      <button (click)="closeModal()" class="btn-cancel" [disabled]="saving">Cancel</button>
-      <button (click)="saveItem()" class="btn-save" [disabled]="saving">
+
+    <div class="modal-foot">
+      <button (click)="closeModal()" class="btn-modal-cancel" [disabled]="saving">Cancel</button>
+      <button (click)="saveItem()" class="btn-modal-primary" [disabled]="saving">
         {{ saving ? 'Saving...' : (editMode ? 'Update' : 'Add') + ' Item' }}
       </button>
     </div>
+
   </div>
 </div>

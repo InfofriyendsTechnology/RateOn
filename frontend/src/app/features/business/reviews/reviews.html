@@ -19,29 +19,6 @@
         <p class="subtitle" *ngIf="loadingReviews">Loading reviews...</p>
       </div>
     </div>
-    <div class="header-right">
-      <div class="header-stats">
-        <div class="hstat">
-          <span class="hstat-val">{{ reviews.length }}</span>
-          <span class="hstat-lbl">Total</span>
-        </div>
-        <div class="hstat-divider"></div>
-        <div class="hstat">
-          <span class="hstat-val">{{ getPendingRepliesCount() }}</span>
-          <span class="hstat-lbl">Pending</span>
-        </div>
-        <div class="hstat-divider"></div>
-        <div class="hstat">
-          <span class="hstat-val">{{ getRepliedCount() }}</span>
-          <span class="hstat-lbl">Replied</span>
-        </div>
-        <div class="hstat-divider"></div>
-        <div class="hstat">
-          <span class="hstat-val">{{ getAverageRating() }}</span>
-          <span class="hstat-lbl">Avg ★</span>
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- ── Toolbar ───────────────────────────────────── -->

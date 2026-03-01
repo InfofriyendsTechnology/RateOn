@@ -1,14 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { LucideAngularModule, LayoutDashboard, Database, Settings, LogOut, Users, Menu, X, BarChart2 } from 'lucide-angular';
+import { BreadcrumbsComponent, Crumb } from '../../../shared/components/breadcrumbs/breadcrumbs';
 import { ThemeService } from '../../../core/services/theme';
 import { StorageService } from '../../../core/services/storage';
 
 @Component({
   selector: 'app-admin-shell',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, RouterModule, LucideAngularModule, BreadcrumbsComponent],
   template: `
     <div class="dashboard-layout">
 
@@ -87,11 +89,8 @@ import { StorageService } from '../../../core/services/storage';
             <button class="sidebar-toggle" (click)="toggleSidebar(); \$event.stopPropagation()">
               <lucide-icon [img]="Menu" [size]="20"></lucide-icon>
             </button>
+            <app-breadcrumbs class="top-crumbs" [crumbs]="topBarCrumbs"></app-breadcrumbs>
           </div>
-          <div class="page-title">
-            <h1>{{ getPageTitle() }}</h1>
-          </div>
-          <div class="top-bar-right"></div>
         </div>
 
         <!-- Page Content -->
@@ -116,6 +115,7 @@ export class AdminShellComponent implements OnInit {
 
   sidebarOpen = true;
   isDarkMode = true;
+  topBarCrumbs: Crumb[] = [];
 
   constructor(
     private router: Router,
@@ -128,6 +128,20 @@ export class AdminShellComponent implements OnInit {
     if (typeof window !== 'undefined') {
       this.sidebarOpen = window.innerWidth > 768;
     }
+    this.updateTopBarCrumbs();
+    this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe(() => this.updateTopBarCrumbs());
+  }
+
+  updateTopBarCrumbs() {
+    const url = this.router.url;
+    const admin: Crumb = { label: 'Admin', link: '/admin/dashboard' };
+    if (url.includes('/users'))      this.topBarCrumbs = [admin, { label: 'Users' }];
+    else if (url.includes('/analytics')) this.topBarCrumbs = [admin, { label: 'Analytics' }];
+    else if (url.includes('/seed'))       this.topBarCrumbs = [admin, { label: 'Seed Data' }];
+    else if (url.includes('/settings'))   this.topBarCrumbs = [admin, { label: 'Settings' }];
+    else                                  this.topBarCrumbs = [{ label: 'Admin Dashboard' }];
   }
 
   loadTheme() {

@@ -76,6 +76,9 @@
                 <i class="sort-icon lucide" [class.lucide-chevron-up]="sortDirection === 'asc'" [class.lucide-chevron-down]="sortDirection === 'desc'"></i>
               }
             </th>
+            @if (isAdminView) {
+              <th class="action-col">Action</th>
+            }
           </tr>
         </thead>
         <tbody>
@@ -112,6 +115,22 @@
                 <i class="lucide lucide-thumbs-up"></i>
                 {{ business.reactionCount }}
               </td>
+              @if (isAdminView) {
+                <td class="action-col">
+                  <button
+                    class="btn-login-owner"
+                    [disabled]="!business.ownerId || loggingInAs === business.ownerId"
+                    (click)="onLoginAsOwner(business, $event)"
+                    title="Login as owner">
+                    @if (loggingInAs === business.ownerId) {
+                      <i class="lucide lucide-loader-2 spin"></i>
+                    } @else {
+                      <i class="lucide lucide-log-in"></i>
+                    }
+                    Login
+                  </button>
+                </td>
+              }
             </tr>
           }
         </tbody>

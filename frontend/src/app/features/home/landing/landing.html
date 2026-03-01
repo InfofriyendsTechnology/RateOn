@@ -29,9 +29,13 @@
             <p class="dash-hero-email">{{ user?.email }}</p>
           </div>
         </div>
-        <button class="dash-btn-review" (click)="writeReview()">
+        <button *ngIf="!isBusinessOwner" class="dash-btn-review" (click)="writeReview()">
           <lucide-icon [img]="Edit" [size]="18"></lucide-icon>
           Write a Review
+        </button>
+        <button *ngIf="isBusinessOwner" class="dash-btn-review" (click)="goToDashboard()">
+          <lucide-icon [img]="Settings" [size]="18"></lucide-icon>
+          My Dashboard
         </button>
       </div>
 
@@ -41,9 +45,13 @@
     <div class="dash-actions">
       <p class="dash-section-title">Quick Actions</p>
       <div class="dash-actions-grid">
-        <button class="dash-action-btn" (click)="writeReview()">
+        <button *ngIf="!isBusinessOwner" class="dash-action-btn" (click)="writeReview()">
           <lucide-icon [img]="Edit" [size]="24"></lucide-icon>
           <span>Write Review</span>
+        </button>
+        <button *ngIf="isBusinessOwner" class="dash-action-btn" (click)="goToDashboard()">
+          <lucide-icon [img]="Settings" [size]="24"></lucide-icon>
+          <span>My Dashboard</span>
         </button>
         <button class="dash-action-btn" (click)="navigateToExplore()">
           <lucide-icon [img]="Compass" [size]="24"></lucide-icon>

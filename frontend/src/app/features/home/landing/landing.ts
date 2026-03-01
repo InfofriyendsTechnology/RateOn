@@ -79,6 +79,7 @@ export class LandingComponent implements OnInit {
   readonly Settings = Settings;
   
   isLoggedIn = false;
+  isBusinessOwner = false;
   user: any = null;
   showUserMenu = false;
   showLogoutModal = false;
@@ -109,12 +110,8 @@ export class LandingComponent implements OnInit {
     const storedUser = this.storage.getUser();
     const token = this.storage.getToken();
     if (storedUser && token) {
-      // Redirect business owners to their dashboard
-      if (storedUser.role === 'business_owner') {
-        this.router.navigate(['/owner']);
-        return;
-      }
       this.isLoggedIn = true;
+      this.isBusinessOwner = storedUser.role === 'business_owner';
       this.user = {
         id: storedUser.id || storedUser._id,
         username: storedUser.username || 'User',
@@ -186,6 +183,8 @@ export class LandingComponent implements OnInit {
   }
 
   writeReview() { this.router.navigate(['/search']); }
+
+  goToDashboard() { this.router.navigate(['/owner']); }
 
   setTimeBasedGreeting() {
     const hour = new Date().getHours();

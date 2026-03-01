@@ -218,6 +218,41 @@
     }
   }
 
+  .action-col {
+    width: 110px;
+    text-align: center;
+  }
+
+  .btn-login-owner {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(251, 191, 36, 0.4);
+    background: rgba(251, 191, 36, 0.08);
+    color: #fbbf24;
+    font-size: 0.775rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+
+    i { font-size: 13px; }
+
+    &:hover:not([disabled]) {
+      background: #fbbf24;
+      color: #000;
+      border-color: #fbbf24;
+      box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+    }
+
+    &[disabled] { opacity: 0.4; cursor: not-allowed; }
+  }
+
+  @keyframes spin-anim { to { transform: rotate(360deg); } }
+  .spin { display: inline-block; animation: spin-anim 0.7s linear infinite; }
+
   .table-skeleton {
     .skeleton-row {
       display: flex;

@@ -1,154 +1,155 @@
-<div class="business-detail-container" *ngIf="!loading && business">
-  <!-- Breadcrumbs -->
-  <div class="page-header">
-    <app-breadcrumbs [crumbs]="[
-      { label: 'Dashboard', link: '/owner' },
-      { label: 'My Businesses', link: '/owner/businesses' },
-      { label: 'Business Details' }
-    ]"></app-breadcrumbs>
-  </div>
-  
-  <!-- Business Info Header -->
-  <div class="business-info-header">
-    <div class="business-logo" *ngIf="business.logo; else logoPlaceholder">
-      <img [src]="business.logo" [alt]="business.name" />
-    </div>
-    <ng-template #logoPlaceholder>
-      <div class="business-logo placeholder">
-        <lucide-icon [img]="Building" [size]="48"></lucide-icon>
+﻿<div class="detail-page" *ngIf="!loading && business">
+
+  <!-- ── Header Card ── -->
+  <div class="page-header-card">
+    <div class="header-left">
+      <div class="biz-logo" *ngIf="business.logo; else logoFallback">
+        <img [src]="business.logo" [alt]="business.name" />
       </div>
-    </ng-template>
-    <div class="business-header-content">
-      <h1 class="business-name">{{ business.name }}</h1>
-      <div class="business-meta">
-        <span class="category-badge">{{ business.category || business.type }}</span>
-        <div class="rating-stars" *ngIf="business.rating">
-          <span class="stars">
-            <lucide-icon *ngFor="let star of [1,2,3,4,5]" 
-              [img]="Star" 
-              [size]="18"
-              [attr.fill]="getStarFill(star, business.rating)"
-              [style.color]="getStarColor(star, business.rating)"></lucide-icon>
+      <ng-template #logoFallback>
+        <div class="biz-logo biz-logo-default">
+          <lucide-icon [img]="Building" [size]="24"></lucide-icon>
+        </div>
+      </ng-template>
+      <div class="header-text">
+        <h1>{{ business.name }}</h1>
+        <div class="header-meta">
+          <span class="type-badge">{{ business.category || business.type }}</span>
+          <span class="rating-chip" *ngIf="business.rating">
+            <lucide-icon [img]="Star" [size]="12"></lucide-icon>
+            {{ business.rating.toFixed ? business.rating.toFixed(1) : business.rating }}
           </span>
-          <span class="rating-text">{{ business.rating.toFixed(1) }}</span>
         </div>
       </div>
     </div>
+    <div class="header-actions">
+      <a [routerLink]="['/owner/businesses', business._id, 'edit']" class="btn-act btn-edit">
+        <lucide-icon [img]="Edit" [size]="15"></lucide-icon>
+        Edit
+      </a>
+      <a [routerLink]="['/owner/businesses', business._id, 'items']" class="btn-act btn-items">
+        <lucide-icon [img]="Package" [size]="15"></lucide-icon>
+        Manage Items
+      </a>
+    </div>
   </div>
-  
-  <!-- Summary Card -->
-  <div class="summary-card">
-    <div class="summary-grid">
-      <!-- About Section -->
-      <div class="summary-section" *ngIf="business.description">
-        <h3>
-          <lucide-icon [img]="Info" [size]="18"></lucide-icon>
-          About
-        </h3>
-        <p>{{ business.description }}</p>
+
+  <!-- ── Stats Row ── -->
+  <div class="stats-row">
+    <div class="scard">
+      <div class="scard-icon c-yellow"><lucide-icon [img]="Package" [size]="20"></lucide-icon></div>
+      <div class="scard-body">
+        <span class="scard-val">{{ business.stats?.totalItems || 0 }}</span>
+        <span class="scard-lbl">Items</span>
       </div>
-      
-      <!-- Stats -->
-      <div class="summary-section">
-        <h3>
-          <lucide-icon [img]="Package" [size]="18"></lucide-icon>
-          Quick Info
-        </h3>
-        <div class="summary-stats">
-          <div class="stat-item" *ngIf="business.stats?.totalItems !== undefined">
-            <span class="stat-label">Items</span>
-            <span class="stat-value">{{ business.stats.totalItems || 0 }}</span>
-          </div>
-          <div class="stat-item" *ngIf="business.stats?.totalReviews !== undefined">
-            <span class="stat-label">Reviews</span>
-            <span class="stat-value">{{ business.stats.totalReviews || 0 }}</span>
-          </div>
-          <div class="stat-item" *ngIf="business.rating">
-            <span class="stat-label">Rating</span>
-            <span class="stat-value">{{ business.rating.toFixed(1) }}</span>
-          </div>
-        </div>
+    </div>
+    <div class="scard">
+      <div class="scard-icon c-green"><lucide-icon [img]="MessageSquare" [size]="20"></lucide-icon></div>
+      <div class="scard-body">
+        <span class="scard-val">{{ business.stats?.totalReviews || 0 }}</span>
+        <span class="scard-lbl">Reviews</span>
       </div>
-      
-      <!-- Contact -->
-      <div class="summary-section">
-        <h3>
-          <lucide-icon [img]="Phone" [size]="18"></lucide-icon>
-          Contact
-        </h3>
-        <div class="info-list">
-          <div class="info-item" *ngIf="business.location?.address">
-            <lucide-icon [img]="MapPin" [size]="14"></lucide-icon>
-            <span>{{ business.location.city }}, {{ business.location.state }}</span>
-          </div>
-          <div class="info-item" *ngIf="business.contact?.phone">
-            <lucide-icon [img]="Phone" [size]="14"></lucide-icon>
-            <a [href]="'tel:' + business.contact.phone">{{ business.contact.phone }}</a>
-          </div>
-          <div class="info-item" *ngIf="business.contact?.email">
-            <lucide-icon [img]="Globe" [size]="14"></lucide-icon>
-            <a [href]="'mailto:' + business.contact.email">{{ business.contact.email }}</a>
-          </div>
-        </div>
+    </div>
+    <div class="scard">
+      <div class="scard-icon c-orange"><lucide-icon [img]="Star" [size]="20"></lucide-icon></div>
+      <div class="scard-body">
+        <span class="scard-val">{{ (business.stats?.avgRating || business.rating || 0).toFixed ? (business.stats?.avgRating || business.rating || 0).toFixed(1) : 0 }}</span>
+        <span class="scard-lbl">Avg Rating</span>
       </div>
-      
-      <!-- Hours -->
-      <div class="summary-section" *ngIf="business.businessHours?.length">
-        <h3>
-          <lucide-icon [img]="Clock" [size]="18"></lucide-icon>
-          Hours
-        </h3>
-        <div class="hours-compact">
-          <div class="hour-item" *ngFor="let h of (showAllHours ? business.businessHours : business.businessHours.slice(0, 3))">
-            <span class="day">{{ h.day.substring(0, 3) | titlecase }}</span>
-            <span class="time" *ngIf="!h.isClosed">{{ formatTime(h.open) }} - {{ formatTime(h.close) }}</span>
-            <span class="closed" *ngIf="h.isClosed">Closed</span>
-          </div>
-          <button class="see-all" *ngIf="business.businessHours.length > 3" (click)="showAllHours = !showAllHours">
-            {{ showAllHours ? 'Show less' : 'See all hours' }}
-          </button>
-        </div>
+    </div>
+    <div class="scard">
+      <div class="scard-icon c-blue"><lucide-icon [img]="Eye" [size]="20"></lucide-icon></div>
+      <div class="scard-body">
+        <span class="scard-val">{{ business.stats?.views || 0 }}</span>
+        <span class="scard-lbl">Views</span>
       </div>
     </div>
   </div>
-  
-  <!-- Horizontal Photo Gallery -->
-  <div class="photos-section" *ngIf="business.coverImages?.length">
-    <div class="photos-header">
+
+  <!-- ── Info Grid ── -->
+  <div class="info-grid">
+
+    <!-- About -->
+    <div class="info-card" *ngIf="business.description">
+      <div class="info-card-head">
+        <div class="info-icon c-purple"><lucide-icon [img]="Info" [size]="16"></lucide-icon></div>
+        <h3>About</h3>
+      </div>
+      <p class="about-text">{{ business.description }}</p>
+    </div>
+
+    <!-- Contact -->
+    <div class="info-card">
+      <div class="info-card-head">
+        <div class="info-icon c-teal"><lucide-icon [img]="Phone" [size]="16"></lucide-icon></div>
+        <h3>Contact & Location</h3>
+      </div>
+      <div class="info-rows">
+        <div class="info-row" *ngIf="business.location?.city">
+          <lucide-icon [img]="MapPin" [size]="14"></lucide-icon>
+          <span>{{ business.location.address ? business.location.address + ', ' : '' }}{{ business.location.city }}, {{ business.location.state }}</span>
+        </div>
+        <div class="info-row" *ngIf="business.contact?.phone">
+          <lucide-icon [img]="Phone" [size]="14"></lucide-icon>
+          <a [href]="'tel:' + business.contact.phone">{{ business.contact.phone }}</a>
+        </div>
+        <div class="info-row" *ngIf="business.contact?.email">
+          <lucide-icon [img]="Globe" [size]="14"></lucide-icon>
+          <a [href]="'mailto:' + business.contact.email">{{ business.contact.email }}</a>
+        </div>
+        <div class="info-row" *ngIf="business.contact?.website">
+          <lucide-icon [img]="Globe" [size]="14"></lucide-icon>
+          <a [href]="business.contact.website" target="_blank">{{ business.contact.website }}</a>
+        </div>
+        <p class="no-info" *ngIf="!business.location?.city && !business.contact?.phone && !business.contact?.email">No contact info added</p>
+      </div>
+    </div>
+
+    <!-- Hours -->
+    <div class="info-card" *ngIf="business.businessHours?.length">
+      <div class="info-card-head">
+        <div class="info-icon c-blue"><lucide-icon [img]="Clock" [size]="16"></lucide-icon></div>
+        <h3>Business Hours</h3>
+      </div>
+      <div class="hours-list">
+        <div class="hour-row" *ngFor="let h of (showAllHours ? business.businessHours : business.businessHours.slice(0, 4))">
+          <span class="h-day">{{ h.day.substring(0, 3) | titlecase }}</span>
+          <span class="h-time" *ngIf="!h.isClosed">{{ formatTime(h.open) }} – {{ formatTime(h.close) }}</span>
+          <span class="h-closed" *ngIf="h.isClosed">Closed</span>
+        </div>
+        <button class="btn-toggle-hours" *ngIf="business.businessHours.length > 4" (click)="showAllHours = !showAllHours">
+          {{ showAllHours ? 'Show less' : 'Show all hours' }}
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Photos ── -->
+  <div class="photos-card" *ngIf="business.coverImages?.length">
+    <div class="info-card-head">
+      <div class="info-icon c-orange"><lucide-icon [img]="ImageIcon" [size]="16"></lucide-icon></div>
       <h3>Photos</h3>
-      <button class="view-all-btn" (click)="showAllPhotos = !showAllPhotos">
-        <lucide-icon [img]="showAllPhotos ? ChevronUp : ImageIcon" [size]="18"></lucide-icon>
-        <span>{{ showAllPhotos ? 'Show less' : 'View all ' + business.coverImages.length + ' photos' }}</span>
+      <button class="btn-toggle-photos ml-auto" (click)="showAllPhotos = !showAllPhotos">
+        {{ showAllPhotos ? 'Show less' : 'View all ' + business.coverImages.length }}
       </button>
     </div>
-    
-    <div class="photos-horizontal" *ngIf="!showAllPhotos">
+    <div class="photos-strip" *ngIf="!showAllPhotos">
       <div class="photo-thumb" *ngFor="let img of business.coverImages.slice(0, 6)">
         <img [src]="img" [alt]="business.name" />
       </div>
     </div>
-    
-    <div class="photos-grid-full" *ngIf="showAllPhotos">
-      <div class="photo-item-full" *ngFor="let img of business.coverImages">
+    <div class="photos-grid" *ngIf="showAllPhotos">
+      <div class="photo-full" *ngFor="let img of business.coverImages">
         <img [src]="img" [alt]="business.name" />
       </div>
     </div>
   </div>
 
-  <!-- Action Buttons -->
-  <div class="action-buttons">
-    <a [routerLink]="['/owner/businesses', business._id, 'edit']" class="action-btn btn-secondary">
-      <lucide-icon [img]="Edit" [size]="20"></lucide-icon>
-      <span>Edit Business</span>
-    </a>
-    <a [routerLink]="['/owner/businesses', business._id, 'items']" class="action-btn btn-primary">
-      <lucide-icon [img]="Package" [size]="20"></lucide-icon>
-      <span>Manage Items</span>
-    </a>
-  </div>
 </div>
 
-<div class="loading-state" *ngIf="loading">
+<!-- Loading -->
+<div class="loading-container" *ngIf="loading">
   <div class="spinner"></div>
   <p>Loading business details...</p>
 </div>

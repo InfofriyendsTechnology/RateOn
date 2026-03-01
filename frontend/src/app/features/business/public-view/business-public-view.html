@@ -30,11 +30,11 @@
           </div>
         </div>
         <div class="header-actions">
-          <button class="btn-write-review" *ngIf="!userHasReview" (click)="writeBusinessReview()">
+          <button class="btn-write-review" *ngIf="!userHasReview && !isSuperAdmin()" (click)="writeBusinessReview()">
             <lucide-icon [img]="Edit" [size]="20"></lucide-icon>
             <span>Write Review</span>
           </button>
-          <button class="btn-edit-review" *ngIf="userHasReview" (click)="writeBusinessReview()">
+          <button class="btn-edit-review" *ngIf="userHasReview && !isSuperAdmin()" (click)="writeBusinessReview()">
             <lucide-icon [img]="Edit" [size]="20"></lucide-icon>
             <span>Edit Your Review</span>
           </button>
@@ -256,7 +256,7 @@
         </div>
 
         <!-- Review Actions (Reactions Only) -->
-        <div class="review-actions-bar">
+        <div class="review-actions-bar" *ngIf="!isSuperAdmin()">
           <div class="reaction-buttons">
             <button
               class="reaction-btn helpful"

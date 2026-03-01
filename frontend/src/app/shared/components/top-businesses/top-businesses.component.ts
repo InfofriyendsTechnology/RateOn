@@ -5,6 +5,7 @@ export interface TopBusiness {
   businessId: string;
   businessName: string;
   category?: string;
+  ownerId?: string;
   reviewCount: number;
   averageRating: number;
   reactionCount: number;
@@ -21,8 +22,11 @@ export class TopBusinessesComponent {
   @Input() businesses: TopBusiness[] = [];
   @Input() loading: boolean = false;
   @Input() selectedPeriod: 'week' | 'month' = 'month';
+  @Input() isAdminView: boolean = false;
   @Output() periodChange = new EventEmitter<'week' | 'month'>();
-  
+  @Output() loginAsOwner = new EventEmitter<string>(); // emits ownerId
+
+  loggingInAs: string | null = null;
   sortColumn: string = 'reviewCount';
   sortDirection: 'asc' | 'desc' = 'desc';
 
@@ -35,6 +39,17 @@ export class TopBusinessesComponent {
 
   onPeriodChange(period: 'week' | 'month'): void {
     this.periodChange.emit(period);
+  }
+
+  onLoginAsOwner(business: TopBusiness, event: Event): void {
+    event.stopPropagation();
+    if (!business.ownerId || this.loggingInAs) return;
+    this.loggingInAs = business.ownerId;
+    this.loginAsOwner.emit(business.ownerId);
+  }
+
+  resetLoggingIn(): void {
+    this.loggingInAs = null;
   }
 
   setFilter(column: string, dir: 'asc' | 'desc'): void {

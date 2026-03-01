@@ -1,131 +1,150 @@
-<div class="businesses-page">
-  <div class="page-header">
-    <app-breadcrumbs [crumbs]="[
-      { label: 'Dashboard', link: '/owner' },
-      { label: 'My Businesses' }
-    ]"></app-breadcrumbs>
+﻿<div class="businesses-page">
+
+  <!-- ── Header Card ── -->
+  <div class="page-header-card">
+    <div class="header-left">
+      <div class="header-icon">
+        <lucide-icon [img]="ShoppingBag" [size]="22"></lucide-icon>
+      </div>
+      <div class="header-text">
+        <h1>My Businesses</h1>
+        <p class="subtitle">{{ businesses.length }} business{{ businesses.length !== 1 ? 'es' : '' }} registered</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="btn-refresh" (click)="loadBusinesses()" [disabled]="loadingBusinesses">
+        <lucide-icon [img]="RefreshCw" [size]="14"></lucide-icon>
+        Refresh
+      </button>
+      <a routerLink="/owner/businesses/new" class="btn-new">
+        <lucide-icon [img]="Plus" [size]="16"></lucide-icon>
+        New Business
+      </a>
+    </div>
   </div>
-  <!-- Loading State -->
-  <div class="loading-state" *ngIf="loadingBusinesses">
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="loadingBusinesses">
     <div class="spinner"></div>
     <p>Loading businesses...</p>
   </div>
 
   <!-- Empty State -->
   <div class="empty-state" *ngIf="!loadingBusinesses && businesses.length === 0">
-    <lucide-icon [img]="ShoppingBag" [size]="64" class="empty-icon"></lucide-icon>
+    <div class="empty-icon-wrap">
+      <lucide-icon [img]="ShoppingBag" [size]="32"></lucide-icon>
+    </div>
     <h3>No Businesses Yet</h3>
     <p>Get started by creating your first business.</p>
-    <a routerLink="/owner/businesses/new" class="btn-primary">
+    <a routerLink="/owner/businesses/new" class="btn-create">
       <lucide-icon [img]="Plus" [size]="16"></lucide-icon>
       Create Your First Business
     </a>
   </div>
 
-  <!-- Business Cards Grid -->
+  <!-- Business Grid -->
   <div class="businesses-grid" *ngIf="!loadingBusinesses && businesses.length > 0">
     <div class="business-card" *ngFor="let business of businesses" [routerLink]="['/owner/businesses', business._id]">
-      <div class="card-header">
-        <div class="business-icon" *ngIf="business.logo; else iconFallback">
-          <img [src]="business.logo" [alt]="business.name" class="business-logo" />
+
+      <!-- Top: logo + name + rating -->
+      <div class="card-top">
+        <div class="biz-logo" *ngIf="business.logo; else logoFallback">
+          <img [src]="business.logo" [alt]="business.name" />
         </div>
-        <ng-template #iconFallback>
-          <div class="business-icon">
-            <lucide-icon [img]="ShoppingBag" [size]="24"></lucide-icon>
+        <ng-template #logoFallback>
+          <div class="biz-logo biz-logo-default">
+            <lucide-icon [img]="ShoppingBag" [size]="22"></lucide-icon>
           </div>
         </ng-template>
-        <div class="business-info">
-          <h3 class="business-name">{{ business.name }}</h3>
-          <span class="business-type">{{ business.category || business.type }}</span>
+        <div class="biz-title">
+          <h3>{{ business.name }}</h3>
+          <span class="type-badge">{{ business.category || business.type }}</span>
+        </div>
+        <div class="biz-rating" *ngIf="business.rating?.average || business.stats?.avgRating">
+          <lucide-icon [img]="Star" [size]="11"></lucide-icon>
+          <span>{{ (business.rating?.average || business.stats?.avgRating || 0).toFixed(1) }}</span>
         </div>
       </div>
 
-      <div class="card-body">
-        <div class="info-item" *ngIf="business.location?.city">
-          <lucide-icon [img]="MapPin" [size]="16"></lucide-icon>
-          <span>{{ business.location.city }}, {{ business.location.state }}</span>
-        </div>
-
-        <div class="info-item" *ngIf="business.contact?.phone">
-          <lucide-icon [img]="Phone" [size]="16"></lucide-icon>
-          <span>{{ business.contact.phone }}</span>
-        </div>
-
-        <div class="info-item" *ngIf="business.rating?.average || business.stats?.avgRating">
-          <lucide-icon [img]="Star" [size]="16"></lucide-icon>
-          <span>{{ (business.rating?.average || business.stats?.avgRating || 0).toFixed(1) }} Rating</span>
-        </div>
+      <!-- Location -->
+      <div class="card-location" *ngIf="business.location?.city">
+        <lucide-icon [img]="MapPin" [size]="13"></lucide-icon>
+        <span>{{ business.location.city }}, {{ business.location.state }}</span>
       </div>
 
+      <!-- Stats -->
       <div class="card-stats">
-        <div class="stat-item">
-          <lucide-icon [img]="Package" [size]="16"></lucide-icon>
-          <span>{{ business.stats?.totalItems || 0 }} Items</span>
+        <div class="cstat">
+          <span class="cstat-val">{{ business.stats?.totalItems || 0 }}</span>
+          <span class="cstat-lbl">Items</span>
         </div>
-        <div class="stat-item">
-          <lucide-icon [img]="MessageSquare" [size]="16"></lucide-icon>
-          <span>{{ business.stats?.totalReviews || 0 }} Reviews</span>
+        <div class="cstat-div"></div>
+        <div class="cstat">
+          <span class="cstat-val">{{ business.stats?.totalReviews || 0 }}</span>
+          <span class="cstat-lbl">Reviews</span>
+        </div>
+        <div class="cstat-div"></div>
+        <div class="cstat">
+          <span class="cstat-val">{{ (business.rating?.average || business.stats?.avgRating || 0).toFixed(1) }}</span>
+          <span class="cstat-lbl">Avg</span>
         </div>
       </div>
 
+      <!-- Actions -->
       <div class="card-actions" (click)="$event.stopPropagation()">
-        <a [routerLink]="['/owner/businesses', business._id, 'items']" class="btn-action btn-items">
-          <lucide-icon [img]="Package" [size]="16"></lucide-icon>
-          <span>Manage Items</span>
+        <a [routerLink]="['/owner/businesses', business._id, 'items']" class="btn-act btn-items">
+          <lucide-icon [img]="Package" [size]="14"></lucide-icon>
+          Manage Items
         </a>
-        <a [routerLink]="['/owner/businesses', business._id, 'edit']" class="btn-action btn-edit">
-          <lucide-icon [img]="Edit" [size]="16"></lucide-icon>
-          <span>Edit</span>
+        <a [routerLink]="['/owner/businesses', business._id, 'edit']" class="btn-act btn-edit">
+          <lucide-icon [img]="Edit" [size]="14"></lucide-icon>
+          Edit
         </a>
-        <button (click)="openDeleteModal(business)" class="btn-action btn-delete">
-          <lucide-icon [img]="Trash2" [size]="16"></lucide-icon>
-          <span>Delete</span>
+        <button (click)="openDeleteModal(business)" class="btn-act btn-del">
+          <lucide-icon [img]="Trash2" [size]="14"></lucide-icon>
         </button>
       </div>
+
     </div>
   </div>
+
 </div>
 
-<!-- Delete Confirmation Modal -->
+<!-- Delete Modal -->
 <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDeleteModal()">
-  <div class="modal-content delete-modal" (click)="$event.stopPropagation()">
-    <button class="btn-close-modal" (click)="closeDeleteModal()" aria-label="Close">
-      <lucide-icon [img]="X" [size]="20"></lucide-icon>
-    </button>
-    
-    <div class="modal-header">
-      <div class="warning-icon">
-        <lucide-icon [img]="AlertTriangle" [size]="40"></lucide-icon>
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <div class="modal-head-left">
+        <div class="modal-icon c-danger">
+          <lucide-icon [img]="AlertTriangle" [size]="17"></lucide-icon>
+        </div>
+        <h3>Delete Business</h3>
       </div>
-      <h3>Delete Business</h3>
-      <p class="danger-text">This action cannot be undone!</p>
+      <button class="modal-close" (click)="closeDeleteModal()">
+        <lucide-icon [img]="X" [size]="18"></lucide-icon>
+      </button>
     </div>
-    
     <div class="modal-body">
-      <p class="confirmation-text">
-        Type <strong>{{ businessToDelete?.name }}</strong> to confirm:
-      </p>
-      <input 
-        type="text" 
-        [(ngModel)]="deleteConfirmationText" 
+      <p class="warn-text">This action <strong>cannot be undone</strong>. All items and data will be permanently deleted.</p>
+      <p class="confirm-prompt">Type <strong>{{ businessToDelete?.name }}</strong> to confirm:</p>
+      <input
+        type="text"
+        [(ngModel)]="deleteConfirmationText"
         placeholder="Enter business name"
-        class="confirmation-input"
+        class="confirm-input"
         [class.error]="deleteConfirmationText && deleteConfirmationText !== businessToDelete?.name"
         autofocus
       />
     </div>
-    
-    <div class="modal-actions">
-      <button class="btn-modal-cancel" (click)="closeDeleteModal()" [disabled]="deletingBusiness">
-        Cancel
-      </button>
-      <button 
-        class="btn-modal-danger" 
-        (click)="confirmDeleteBusiness()" 
+    <div class="modal-foot">
+      <button class="btn-modal-cancel" (click)="closeDeleteModal()" [disabled]="deletingBusiness">Cancel</button>
+      <button
+        class="btn-modal-danger"
+        (click)="confirmDeleteBusiness()"
         [disabled]="deletingBusiness || deleteConfirmationText !== businessToDelete?.name"
       >
-        <lucide-icon [img]="Trash2" [size]="16"></lucide-icon>
-        {{ deletingBusiness ? 'Deleting...' : 'Delete' }}
+        <lucide-icon [img]="Trash2" [size]="15"></lucide-icon>
+        {{ deletingBusiness ? 'Deleting...' : 'Delete Business' }}
       </button>
     </div>
   </div>

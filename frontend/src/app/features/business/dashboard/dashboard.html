@@ -31,11 +31,21 @@
         <lucide-icon [img]="ShoppingBag" [size]="16" class="nav-icon"></lucide-icon>
         <span class="nav-text" *ngIf="sidebarOpen">Businesses</span>
       </a>
+
+      <a routerLink="/search" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
+        <lucide-icon [img]="Compass" [size]="16" class="nav-icon"></lucide-icon>
+        <span class="nav-text" *ngIf="sidebarOpen">Explore</span>
+      </a>
       
       <a routerLink="/owner/reviews" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
         <lucide-icon [img]="MessageSquare" [size]="16" class="nav-icon"></lucide-icon>
         <span class="nav-text" *ngIf="sidebarOpen">Reviews</span>
         <span class="nav-badge" *ngIf="sidebarOpen && unreadNotificationsCount > 0">{{ unreadNotificationsCount }}</span>
+      </a>
+
+      <a routerLink="/owner/analytics" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
+        <lucide-icon [img]="BarChart2" [size]="16" class="nav-icon"></lucide-icon>
+        <span class="nav-text" *ngIf="sidebarOpen">Analytics</span>
       </a>
       
       <div class="nav-divider" *ngIf="sidebarOpen"></div>
@@ -86,97 +96,117 @@
         <button class="sidebar-toggle mobile-only" (click)="toggleSidebar(); $event.stopPropagation()">
           <lucide-icon [img]="Menu" [size]="20"></lucide-icon>
         </button>
+        <app-breadcrumbs class="top-crumbs" [crumbs]="topBarCrumbs"></app-breadcrumbs>
+      </div>
+      <div class="top-bar-right">
         <button class="notification-bell" [routerLink]="['/owner/notifications']" title="View notifications">
           <lucide-icon [img]="Bell" [size]="20"></lucide-icon>
           <span class="notification-badge" *ngIf="unreadNotificationsCount > 0">{{ unreadNotificationsCount }}</span>
         </button>
-      </div>
-      <div class="page-title">
-        <h1>{{ getPageTitle() }}</h1>
-      </div>
-      <div class="top-bar-right">
-        <button *ngIf="isOnItemsPage()" class="btn-add-business" (click)="openAddItem()">
-          <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
-          <span>Add Item</span>
-        </button>
-        <a *ngIf="isOnBusinessesPage() && !isOnItemsPage()" class="btn-add-business" routerLink="/owner/businesses/new">
-          <lucide-icon [img]="Plus" [size]="18"></lucide-icon>
-          <span>Add Business</span>
-        </a>
       </div>
     </div>
 
     <!-- Dashboard Content -->
     <div class="content-wrapper">
       <router-outlet></router-outlet>
-      <div class="dashboard-content" *ngIf="!isChildRouteActive()">
-        
-        <!-- Welcome Greeting -->
-        <div class="welcome-greeting">
-          <h2>{{ greeting }}, {{ user?.username || user?.firstName || 'User' }}! 👋</h2>
-          <p>Welcome to your business dashboard</p>
-        </div>
-      
-        <!-- Statistics Cards -->
-      <div class="stats-grid" *ngIf="businesses.length > 0">
-        <div class="stat-card">
-          <div class="stat-icon businesses">
-            <lucide-icon [img]="ShoppingBag" [size]="24"></lucide-icon>
-          </div>
-          <div class="stat-content">
-            <h3 class="stat-value">{{ businesses.length }}</h3>
-            <p class="stat-label">Total Businesses</p>
-          </div>
-        </div>
-        
-        <div class="stat-card">
-          <div class="stat-icon items">
-            <lucide-icon [img]="ShoppingBag" [size]="24"></lucide-icon>
-          </div>
-          <div class="stat-content">
-            <h3 class="stat-value">{{ totalItems }}</h3>
-            <p class="stat-label">Total Items</p>
-          </div>
-        </div>
-        
-        <div class="stat-card">
-          <div class="stat-icon reviews">
-            <lucide-icon [img]="Star" [size]="24"></lucide-icon>
-          </div>
-          <div class="stat-content">
-            <h3 class="stat-value">{{ totalReviews }}</h3>
-            <p class="stat-label">Total Reviews</p>
-          </div>
-        </div>
-        
-        <div class="stat-card">
-          <div class="stat-icon rating">
-            <lucide-icon [img]="Star" [size]="24"></lucide-icon>
-          </div>
-          <div class="stat-content">
-            <h3 class="stat-value">{{ averageRating.toFixed(1) }}</h3>
-            <p class="stat-label">Avg Rating</p>
-          </div>
-        </div>
-      </div>
 
-      <!-- No Business State -->
-      <div class="empty-state" *ngIf="businesses.length === 0 && !loadingBusinesses">
-        <lucide-icon [img]="ShoppingBag" [size]="64" class="empty-icon"></lucide-icon>
-        <h3>No Businesses Yet</h3>
-        <p>Get started by creating your first business.</p>
-        <a routerLink="/owner/businesses/new" class="btn-primary">
-          <lucide-icon [img]="Plus" [size]="16"></lucide-icon>
-          Create Business
-        </a>
-      </div>
+      <!-- Home dashboard (only shown when no child route is active) -->
+      <div class="owner-dashboard" *ngIf="!isChildRouteActive()">
 
-      <!-- Loading State -->
-      <div class="loading-state" *ngIf="loadingBusinesses">
-        <div class="spinner"></div>
-        <p>Loading businesses...</p>
-      </div>
+        <!-- ── Header Card ── -->
+        <div class="dash-header">
+          <div class="header-left">
+            <div class="header-icon">
+              <lucide-icon [img]="LayoutDashboard" [size]="22"></lucide-icon>
+            </div>
+            <div class="header-text">
+              <h1>{{ greeting }}, {{ user?.profile?.firstName || user?.username || 'Owner' }}!</h1>
+              <p class="subtitle">{{ todayDate }}</p>
+            </div>
+          </div>
+        </div>
 
+        <!-- ── Loading ── -->
+        <div *ngIf="loadingBusinesses" class="loading-container">
+          <div class="spinner"></div>
+          <p>Loading...</p>
+        </div>
+
+        <ng-container *ngIf="!loadingBusinesses">
+
+          <!-- ── Stat Cards ── -->
+          <div class="stat-cards" *ngIf="businesses.length > 0">
+            <div class="stat-card">
+              <div class="stat-icon c-yellow"><lucide-icon [img]="ShoppingBag" [size]="24"></lucide-icon></div>
+              <div class="stat-body">
+                <div class="stat-val">{{ businesses.length }}</div>
+                <div class="stat-lbl">Businesses</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon c-blue"><lucide-icon [img]="Package" [size]="24"></lucide-icon></div>
+              <div class="stat-body">
+                <div class="stat-val">{{ totalItems }}</div>
+                <div class="stat-lbl">Total Items</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon c-green"><lucide-icon [img]="MessageSquare" [size]="24"></lucide-icon></div>
+              <div class="stat-body">
+                <div class="stat-val">{{ totalReviews }}</div>
+                <div class="stat-lbl">Total Reviews</div>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon c-orange"><lucide-icon [img]="Star" [size]="24"></lucide-icon></div>
+              <div class="stat-body">
+                <div class="stat-val">{{ averageRating.toFixed(1) }}</div>
+                <div class="stat-lbl">Avg Rating</div>
+              </div>
+            </div>
+          </div>
+
+
+          <!-- ── Recent Businesses ── -->
+          <div class="section-card" *ngIf="businesses.length > 0">
+            <div class="section-header">
+              <h3>My Businesses</h3>
+              <a routerLink="/owner/businesses" class="btn-view-all">View All</a>
+            </div>
+            <div class="biz-list">
+              <a class="biz-row" *ngFor="let b of businesses.slice(0, 3)" [routerLink]="['/owner/businesses', b._id]">
+                <div class="biz-icon">
+                  <img *ngIf="b.logo" [src]="b.logo" [alt]="b.name" class="biz-logo" />
+                  <lucide-icon *ngIf="!b.logo" [img]="ShoppingBag" [size]="18"></lucide-icon>
+                </div>
+                <div class="biz-info">
+                  <span class="biz-name">{{ b.name }}</span>
+                  <span class="biz-type">{{ b.category || b.type }}</span>
+                </div>
+                <div class="biz-stats">
+                  <span class="biz-stat"><lucide-icon [img]="MessageSquare" [size]="12"></lucide-icon> {{ b.stats?.totalReviews || b.reviewCount || 0 }}</span>
+                  <span class="biz-stat"><lucide-icon [img]="Star" [size]="12"></lucide-icon> {{ (b.averageRating || b.rating || 0).toFixed(1) }}</span>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <!-- ── No Business Empty State ── -->
+          <div class="section-card empty-biz-card" *ngIf="businesses.length === 0">
+            <div class="empty-biz">
+              <div class="empty-icon-wrap">
+                <lucide-icon [img]="ShoppingBag" [size]="32"></lucide-icon>
+              </div>
+              <h3>No Businesses Yet</h3>
+              <p>Get started by creating your first business.</p>
+              <a routerLink="/owner/businesses/new" class="btn-create">
+                <lucide-icon [img]="Plus" [size]="16"></lucide-icon>
+                Create Business
+              </a>
+            </div>
+          </div>
+
+        </ng-container>
       </div>
     </div>
   </main>

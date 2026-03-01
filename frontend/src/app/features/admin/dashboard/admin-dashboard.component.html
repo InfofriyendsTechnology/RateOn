@@ -78,7 +78,9 @@
       <app-top-businesses
         [businesses]="topBusinesses"
         [selectedPeriod]="selectedPeriod"
-        (periodChange)="onPeriodChange($event)">
+        [isAdminView]="true"
+        (periodChange)="onPeriodChange($event)"
+        (loginAsOwner)="onLoginAsOwner($event)">
       </app-top-businesses>
     </div>
 

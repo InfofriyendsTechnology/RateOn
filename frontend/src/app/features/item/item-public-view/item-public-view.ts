@@ -298,6 +298,10 @@ export class ItemPublicView implements OnInit {
     return this.currentUser._id === businessOwnerId;
   }
 
+  isSuperAdmin(): boolean {
+    return this.currentUser?.role === 'super_admin';
+  }
+
   toggleReviewMenu(reviewId: string) {
     this.activeReviewMenu = this.activeReviewMenu === reviewId ? null : reviewId;
   }

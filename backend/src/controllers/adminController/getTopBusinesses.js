@@ -94,6 +94,7 @@ export default {
                         businessId: "$_id",
                         businessName: "$business.name",
                         businessImage: "$business.images.0",
+                        ownerId: "$business.owner",
                         reviewCount: 1,
                         averageRating: { $round: ["$averageRating", 2] },
                         reactionCount: { $size: "$reactions" },

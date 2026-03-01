@@ -1,296 +1,274 @@
-<div class="settings-container">
-  <!-- Page Header -->
-  <div class="page-header">
-    <h1>Account Settings</h1>
-    <p class="subtitle">Manage your personal preferences and account settings</p>
+<div class="settings-page">
+
+  <!-- ── Header Card ── -->
+  <div class="dash-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <lucide-icon [img]="Settings" [size]="22"></lucide-icon>
+      </div>
+      <div class="header-text">
+        <h1>Account Settings</h1>
+        <p class="subtitle">Manage your preferences, security &amp; account</p>
+      </div>
+    </div>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="loading" class="loading-state">
+  <!-- ── Loading ── -->
+  <div *ngIf="loading" class="loading-container">
     <div class="spinner"></div>
     <p>Loading settings...</p>
   </div>
 
-  <!-- Settings Content -->
-  <div *ngIf="!loading" class="settings-content">
-    
-    <!-- Profile Section -->
-    <div class="settings-section">
+  <ng-container *ngIf="!loading">
+
+    <!-- ── Profile ── -->
+    <div class="section-card">
       <div class="section-header">
-        <lucide-icon [img]="User" [size]="20"></lucide-icon>
-        <h2>Profile</h2>
+        <div class="section-icon c-yellow"><lucide-icon [img]="User" [size]="16"></lucide-icon></div>
+        <h3>Profile</h3>
       </div>
-      <div class="settings-card">
-        <div class="setting-item">
-          <div class="setting-info">
-            <h3>Your Profile</h3>
-            <p>View and edit your profile information, avatar, and personal details</p>
-          </div>
-          <a routerLink="/owner/profile" class="action-btn">
-            <lucide-icon [img]="User" [size]="16"></lucide-icon>
-            Go to Profile
-          </a>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="si-title">Your Profile</div>
+          <div class="si-desc">View and edit your avatar, bio and personal details</div>
         </div>
+        <a routerLink="/owner/profile" class="btn-action">
+          <lucide-icon [img]="User" [size]="14"></lucide-icon>
+          Go to Profile
+        </a>
       </div>
     </div>
 
-    <!-- Appearance Section -->
-    <div class="settings-section">
+    <!-- ── Appearance ── -->
+    <div class="section-card">
       <div class="section-header">
-        <lucide-icon [img]="Palette" [size]="20"></lucide-icon>
-        <h2>Appearance</h2>
+        <div class="section-icon c-blue"><lucide-icon [img]="Palette" [size]="16"></lucide-icon></div>
+        <h3>Appearance</h3>
       </div>
-      <div class="settings-card">
-        <div class="setting-item">
-          <div class="setting-info">
-            <h3>Theme</h3>
-            <p>Choose between light and dark theme</p>
-          </div>
-          <div class="theme-toggle">
-            <button 
-              class="theme-btn" 
-              [class.active]="!isDarkMode" 
-              (click)="setTheme('light')"
-            >
-              <lucide-icon [img]="Sun" [size]="16"></lucide-icon>
-              Light
-            </button>
-            <button 
-              class="theme-btn" 
-              [class.active]="isDarkMode" 
-              (click)="setTheme('dark')"
-            >
-              <lucide-icon [img]="Moon" [size]="16"></lucide-icon>
-              Dark
-            </button>
-          </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="si-title">Theme</div>
+          <div class="si-desc">Switch between light and dark mode</div>
         </div>
-      </div>
-    </div>
-
-    <!-- Notifications Section -->
-    <div class="settings-section">
-      <div class="section-header">
-        <lucide-icon [img]="Bell" [size]="20"></lucide-icon>
-        <h2>Notifications</h2>
-      </div>
-      <div class="settings-card">
-        <div class="setting-item">
-          <div class="setting-info">
-            <h3>Email Notifications</h3>
-            <p>Receive notifications about your businesses via email</p>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" [(ngModel)]="notificationSettings.email" (change)="updateNotificationSettings()">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        <div class="setting-item">
-          <div class="setting-info">
-            <h3>New Review Alerts</h3>
-            <p>Get notified when customers leave reviews</p>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" [(ngModel)]="notificationSettings.newReviews" (change)="updateNotificationSettings()">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        <div class="setting-item">
-          <div class="setting-info">
-            <h3>Business Updates</h3>
-            <p>Receive updates about your business performance</p>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" [(ngModel)]="notificationSettings.businessUpdates" (change)="updateNotificationSettings()">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-      </div>
-    </div>
-
-    <!-- Security Section -->
-    <div class="settings-section">
-      <div class="section-header">
-        <lucide-icon [img]="Shield" [size]="20"></lucide-icon>
-        <h2>Security</h2>
-      </div>
-      <div class="settings-card">
-        <div class="setting-item">
-          <div class="setting-info">
-            <h3>Password</h3>
-            <p>Update your account password</p>
-          </div>
-          <button class="action-btn" (click)="openChangePasswordModal()">
-            <lucide-icon [img]="Key" [size]="16"></lucide-icon>
-            Change Password
+        <div class="theme-toggle">
+          <button class="theme-btn" [class.active]="!isDarkMode" (click)="setTheme('light')">
+            <lucide-icon [img]="Sun" [size]="14"></lucide-icon> Light
           </button>
-        </div>
-        <div class="setting-item">
-          <div class="setting-info">
-            <h3>Two-Factor Authentication</h3>
-            <p>Add an extra layer of security to your account</p>
-          </div>
-          <button class="action-btn" [class.enabled]="twoFactorEnabled">
-            <lucide-icon [img]="twoFactorEnabled ? CheckCircle : Shield" [size]="16"></lucide-icon>
-            {{ twoFactorEnabled ? 'Enabled' : 'Enable 2FA' }}
+          <button class="theme-btn" [class.active]="isDarkMode" (click)="setTheme('dark')">
+            <lucide-icon [img]="Moon" [size]="14"></lucide-icon> Dark
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Privacy Section -->
-    <div class="settings-section">
+    <!-- ── Notifications ── -->
+    <div class="section-card">
       <div class="section-header">
-        <lucide-icon [img]="Eye" [size]="20"></lucide-icon>
-        <h2>Privacy</h2>
+        <div class="section-icon c-green"><lucide-icon [img]="Bell" [size]="16"></lucide-icon></div>
+        <h3>Notifications</h3>
       </div>
-      <div class="settings-card">
-        <div class="setting-item">
-          <div class="setting-info">
-            <h3>Profile Visibility</h3>
-            <p>Control who can see your profile information</p>
-          </div>
-          <select [(ngModel)]="privacySettings.profileVisibility" (change)="updatePrivacySettings()" class="select-input">
-            <option value="public">Public</option>
-            <option value="business-only">Business Customers Only</option>
-            <option value="private">Private</option>
-          </select>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="si-title">Email Notifications</div>
+          <div class="si-desc">Receive business updates via email</div>
         </div>
-        <div class="setting-item">
-          <div class="setting-info">
-            <h3>Show Email</h3>
-            <p>Display your email address on public business profiles</p>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" [(ngModel)]="privacySettings.showEmail" (change)="updatePrivacySettings()">
-            <span class="toggle-slider"></span>
-          </label>
+        <label class="toggle-switch">
+          <input type="checkbox" [(ngModel)]="notificationSettings.email" (change)="updateNotificationSettings()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="si-title">New Review Alerts</div>
+          <div class="si-desc">Get notified when customers leave reviews</div>
         </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [(ngModel)]="notificationSettings.newReviews" (change)="updateNotificationSettings()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="si-title">Business Updates</div>
+          <div class="si-desc">Performance metrics and business insights</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [(ngModel)]="notificationSettings.businessUpdates" (change)="updateNotificationSettings()">
+          <span class="toggle-slider"></span>
+        </label>
       </div>
     </div>
 
-    <!-- Business Management Section -->
-    <div class="settings-section">
+    <!-- ── Security ── -->
+    <div class="section-card">
       <div class="section-header">
-        <lucide-icon [img]="Building" [size]="20"></lucide-icon>
-        <h2>Business Management</h2>
+        <div class="section-icon c-orange"><lucide-icon [img]="Shield" [size]="16"></lucide-icon></div>
+        <h3>Security</h3>
       </div>
-      <div class="settings-card">
-        <div class="setting-item">
-          <div class="setting-info">
-            <h3>My Businesses</h3>
-            <p>View and manage all your businesses</p>
-          </div>
-          <a routerLink="/owner/businesses" class="action-btn">
-            <lucide-icon [img]="ExternalLink" [size]="16"></lucide-icon>
-            Manage Businesses
-          </a>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="si-title">Password</div>
+          <div class="si-desc">Update your account password</div>
         </div>
-        <div class="setting-item">
-          <div class="setting-info">
-            <h3>Business Analytics</h3>
-            <p>View performance metrics and insights</p>
-          </div>
-          <button class="action-btn" disabled>
-            <lucide-icon [img]="BarChart3" [size]="16"></lucide-icon>
-            Coming Soon
-          </button>
+        <button class="btn-action" (click)="openChangePasswordModal()">
+          <lucide-icon [img]="Key" [size]="14"></lucide-icon>
+          Change Password
+        </button>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="si-title">Two-Factor Authentication</div>
+          <div class="si-desc">Add an extra layer of security to your account</div>
         </div>
+        <button class="btn-action" [class.enabled]="twoFactorEnabled">
+          <lucide-icon [img]="twoFactorEnabled ? CheckCircle : Shield" [size]="14"></lucide-icon>
+          {{ twoFactorEnabled ? 'Enabled' : 'Enable 2FA' }}
+        </button>
       </div>
     </div>
 
-    <!-- Danger Zone -->
-    <div class="settings-section danger-zone">
+    <!-- ── Privacy ── -->
+    <div class="section-card">
       <div class="section-header">
-        <lucide-icon [img]="AlertTriangle" [size]="20" class="danger-icon"></lucide-icon>
-        <h2>Danger Zone</h2>
+        <div class="section-icon c-purple"><lucide-icon [img]="Eye" [size]="16"></lucide-icon></div>
+        <h3>Privacy</h3>
       </div>
-      <div class="settings-card danger-card">
-        <div class="setting-item">
-          <div class="setting-info">
-            <h3>Delete Account</h3>
-            <p>Permanently delete your account and all associated data. This action cannot be undone.</p>
-          </div>
-          <button class="danger-btn" (click)="showDeleteConfirmation()">
-            <lucide-icon [img]="Trash2" [size]="16"></lucide-icon>
-            Delete Account
-          </button>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="si-title">Profile Visibility</div>
+          <div class="si-desc">Control who can see your profile</div>
         </div>
+        <select [(ngModel)]="privacySettings.profileVisibility" (change)="updatePrivacySettings()" class="select-input">
+          <option value="public">Public</option>
+          <option value="business-only">Business Customers Only</option>
+          <option value="private">Private</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="si-title">Show Email</div>
+          <div class="si-desc">Display your email on public business profiles</div>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" [(ngModel)]="privacySettings.showEmail" (change)="updatePrivacySettings()">
+          <span class="toggle-slider"></span>
+        </label>
       </div>
     </div>
 
-  </div>
+    <!-- ── Business Management ── -->
+    <div class="section-card">
+      <div class="section-header">
+        <div class="section-icon c-teal"><lucide-icon [img]="Building" [size]="16"></lucide-icon></div>
+        <h3>Business Management</h3>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="si-title">My Businesses</div>
+          <div class="si-desc">View and manage all your registered businesses</div>
+        </div>
+        <a routerLink="/owner/businesses" class="btn-action">
+          <lucide-icon [img]="ExternalLink" [size]="14"></lucide-icon>
+          Manage
+        </a>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="si-title">Analytics</div>
+          <div class="si-desc">View performance metrics, charts and insights</div>
+        </div>
+        <a routerLink="/owner/analytics" class="btn-action">
+          <lucide-icon [img]="BarChart3" [size]="14"></lucide-icon>
+          View Analytics
+        </a>
+      </div>
+    </div>
+
+    <!-- ── Danger Zone ── -->
+    <div class="section-card danger-section">
+      <div class="section-header">
+        <div class="section-icon c-danger"><lucide-icon [img]="AlertTriangle" [size]="16"></lucide-icon></div>
+        <h3>Danger Zone</h3>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="si-title">Delete Account</div>
+          <div class="si-desc">Permanently delete your account and all associated data. This cannot be undone.</div>
+        </div>
+        <button class="btn-danger" (click)="showDeleteConfirmation()">
+          <lucide-icon [img]="Trash2" [size]="14"></lucide-icon>
+          Delete Account
+        </button>
+      </div>
+    </div>
+
+  </ng-container>
 </div>
 
-<!-- Change Password Modal -->
+<!-- ── Change Password Modal ── -->
 <div class="modal-overlay" *ngIf="showChangePasswordModal" (click)="closeChangePasswordModal()">
-  <div class="modal-content" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <h3>Change Password</h3>
-      <button class="close-btn" (click)="closeChangePasswordModal()">
-        <lucide-icon [img]="X" [size]="20"></lucide-icon>
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <div class="modal-head-left">
+        <div class="modal-icon c-orange"><lucide-icon [img]="Key" [size]="18"></lucide-icon></div>
+        <h3>Change Password</h3>
+      </div>
+      <button class="modal-close" (click)="closeChangePasswordModal()">
+        <lucide-icon [img]="X" [size]="18"></lucide-icon>
       </button>
     </div>
     <div class="modal-body">
       <div class="form-group">
         <label>Current Password</label>
-        <input type="password" [(ngModel)]="passwordForm.currentPassword" placeholder="Enter current password" />
+        <input type="password" [(ngModel)]="passwordForm.currentPassword" placeholder="Enter current password" class="form-input" />
       </div>
       <div class="form-group">
         <label>New Password</label>
-        <input type="password" [(ngModel)]="passwordForm.newPassword" placeholder="Enter new password" />
+        <input type="password" [(ngModel)]="passwordForm.newPassword" placeholder="Enter new password" class="form-input" />
       </div>
       <div class="form-group">
         <label>Confirm New Password</label>
-        <input type="password" [(ngModel)]="passwordForm.confirmPassword" placeholder="Confirm new password" />
+        <input type="password" [(ngModel)]="passwordForm.confirmPassword" placeholder="Confirm new password" class="form-input" />
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="cancel-btn" (click)="closeChangePasswordModal()" [disabled]="changingPassword">Cancel</button>
-      <button class="save-btn" (click)="changePassword()" [disabled]="changingPassword">
+    <div class="modal-foot">
+      <button class="btn-modal-cancel" (click)="closeChangePasswordModal()" [disabled]="changingPassword">Cancel</button>
+      <button class="btn-modal-primary" (click)="changePassword()" [disabled]="changingPassword">
         {{ changingPassword ? 'Changing...' : 'Change Password' }}
       </button>
     </div>
   </div>
 </div>
 
-<!-- Delete Account Modal -->
+<!-- ── Delete Account Modal ── -->
 <div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
-  <div class="modal-content delete-modal" (click)="$event.stopPropagation()">
-    <div class="modal-header">
-      <lucide-icon [img]="AlertTriangle" [size]="24" class="danger-icon"></lucide-icon>
-      <h2>Delete Account</h2>
-      <button class="close-btn" (click)="closeDeleteModal()">
-        <lucide-icon [img]="X" [size]="20"></lucide-icon>
+  <div class="modal-box danger-modal" (click)="$event.stopPropagation()">
+    <div class="modal-head">
+      <div class="modal-head-left">
+        <div class="modal-icon c-danger"><lucide-icon [img]="AlertTriangle" [size]="18"></lucide-icon></div>
+        <h3>Delete Account</h3>
+      </div>
+      <button class="modal-close" (click)="closeDeleteModal()">
+        <lucide-icon [img]="X" [size]="18"></lucide-icon>
       </button>
     </div>
     <div class="modal-body">
       <p class="warning-text">This action is <strong>permanent and irreversible</strong>. The following will be deleted:</p>
       <ul class="deletion-list">
-        <li><lucide-icon [img]="CheckCircle" [size]="16"></lucide-icon> Your user account and profile</li>
-        <li><lucide-icon [img]="CheckCircle" [size]="16"></lucide-icon> All your businesses and their data</li>
-        <li><lucide-icon [img]="CheckCircle" [size]="16"></lucide-icon> All items, reviews, and images</li>
-        <li><lucide-icon [img]="CheckCircle" [size]="16"></lucide-icon> All account preferences and settings</li>
+        <li><lucide-icon [img]="CheckCircle" [size]="14"></lucide-icon> Your user account and profile</li>
+        <li><lucide-icon [img]="CheckCircle" [size]="14"></lucide-icon> All your businesses and their data</li>
+        <li><lucide-icon [img]="CheckCircle" [size]="14"></lucide-icon> All items, reviews, and images</li>
+        <li><lucide-icon [img]="CheckCircle" [size]="14"></lucide-icon> All preferences and settings</li>
       </ul>
-      <p class="confirmation-prompt">Type <strong>DELETE</strong> to confirm account deletion:</p>
-      <input 
-        type="text" 
-        class="confirmation-input" 
-        [(ngModel)]="deleteConfirmationText" 
-        placeholder="Type DELETE to confirm"
-        [disabled]="deletingAccount"
-      />
+      <p class="confirm-prompt">Type <strong>DELETE</strong> to confirm:</p>
+      <input type="text" class="confirm-input" [(ngModel)]="deleteConfirmationText"
+        placeholder="Type DELETE to confirm" [disabled]="deletingAccount" />
     </div>
-    <div class="modal-footer">
-      <button class="cancel-btn" (click)="closeDeleteModal()" [disabled]="deletingAccount">
-        Cancel
-      </button>
-      <button 
-        class="danger-btn" 
-        (click)="confirmDeleteAccount()" 
-        [disabled]="deleteConfirmationText !== 'DELETE' || deletingAccount"
-      >
-        <lucide-icon [img]="Trash2" [size]="16"></lucide-icon>
+    <div class="modal-foot">
+      <button class="btn-modal-cancel" (click)="closeDeleteModal()" [disabled]="deletingAccount">Cancel</button>
+      <button class="btn-modal-danger" (click)="confirmDeleteAccount()"
+        [disabled]="deleteConfirmationText !== 'DELETE' || deletingAccount">
+        <lucide-icon [img]="Trash2" [size]="14"></lucide-icon>
         {{ deletingAccount ? 'Deleting...' : 'Delete Account' }}
       </button>
     </div>

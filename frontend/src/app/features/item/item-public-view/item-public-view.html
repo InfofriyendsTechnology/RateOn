@@ -52,7 +52,7 @@
         </div>
         
         <!-- Write Review Button -->
-        <button class="btn-write-review" [class.has-review]="userHasReview" (click)="writeReview()">
+        <button class="btn-write-review" *ngIf="!isSuperAdmin()" [class.has-review]="userHasReview" (click)="writeReview()">
           <lucide-icon [img]="Edit" [size]="20"></lucide-icon>
           <span>{{ userHasReview ? 'Edit Your Review' : 'Write Review' }}</span>
         </button>
@@ -137,7 +137,7 @@
         </div>
 
         <!-- Review Actions (Reactions Only) -->
-        <div class="review-actions-bar">
+        <div class="review-actions-bar" *ngIf="!isSuperAdmin()">
           <div class="reaction-buttons">
             <button class="reaction-btn helpful" (click)="toggleReaction(review, 'helpful')" [title]="'Mark as helpful'" [disabled]="isUserReview(review)">
               <lucide-icon [img]="ThumbsUp" [size]="18"></lucide-icon>

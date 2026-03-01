@@ -249,6 +249,14 @@ $yellow-soft: rgba(251, 191, 36, 0.08);
     &:active { transform: scale(0.95); }
   }
 
+  .top-crumbs {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    ::ng-deep .breadcrumbs { padding: 0; flex-wrap: nowrap; overflow: hidden; }
+    ::ng-deep .crumb span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 140px; }
+  }
+
   .page-title {
     flex: 1; text-align: center;
     h1 { font-size: 1.125rem; font-weight: 600; color: var(--text-primary); margin: 0; }

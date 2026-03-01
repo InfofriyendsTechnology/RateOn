@@ -10,13 +10,14 @@ import { ThemeService } from '../../../core/services/theme';
 import { UserNotificationsService, AppNotification } from '../../../core/services/user-notifications.service';
 import { UserService } from '../../../core/services/user';
 import { BusinessStateService } from '../../../core/services/business-state.service';
-import { LucideAngularModule, LayoutDashboard, Compass, Trophy, ShoppingBag, Settings, Edit, LogOut, Menu, User, Plus, ArrowLeft, X, Star, Sun, Moon, Bell, MessageSquare } from 'lucide-angular';
+import { LucideAngularModule, LayoutDashboard, Compass, Trophy, ShoppingBag, Settings, Edit, LogOut, Menu, User, Plus, ArrowLeft, X, Star, Sun, Moon, Bell, MessageSquare, Package, BarChart2 } from 'lucide-angular';
 import { filter } from 'rxjs/operators';
+import { BreadcrumbsComponent, Crumb } from '../../../shared/components/breadcrumbs/breadcrumbs';
 
 @Component({
   selector: 'app-business-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, RouterOutlet, LucideAngularModule],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, RouterOutlet, LucideAngularModule, BreadcrumbsComponent],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
@@ -39,7 +40,10 @@ export class BusinessDashboardComponent implements OnInit {
   readonly Moon = Moon;
   readonly Bell = Bell;
   readonly MessageSquare = MessageSquare;
+  readonly Package = Package;
+  readonly BarChart2 = BarChart2;
   
+  topBarCrumbs: Crumb[] = [];
   user: any = null;
   businesses: any[] = [];
   selectedBusiness: any = null;
@@ -48,6 +52,9 @@ export class BusinessDashboardComponent implements OnInit {
   avatarFailed = false;
   loadingBusinesses = false;
   
+  // Today's date for header card
+  todayDate = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
   // Statistics
   totalItems = 0;
   totalReviews = 0;
@@ -107,7 +114,8 @@ export class BusinessDashboardComponent implements OnInit {
       .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
         this.isChildRoute = event.url !== '/owner' && !event.url.endsWith('/owner');
-        
+        this.updateTopBarCrumbs();
+
         // Reload business data when navigating back to main dashboard
         if (event.url === '/owner' || event.url.endsWith('/owner')) {
           this.loadBusinessData();
@@ -116,6 +124,39 @@ export class BusinessDashboardComponent implements OnInit {
     
     // Set initial state
     this.isChildRoute = this.router.url !== '/owner' && !this.router.url.endsWith('/owner');
+    this.updateTopBarCrumbs();
+  }
+
+  updateTopBarCrumbs() {
+    const url = this.router.url;
+    const dash: Crumb = { label: 'Dashboard', link: '/owner' };
+    const biz:  Crumb = { label: 'My Businesses', link: '/owner/businesses' };
+
+    if (url === '/owner' || url.endsWith('/owner')) {
+      this.topBarCrumbs = [{ label: 'Dashboard' }];
+    } else if (url.includes('/businesses/') && url.includes('/edit')) {
+      this.topBarCrumbs = [dash, biz, { label: 'Edit Business' }];
+    } else if (url.includes('/businesses/') && url.includes('/items')) {
+      this.topBarCrumbs = [dash, biz, { label: 'Manage Items' }];
+    } else if (url.includes('/businesses/new')) {
+      this.topBarCrumbs = [dash, biz, { label: 'New Business' }];
+    } else if (url.match(/\/businesses\/[^\/]+$/)) {
+      this.topBarCrumbs = [dash, biz, { label: 'Business Details' }];
+    } else if (url.includes('/businesses')) {
+      this.topBarCrumbs = [dash, { label: 'My Businesses' }];
+    } else if (url.includes('/analytics')) {
+      this.topBarCrumbs = [dash, { label: 'Analytics' }];
+    } else if (url.includes('/reviews')) {
+      this.topBarCrumbs = [dash, { label: 'Reviews' }];
+    } else if (url.includes('/notifications')) {
+      this.topBarCrumbs = [dash, { label: 'Notifications' }];
+    } else if (url.includes('/settings')) {
+      this.topBarCrumbs = [dash, { label: 'Settings' }];
+    } else if (url.includes('/profile')) {
+      this.topBarCrumbs = [dash, { label: 'Profile' }];
+    } else {
+      this.topBarCrumbs = [dash];
+    }
   }
   
   loadBusinessData(forceRefresh: boolean = true) {
@@ -161,29 +202,19 @@ export class BusinessDashboardComponent implements OnInit {
   }
   
   calculateStatistics() {
-    // Calculate total items across all businesses
-    this.totalItems = this.businesses.reduce((sum, business) => {
-      return sum + (business.itemCount || 0);
+    // Backend returns: stats.totalItems, stats.totalReviews, averageRating (number), reviewCount
+    this.totalItems = this.businesses.reduce((sum, b) => {
+      return sum + (b.stats?.totalItems || b.itemsCount || 0);
     }, 0);
-    
-    // Calculate total reviews across all businesses
-    this.totalReviews = this.businesses.reduce((sum, business) => {
-      return sum + (business.rating?.count || business.reviewCount || 0);
+
+    this.totalReviews = this.businesses.reduce((sum, b) => {
+      return sum + (b.stats?.totalReviews || b.reviewCount || 0);
     }, 0);
-    
-    // Calculate average rating across all businesses
-    const businessesWithRating = this.businesses.filter(b => {
-      const rating = b.rating?.average || b.rating || 0;
-      return rating > 0;
-    });
-    if (businessesWithRating.length > 0) {
-      const totalRating = businessesWithRating.reduce((sum, business) => {
-        return sum + (business.rating?.average || business.rating || 0);
-      }, 0);
-      this.averageRating = totalRating / businessesWithRating.length;
-    } else {
-      this.averageRating = 0;
-    }
+
+    const withRating = this.businesses.filter(b => (b.averageRating || b.rating || 0) > 0);
+    this.averageRating = withRating.length
+      ? withRating.reduce((sum, b) => sum + (b.averageRating || b.rating || 0), 0) / withRating.length
+      : 0;
   }
   
   selectBusiness(business: any) {
@@ -265,6 +296,8 @@ export class BusinessDashboardComponent implements OnInit {
       return 'Business Details';
     } else if (url.includes('/businesses')) {
       return 'My Businesses';
+    } else if (url.includes('/analytics')) {
+      return 'Analytics';
     } else if (url.includes('/reviews')) {
       return 'Reviews';
     } else if (url.includes('/notifications')) {

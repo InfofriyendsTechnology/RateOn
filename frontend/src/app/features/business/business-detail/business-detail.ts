@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { LucideAngularModule, MapPin, Phone, Globe, Star, ArrowLeft, Clock, Building, Edit, Package, ImageIcon, ChevronUp, Info, MessageSquare } from 'lucide-angular';
+import { LucideAngularModule, MapPin, Phone, Globe, Star, ArrowLeft, Clock, Building, Edit, Package, ImageIcon, ChevronUp, Info, MessageSquare, Eye } from 'lucide-angular';
 import { BreadcrumbsComponent } from '../../../shared/components/breadcrumbs/breadcrumbs';
 import { BusinessService } from '../../../core/services/business';
 
@@ -30,6 +30,7 @@ export class BusinessDetail implements OnInit {
   readonly ChevronUp = ChevronUp;
   readonly Info = Info;
   readonly MessageSquare = MessageSquare;
+  readonly Eye = Eye;
   readonly Math = Math;
 
   constructor(

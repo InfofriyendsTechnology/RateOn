@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { AdminService } from '../../../core/services/admin.service';
+import { StorageService } from '../../../core/services/storage';
 import { LucideAngularModule, Users, Building2, FileText, TrendingUp, ShieldCheck, UserCheck } from 'lucide-angular';
 import { TopBusinessesComponent, TopBusiness } from '../../../shared/components/top-businesses/top-businesses.component';
 import { forkJoin } from 'rxjs';
@@ -14,6 +15,8 @@ import { forkJoin } from 'rxjs';
   styleUrl: './admin-dashboard.component.scss'
 })
 export class AdminDashboardComponent implements OnInit {
+  @ViewChild(TopBusinessesComponent) topBizRef?: TopBusinessesComponent;
+
   readonly Users = Users;
   readonly Building2 = Building2;
   readonly FileText = FileText;
@@ -29,24 +32,36 @@ export class AdminDashboardComponent implements OnInit {
   selectedPeriod: 'week' | 'month' = 'month';
   todayDate = this.getTodayDate();
 
-  constructor(private adminService: AdminService) {}
+  constructor(
+    private adminService: AdminService,
+    private storage: StorageService,
+    private router: Router
+  ) {}
 
   ngOnInit() { this.loadData(); }
+
+  private mapBusinesses(list: any[]): TopBusiness[] {
+    return list.map((b: any) => ({
+      businessId:    b.businessId,
+      businessName:  b.businessName,
+      ownerId:       b.ownerId?.toString?.() || b.ownerId,
+      reviewCount:   b.reviewCount,
+      averageRating: b.averageRating,
+      reactionCount: b.reactionCount
+    }));
+  }
 
   loadData() {
     this.isLoading = true;
     forkJoin({
-      userAnalytics:  this.adminService.getUserAnalytics(),
+      userAnalytics:    this.adminService.getUserAnalytics(),
       contentAnalytics: this.adminService.getContentAnalytics(),
-      topBusinesses: this.adminService.getTopBusinesses(this.selectedPeriod)
+      topBusinesses:    this.adminService.getTopBusinesses(this.selectedPeriod)
     }).subscribe({
       next: (r) => {
-        this.userAnalytics   = r.userAnalytics.data;
+        this.userAnalytics    = r.userAnalytics.data;
         this.contentAnalytics = r.contentAnalytics.data;
-        this.topBusinesses  = (r.topBusinesses.data?.topBusinesses || []).map((b: any) => ({
-          businessId: b.businessId, businessName: b.businessName,
-          reviewCount: b.reviewCount, averageRating: b.averageRating, reactionCount: b.reactionCount
-        }));
+        this.topBusinesses    = this.mapBusinesses(r.topBusinesses.data?.topBusinesses || []);
         this.isLoading = false;
       },
       error: () => { this.isLoading = false; }
@@ -57,10 +72,32 @@ export class AdminDashboardComponent implements OnInit {
     this.selectedPeriod = period;
     this.adminService.getTopBusinesses(period).subscribe({
       next: (r: any) => {
-        this.topBusinesses = (r.data?.topBusinesses || []).map((b: any) => ({
-          businessId: b.businessId, businessName: b.businessName,
-          reviewCount: b.reviewCount, averageRating: b.averageRating, reactionCount: b.reactionCount
-        }));
+        this.topBusinesses = this.mapBusinesses(r.data?.topBusinesses || []);
+      }
+    });
+  }
+
+  onLoginAsOwner(ownerId: string) {
+    this.adminService.loginAsUser(ownerId).subscribe({
+      next: (r: any) => {
+        const { token, user: userData } = r.data;
+
+        // Backup admin session
+        const adminToken = this.storage.getToken();
+        if (adminToken) localStorage.setItem('rateon_admin_backup_token', adminToken);
+        const adminUser = this.storage.getUser();
+        if (adminUser) localStorage.setItem('rateon_admin_backup_user', JSON.stringify(adminUser));
+        localStorage.setItem('rateon_is_impersonating', 'true');
+        localStorage.setItem('rateon_admin_return_url', this.router.url);
+
+        this.storage.saveToken(token);
+        this.storage.saveUser(userData);
+        this.topBizRef?.resetLoggingIn();
+        window.open('/', '_blank');
+      },
+      error: (err: any) => {
+        alert(err?.error?.message || 'Could not login as this user');
+        this.topBizRef?.resetLoggingIn();
       }
     });
   }

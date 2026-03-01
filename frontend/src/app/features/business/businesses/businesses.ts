@@ -7,7 +7,7 @@ import { StorageService } from '../../../core/services/storage';
 import { BusinessService } from '../../../core/services/business';
 import { ToastService } from '../../../core/services/toast';
 import { BusinessStateService } from '../../../core/services/business-state.service';
-import { LucideAngularModule, ShoppingBag, MapPin, Phone, Star, Plus, Edit, X, ArrowLeft, Package, MessageSquare, Eye, Trash2, AlertTriangle, Image as ImageIcon } from 'lucide-angular';
+import { LucideAngularModule, ShoppingBag, MapPin, Phone, Star, Plus, Edit, X, ArrowLeft, Package, MessageSquare, Eye, Trash2, AlertTriangle, Image as ImageIcon, RefreshCw } from 'lucide-angular';
 import { BreadcrumbsComponent } from '../../../shared/components/breadcrumbs/breadcrumbs';
 
 @Component({
@@ -34,6 +34,7 @@ export class BusinessesComponent implements OnInit, OnDestroy {
   readonly Trash2 = Trash2;
   readonly AlertTriangle = AlertTriangle;
   readonly ImageIcon = ImageIcon;
+  readonly RefreshCw = RefreshCw;
   
   user: any = null;
   businesses: any[] = [];
