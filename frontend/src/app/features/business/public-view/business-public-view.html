@@ -1,3 +1,51 @@
+<!-- ── Skeleton loader (while fetching business) ── -->
+<div class="business-public-view-container" *ngIf="loading">
+  <!-- Top nav skeleton -->
+  <div class="top-nav-bar">
+    <div class="sk-bar" style="width:180px;height:18px;"></div>
+  </div>
+
+  <!-- Header skeleton -->
+  <div class="business-header">
+    <div class="sk-avatar" style="width:72px;height:72px;border-radius:16px;"></div>
+    <div class="sk-header-body">
+      <div class="sk-bar" style="width:220px;height:22px;margin-bottom:10px;"></div>
+      <div class="sk-bar" style="width:120px;height:14px;"></div>
+    </div>
+  </div>
+
+  <!-- Info grid skeleton -->
+  <div class="info-grid">
+    <div class="info-card" *ngFor="let c of [1,2,3]">
+      <div class="sk-bar" style="width:100px;height:16px;margin-bottom:14px;"></div>
+      <div class="sk-bar" style="width:90%;height:12px;margin-bottom:8px;"></div>
+      <div class="sk-bar" style="width:70%;height:12px;"></div>
+    </div>
+  </div>
+
+  <!-- Tabs skeleton -->
+  <div class="tabs-section">
+    <div class="tabs-header">
+      <div class="sk-bar" style="width:140px;height:36px;border-radius:8px;"></div>
+      <div class="sk-bar" style="width:140px;height:36px;border-radius:8px;margin-left:8px;"></div>
+    </div>
+  </div>
+
+  <!-- Cards skeleton -->
+  <div class="items-section">
+    <div class="sk-cards-grid">
+      <div class="sk-card" *ngFor="let i of [1,2,3,4,5,6]">
+        <div class="sk-card-img"></div>
+        <div class="sk-card-body">
+          <div class="sk-bar" style="width:60%;height:15px;margin-bottom:8px;"></div>
+          <div class="sk-bar" style="width:80%;height:11px;margin-bottom:6px;"></div>
+          <div class="sk-bar" style="width:45%;height:11px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="business-public-view-container" *ngIf="!loading && business">
   <!-- Top Navigation Bar -->
   <div class="top-nav-bar">
@@ -179,9 +227,15 @@
       <p>No items available yet</p>
     </div>
 
-    <div class="loading-state" *ngIf="loadingItems">
-      <div class="spinner"></div>
-      <p>Loading items...</p>
+    <div class="sk-cards-grid" *ngIf="loadingItems">
+      <div class="sk-card" *ngFor="let i of [1,2,3,4,5,6]">
+        <div class="sk-card-img"></div>
+        <div class="sk-card-body">
+          <div class="sk-bar" style="width:62%;height:15px;margin-bottom:8px;"></div>
+          <div class="sk-bar" style="width:80%;height:11px;margin-bottom:6px;"></div>
+          <div class="sk-bar" style="width:45%;height:11px;"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -396,16 +450,20 @@
       </button>
     </div>
 
-    <div class="loading-state" *ngIf="loadingReviews">
-      <div class="spinner"></div>
-      <p>Loading reviews...</p>
+    <div class="sk-reviews-list" *ngIf="loadingReviews">
+      <div class="sk-review-card" *ngFor="let i of [1,2,3]">
+        <div class="sk-review-header">
+          <div class="sk-avatar" style="width:48px;height:48px;"></div>
+          <div class="sk-header-body">
+            <div class="sk-bar" style="width:150px;height:14px;margin-bottom:6px;"></div>
+            <div class="sk-bar" style="width:100px;height:11px;"></div>
+          </div>
+        </div>
+        <div class="sk-bar" style="width:95%;height:12px;margin-bottom:6px;"></div>
+        <div class="sk-bar" style="width:78%;height:12px;"></div>
+      </div>
     </div>
   </div>
-</div>
-
-<div class="loading-state" *ngIf="loading">
-  <div class="spinner"></div>
-  <p>Loading business details...</p>
 </div>
 
 <div class="error-state" *ngIf="!loading && !business">

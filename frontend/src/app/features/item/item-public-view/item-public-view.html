@@ -270,16 +270,62 @@
       </button>
     </div>
 
-    <div class="loading-state" *ngIf="loadingReviews">
-      <div class="spinner"></div>
-      <p>Loading reviews...</p>
+    <div class="sk-reviews-list" *ngIf="loadingReviews">
+      <div class="sk-review-card" *ngFor="let i of [1,2,3]">
+        <div class="sk-review-header">
+          <div class="sk-avatar" style="width:48px;height:48px;"></div>
+          <div class="sk-header-body">
+            <div class="sk-bar" style="width:150px;height:14px;margin-bottom:6px;"></div>
+            <div class="sk-bar" style="width:100px;height:11px;"></div>
+          </div>
+        </div>
+        <div class="sk-bar" style="width:95%;height:12px;margin-bottom:6px;"></div>
+        <div class="sk-bar" style="width:78%;height:12px;"></div>
+      </div>
     </div>
   </div>
 </div>
 
-<div class="loading-state" *ngIf="loading">
-  <div class="spinner"></div>
-  <p>Loading item details...</p>
+<!-- ── Skeleton loader (while fetching item) ── -->
+<div class="item-public-view-container" *ngIf="loading">
+  <div class="header-actions">
+    <div class="sk-bar" style="width:220px;height:18px;"></div>
+  </div>
+
+  <!-- Item header skeleton -->
+  <div class="item-header">
+    <div class="item-content-wrapper">
+      <div class="sk-card-img" style="min-height:360px;border-radius:14px;"></div>
+      <div style="display:flex;flex-direction:column;gap:1rem;padding:0 1rem 0 0;">
+        <div class="sk-bar" style="width:80px;height:14px;"></div>
+        <div class="sk-bar" style="width:65%;height:28px;"></div>
+        <div class="sk-bar" style="width:90px;height:22px;border-radius:50px;"></div>
+        <div class="sk-bar" style="width:120px;height:36px;"></div>
+        <div class="sk-bar" style="width:95%;height:12px;"></div>
+        <div class="sk-bar" style="width:85%;height:12px;"></div>
+        <div class="sk-bar" style="width:100%;height:44px;border-radius:10px;"></div>
+        <div class="sk-bar" style="width:100%;height:44px;border-radius:8px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reviews skeleton -->
+  <div class="reviews-section">
+    <div class="sk-bar" style="width:200px;height:24px;margin-bottom:2rem;"></div>
+    <div class="sk-reviews-list">
+      <div class="sk-review-card" *ngFor="let i of [1,2,3]">
+        <div class="sk-review-header">
+          <div class="sk-avatar" style="width:48px;height:48px;"></div>
+          <div class="sk-header-body">
+            <div class="sk-bar" style="width:150px;height:14px;margin-bottom:6px;"></div>
+            <div class="sk-bar" style="width:100px;height:11px;"></div>
+          </div>
+        </div>
+        <div class="sk-bar" style="width:95%;height:12px;margin-bottom:6px;"></div>
+        <div class="sk-bar" style="width:78%;height:12px;"></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="error-state" *ngIf="!loading && !item">
