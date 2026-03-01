@@ -102,15 +102,9 @@ const base = (() => { try { return new URL(environment.apiUrl, window.location.o
       });
     });
 
-    this.socket.on('notifications_read', (payload: { unreadCount: number }) => {
-      this.zone.run(() => this.unreadCount$.next(payload?.unreadCount ?? 0));
-    });
-
-    this.socket.on('notifications_update', (payload: { unreadCount: number; deletedId?: string }) => {
+    this.socket.on('unread_count_update', (payload: { unreadCount: number }) => {
       this.zone.run(() => {
-        if (typeof payload?.unreadCount === 'number') {
-          this.unreadCount$.next(payload.unreadCount);
-        }
+        this.unreadCount$.next(payload?.unreadCount ?? 0);
         this.listRefresh$.next();
       });
     });

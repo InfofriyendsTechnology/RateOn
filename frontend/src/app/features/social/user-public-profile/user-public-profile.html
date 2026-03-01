@@ -150,14 +150,14 @@
           <p class="stat-label">Reviews</p>
         </div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card stat-card-clickable" (click)="openFollowModal('followers')" title="View followers">
         <div class="stat-icon followers"><lucide-icon [img]="Users" [size]="24"></lucide-icon></div>
         <div class="stat-content">
           <p class="stat-value">{{ profileUser.stats?.totalFollowers || 0 }}</p>
           <p class="stat-label">Followers</p>
         </div>
       </div>
-      <div class="stat-card">
+      <div class="stat-card stat-card-clickable" (click)="openFollowModal('following')" title="View following">
         <div class="stat-icon following"><lucide-icon [img]="UserPlus" [size]="24"></lucide-icon></div>
         <div class="stat-content">
           <p class="stat-value">{{ profileUser.stats?.totalFollowing || 0 }}</p>
@@ -233,5 +233,36 @@
       </div>
     </div>
 
+  </div>
+</div>
+
+<!-- Followers / Following Modal -->
+<div class="follow-modal-overlay" *ngIf="showFollowModal" (click)="closeFollowModal()">
+  <div class="follow-modal" (click)="$event.stopPropagation()">
+    <div class="follow-modal-header">
+      <h3>{{ followModalType === 'followers' ? 'Followers' : 'Following' }}</h3>
+      <button class="follow-modal-close" (click)="closeFollowModal()">&#10005;</button>
+    </div>
+    <div class="follow-modal-body">
+      <div *ngIf="followModalLoading" class="follow-modal-loading">
+        <div class="upp-spinner"></div>
+      </div>
+      <div *ngIf="!followModalLoading && followModalList.length === 0" class="follow-modal-empty">
+        <p>No {{ followModalType }} yet</p>
+      </div>
+      <div *ngIf="!followModalLoading && followModalList.length > 0" class="follow-modal-list">
+        <div class="follow-user-item" *ngFor="let item of followModalList" (click)="navigateToFollowUser(item)">
+          <div class="follow-user-avatar">
+            <img *ngIf="getFollowUserAvatar(item)" [src]="getFollowUserAvatar(item)" [alt]="getFollowUserName(item)" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <div *ngIf="!getFollowUserAvatar(item)" class="follow-avatar-fallback">{{ getFollowUserInitial(item) }}</div>
+          </div>
+          <div class="follow-user-info">
+            <span class="follow-user-name">{{ getFollowUserName(item) }}</span>
+            <span class="follow-user-username">@{{ (item.user || item).username }}</span>
+          </div>
+          <span class="follow-arrow">&#8250;</span>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

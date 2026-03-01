@@ -21,6 +21,7 @@ import { ItemPublicView } from './features/item/item-public-view/item-public-vie
 import { SearchResultsComponent } from './features/search/search-results/search-results.component';
 import { MyReviewsComponent } from './features/user/my-reviews/my-reviews';
 import { UserPublicProfile } from './features/social/user-public-profile/user-public-profile';
+import { UserNotificationsPageComponent } from './features/user/notifications/notifications';
 import { AdminLoginComponent } from './features/admin/login/admin-login.component';
 import { AdminShellComponent } from './features/admin/shell/admin-shell.component';
 import { AdminDashboardComponent } from './features/admin/dashboard/admin-dashboard.component';
@@ -59,6 +60,12 @@ export const routes: Routes = [
   {
     path: 'my-reviews',
     component: MyReviewsComponent,
+    canActivate: [authGuard]
+  },
+  // User notifications page
+  {
+    path: 'notifications',
+    component: UserNotificationsPageComponent,
     canActivate: [authGuard]
   },
   // Settings redirect to profile (for regular users)

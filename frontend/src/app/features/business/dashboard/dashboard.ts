@@ -222,10 +222,13 @@ export class BusinessDashboardComponent implements OnInit {
       this.unreadNotificationsCount = count;
     });
     
-    // Listen for new notifications and reload business data to update counts
+    // Listen for new notifications — toast for all types, reload data on review
     this.notificationService.onNewNotification().subscribe(notification => {
+      // Show toast for every incoming notification
+      this.toastService.info(notification.message || 'You have a new notification');
+
+      // Reload business stats when a new review arrives
       if (notification.type === 'new_review') {
-        // Reload business data to get updated review counts
         this.loadBusinessData();
       }
     });

@@ -26,8 +26,12 @@ export class AuthService {
     const user = this.storage.getUser();
     const token = this.storage.getToken();
     
-    if (user && token) {
-      this.currentUserSubject.next(user);
+    if (token) {
+      // Token exists → user is authenticated.
+      // User data may or may not be cached; populate if available.
+      if (user) {
+        this.currentUserSubject.next(user);
+      }
       this.isAuthenticatedSubject.next(true);
     }
   }

@@ -49,7 +49,8 @@
     <div class="spinner"></div>
   </div>
 
-  <footer class="panel-footer" *ngIf="hasMore && !loading">
-    <button class="btn-load-more" (click)="loadMore()">Load more</button>
+  <footer class="panel-footer">
+    <button class="btn-load-more" *ngIf="hasMore && !loading" (click)="loadMore()">Load more</button>
+    <a routerLink="/notifications" class="btn-see-all" (click)="closed.emit()">See all notifications</a>
   </footer>
 </section>

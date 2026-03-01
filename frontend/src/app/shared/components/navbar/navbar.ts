@@ -1,19 +1,20 @@
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { LucideAngularModule, Home, LogIn, UserPlus, LayoutDashboard, User, LogOut, Menu, X, Building2, Moon, Sun, Search, FileText, Compass } from 'lucide-angular';
+import { LucideAngularModule, Home, LogIn, UserPlus, LayoutDashboard, User, LogOut, Menu, X, Building2, Moon, Sun, Search, FileText, Compass, Bell } from 'lucide-angular';
 import { StorageService } from '../../../core/services/storage';
 import { ThemeService } from '../../../core/services/theme';
 import { NotificationBellComponent } from '../notification-bell/notification-bell';
 import { NotificationPanelComponent } from '../notification-panel/notification-panel';
 import { UserNotificationsService } from '../../../core/services/user-notifications.service';
+import { ToastService } from '../../../core/services/toast';
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-imports: [RouterLink, RouterLinkActive, CommonModule, LucideAngularModule, NotificationBellComponent, NotificationPanelComponent],
+imports: [RouterLink, RouterLinkActive, CommonModule, LucideAngularModule, NotificationBellComponent],
   templateUrl: './navbar.html',
   styleUrl: './navbar.scss',
 })
@@ -33,6 +34,7 @@ export class Navbar implements OnInit, OnDestroy {
   readonly Search = Search;
   readonly FileText = FileText;
   readonly Compass = Compass;
+  readonly Bell = Bell;
   isMenuOpen = false;
   avatarFailed = false;
   showLogoutModal = false;
@@ -43,18 +45,17 @@ export class Navbar implements OnInit, OnDestroy {
   onDocumentClick(): void {
     this.showProfileDropdown = false;
     this.isMenuOpen = false;
-    this.panelOpen = false;
   }
 
   // Notifications UI state
   unreadCount = 0;
-  panelOpen = false;
 
   constructor(
     private storage: StorageService,
     private router: Router,
-public themeService: ThemeService,
-    private userNotifications: UserNotificationsService
+    public themeService: ThemeService,
+    private userNotifications: UserNotificationsService,
+    private toastService: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -62,13 +63,15 @@ public themeService: ThemeService,
       this.userNotifications.connect();
       this.userNotifications.seedUnreadCount();
       this.userNotifications.onUnreadCount().subscribe((c) => (this.unreadCount = c || 0));
+      this.userNotifications.onNewNotification().subscribe((notif) => {
+        this.toastService.info(notif.message || 'You have a new notification');
+      });
     }
     // Auto-close mobile menu on every navigation
     this.routerSub = this.router.events
       .pipe(filter(e => e instanceof NavigationEnd))
       .subscribe(() => {
         this.isMenuOpen = false;
-        this.panelOpen = false;
       });
   }
 
@@ -91,6 +94,10 @@ public themeService: ThemeService,
   
   getDashboardLink(): string {
     return '/owner';
+  }
+
+  goToNotifications(): void {
+    this.router.navigate(['/notifications']);
   }
 
   toggleMenu() {

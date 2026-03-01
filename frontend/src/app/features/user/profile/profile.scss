@@ -504,11 +504,19 @@
   width: 100%;
   box-sizing: border-box;
   overflow: hidden;
-  
+
   &:hover {
     border-color: var(--border-color-strong);
     transform: translateY(-2px);
     box-shadow: var(--shadow-md);
+  }
+
+  &.stat-card-clickable {
+    cursor: pointer;
+    &:hover {
+      border-color: #fbbf24;
+      box-shadow: 0 4px 16px rgba(251, 191, 36, 0.15);
+    }
   }
   
   @media (max-width: 768px) {
@@ -1574,7 +1582,178 @@
   }
 }
 
-// Modal
+// Follow Modal
+.follow-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+
+  @media (max-width: 480px) {
+    padding: 0;
+    align-items: flex-end;
+  }
+}
+
+.follow-modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  @media (max-width: 480px) {
+    border-radius: 16px 16px 0 0;
+    max-height: 80vh;
+    max-width: 100%;
+  }
+}
+
+.follow-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+  }
+}
+
+.follow-modal-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+
+  &:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+  }
+}
+
+.follow-modal-body {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.follow-modal-loading {
+  display: flex;
+  justify-content: center;
+  padding: 2.5rem;
+}
+
+.follow-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border-color);
+  border-top-color: #fbbf24;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.follow-modal-empty {
+  padding: 2.5rem;
+  text-align: center;
+  color: var(--text-tertiary);
+  font-size: 0.9375rem;
+}
+
+.follow-modal-list {
+  padding: 0.5rem 0;
+}
+
+.follow-user-item {
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1.5rem;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover {
+    background: var(--bg-hover);
+  }
+}
+
+.follow-user-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.follow-avatar-fallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: #000;
+}
+
+.follow-user-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.follow-user-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.follow-user-username {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.follow-arrow {
+  font-size: 1.25rem;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+// Delete Modal
 .modal-overlay {
   position: fixed;
   top: 0;

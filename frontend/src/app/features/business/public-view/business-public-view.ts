@@ -51,6 +51,7 @@ export class BusinessPublicView implements OnInit {
   reviewToDelete: any = null;
   deletingReview = false;
   showAuthModal = false;
+
   readonly MapPin = MapPin;
   readonly Phone = Phone;
   readonly Globe = Globe;
@@ -152,17 +153,20 @@ export class BusinessPublicView implements OnInit {
   }
 
   loadBusinessReviews(businessId: string) {
-    this.reviewService.getReviewsByBusiness(businessId, { reviewType: 'business' }).subscribe({
+    // No reviewType filter — load ALL reviews (item + business) for this business
+    this.reviewService.getReviewsByBusiness(businessId).subscribe({
       next: (resp: any) => {
         const data = resp.data || resp;
         this.businessReviews = data.reviews || data || [];
         
-        // Check if current user already has a review
+        // Check if current user already has a *business-level* review
         if (this.currentUser && this.currentUser._id) {
-          this.userHasReview = this.businessReviews.some((review: any) => {
-            const reviewUserId = review.userId?._id || review.userId;
-            return reviewUserId === this.currentUser._id;
-          });
+          this.userHasReview = this.businessReviews
+            .filter((r: any) => r.reviewType === 'business')
+            .some((review: any) => {
+              const reviewUserId = review.userId?._id || review.userId;
+              return reviewUserId === this.currentUser._id;
+            });
         }
         
         this.loadingReviews = false;
@@ -200,10 +204,10 @@ export class BusinessPublicView implements OnInit {
     }
     
     if (this.userHasReview) {
-      // Navigate to edit mode - find user's review
+      // Navigate to edit mode - find user's business-level review
       const userReview = this.businessReviews.find((review: any) => {
         const reviewUserId = review.userId?._id || review.userId;
-        return reviewUserId === this.currentUser._id;
+        return review.reviewType === 'business' && reviewUserId === this.currentUser._id;
       });
       
       if (userReview) {
@@ -564,6 +568,34 @@ export class BusinessPublicView implements OnInit {
     if (userId) {
       this.router.navigate(['/user', userId]);
     }
+  }
+
+  navigateToOwnerProfile(): void {
+    const owner = this.business?.owner;
+    if (!owner) return;
+    const ownerId = typeof owner === 'object' ? owner._id : owner;
+    if (ownerId) {
+      this.router.navigate(['/user', ownerId]);
+    }
+  }
+
+  getOwnerName(): string {
+    const owner = this.business?.owner;
+    if (!owner || typeof owner !== 'object') return 'Unknown';
+    const first = owner.profile?.firstName || '';
+    const last = owner.profile?.lastName || '';
+    const full = (first + ' ' + last).trim();
+    return full || owner.username || 'Unknown';
+  }
+
+  getOwnerInitial(): string {
+    return this.getOwnerName().charAt(0).toUpperCase();
+  }
+
+  getOwnerAvatar(): string | null {
+    const owner = this.business?.owner;
+    if (!owner || typeof owner !== 'object') return null;
+    return owner.profile?.avatar || null;
   }
 
   navigateToReplyAuthor(reply: any): void {

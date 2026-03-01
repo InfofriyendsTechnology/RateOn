@@ -23,11 +23,6 @@ export default {
                 return responseHandler.notFound(res, 'Review not found');
             }
 
-            // User cannot react to their own review
-            if (review.userId.toString() === userId.toString()) {
-                return responseHandler.error(res, 'You cannot react to your own review', 400);
-            }
-
             // Check if user already reacted to this review
             let existingReaction = await Reaction.findOne({ reviewId, userId });
 

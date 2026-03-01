@@ -43,6 +43,12 @@ export const getUserProfile = async (req, res, next) => {
             return responseHandler.notFound(res, 'User not found');
         }
 
+        // Real-time follow counts from Follow collection (not cached counter)
+        const [realFollowers, realFollowing] = await Promise.all([
+            Follow.countDocuments({ followingId: userId }),
+            Follow.countDocuments({ followerId: userId })
+        ]);
+
         return responseHandler.success(res, 'Profile fetched successfully', {
             user: {
                 _id: user._id,
@@ -52,7 +58,11 @@ export const getUserProfile = async (req, res, next) => {
                 trustScore: user.trustScore,
                 level: user.level,
                 profile: user.profile,
-                stats: user.stats,
+                stats: {
+                    ...user.stats.toObject?.() ?? user.stats,
+                    totalFollowers: realFollowers,
+                    totalFollowing: realFollowing
+                },
                 createdAt: user.createdAt
             }
         });

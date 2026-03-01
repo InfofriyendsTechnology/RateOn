@@ -40,6 +40,12 @@ export class UserPublicProfile implements OnInit, OnDestroy {
   profileFollowsMe = false;
   avatarFailed = false;
 
+  // Followers / Following modal
+  showFollowModal = false;
+  followModalType: 'followers' | 'following' = 'followers';
+  followModalList: any[] = [];
+  followModalLoading = false;
+
   readonly Star = Star;
   readonly Users = Users;
   readonly FileText = FileText;
@@ -82,6 +88,11 @@ export class UserPublicProfile implements OnInit, OnDestroy {
         this.resetState();
         if (id) {
           this.isOwnProfile = this.currentUser?._id === id;
+          // If it's the logged-in user's own profile, redirect to /profile
+          if (this.isOwnProfile) {
+            this.router.navigate(['/profile'], { replaceUrl: true });
+            return;
+          }
           this.loadProfile();
           this.loadReviews();
           if (this.currentUser && !this.isOwnProfile) {
@@ -202,6 +213,54 @@ export class UserPublicProfile implements OnInit, OnDestroy {
   getJoinDate(): string {
     if (!this.profileUser?.createdAt) return '';
     return new Date(this.profileUser.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  }
+
+  openFollowModal(type: 'followers' | 'following'): void {
+    this.followModalType = type;
+    this.showFollowModal = true;
+    this.followModalList = [];
+    this.followModalLoading = true;
+
+    const obs = type === 'followers'
+      ? this.followService.getFollowers(this.profileUserId)
+      : this.followService.getFollowing(this.profileUserId);
+
+    obs.pipe(takeUntil(this.destroy$)).subscribe({
+      next: (resp: any) => {
+        const data = resp.data || resp;
+        this.followModalList = data.followers || data.following || [];
+        this.followModalLoading = false;
+      },
+      error: () => { this.followModalLoading = false; }
+    });
+  }
+
+  closeFollowModal(): void {
+    this.showFollowModal = false;
+  }
+
+  navigateToFollowUser(user: any): void {
+    const id = user?._id || user?.user?._id;
+    if (id) {
+      this.closeFollowModal();
+      this.router.navigate(['/user', id]);
+    }
+  }
+
+  getFollowUserName(item: any): string {
+    const u = item.user || item;
+    const first = u.profile?.firstName || '';
+    const last = u.profile?.lastName || '';
+    return (first + ' ' + last).trim() || u.username || 'User';
+  }
+
+  getFollowUserInitial(item: any): string {
+    return this.getFollowUserName(item).charAt(0).toUpperCase();
+  }
+
+  getFollowUserAvatar(item: any): string | null {
+    const u = item.user || item;
+    return u.profile?.avatar || null;
   }
 
   onFollowChanged(event: { isFollowing: boolean; followerCount: number }): void {

@@ -85,6 +85,36 @@
       <lucide-icon [img]="MessageSquare" [size]="14"></lucide-icon>
       <span>{{ getReplyCount() }}</span>
     </span>
+
+    <!-- Who found this helpful -->
+    <span
+      *ngIf="helpfulCount > 0"
+      class="rc-helpful-who"
+      (click)="toggleHelpfulList($event)"
+      title="See who found this helpful"
+    >{{ helpfulCount }} found this helpful</span>
+  </div>
+
+  <!-- Helpful users list popup -->
+  <div class="rc-helpful-popup" *ngIf="showHelpfulList">
+    <div class="rc-helpful-popup-header">
+      <span>Found helpful by</span>
+      <button class="rc-helpful-popup-close" (click)="closeHelpfulList()">&#10005;</button>
+    </div>
+    <div *ngIf="helpfulUsersLoading" class="rc-helpful-loading">Loading...</div>
+    <div *ngIf="!helpfulUsersLoading" class="rc-helpful-users">
+      <div
+        class="rc-helpful-user"
+        *ngFor="let user of helpfulUsers"
+        (click)="navigateToHelpfulUser(user, $event)"
+      >
+        <div class="rc-helpful-avatar">
+          <img *ngIf="getHelpfulUserAvatar(user)" [src]="getHelpfulUserAvatar(user)" [alt]="getHelpfulUserName(user)" crossorigin="anonymous" referrerpolicy="no-referrer" />
+          <div *ngIf="!getHelpfulUserAvatar(user)" class="rc-helpful-avatar-fallback">{{ getHelpfulUserInitial(user) }}</div>
+        </div>
+        <span class="rc-helpful-name">{{ getHelpfulUserName(user) }}</span>
+      </div>
+    </div>
   </div>
 
 </div>

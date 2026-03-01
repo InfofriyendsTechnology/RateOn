@@ -102,6 +102,25 @@
       </div>
     </div>
     
+    <!-- Owner -->
+    <div class="info-card owner-card" *ngIf="business.owner" (click)="navigateToOwnerProfile()" style="cursor: pointer;" title="View owner profile">
+      <h3>
+        <lucide-icon [img]="User" [size]="18"></lucide-icon>
+        Business Owner
+      </h3>
+      <div class="owner-info">
+        <div class="owner-avatar">
+          <img *ngIf="getOwnerAvatar()" [src]="getOwnerAvatar()" [alt]="getOwnerName()" class="avatar-image" crossorigin="anonymous" referrerpolicy="no-referrer" />
+          <div *ngIf="!getOwnerAvatar()" class="avatar-fallback">{{ getOwnerInitial() }}</div>
+        </div>
+        <div class="owner-details">
+          <span class="owner-name">{{ getOwnerName() }}</span>
+          <span class="owner-username" *ngIf="business.owner?.username">@{{ business.owner.username }}</span>
+          <span class="view-profile-hint">View Profile →</span>
+        </div>
+      </div>
+    </div>
+
     <!-- Hours -->
     <div class="info-card" *ngIf="business.businessHours?.length">
       <h3>
@@ -136,7 +155,7 @@
         [class.active]="activeTab === 'reviews'"
         (click)="setActiveTab('reviews')">
         <lucide-icon [img]="Star" [size]="20"></lucide-icon>
-        <span>Business Reviews ({{ businessReviews.length }})</span>
+        <span>All Reviews ({{ businessReviews.length }})</span>
       </button>
     </div>
   </div>
@@ -185,8 +204,12 @@
                 {{ getReviewerInitial(review) }}
               </div>
             </div>
-            <div class="reviewer-details">
+          <div class="reviewer-details">
               <h4 class="reviewer-name">{{ review.userId?.name || review.userId?.username || 'Anonymous' }}</h4>
+              <div class="item-badge" *ngIf="review.reviewType === 'item' && review.itemId">
+                <lucide-icon [img]="Package" [size]="12"></lucide-icon>
+                <span>{{ review.itemId?.name || 'Item Review' }}</span>
+              </div>
               <div class="review-meta">
                 <div class="rating-stars">
                   <span *ngFor="let star of [1,2,3,4,5]" 
@@ -235,11 +258,17 @@
         <!-- Review Actions (Reactions Only) -->
         <div class="review-actions-bar">
           <div class="reaction-buttons">
-            <button class="reaction-btn helpful" (click)="toggleReaction(review, 'helpful')" [title]="'Mark as helpful'" [disabled]="isUserReview(review)">
+            <button
+              class="reaction-btn helpful"
+              title="Helpful"
+              (click)="toggleReaction(review, 'helpful')">
               <lucide-icon [img]="ThumbsUp" [size]="18"></lucide-icon>
               <span class="count" *ngIf="review.reactions?.helpful > 0">{{ review.reactions.helpful }}</span>
             </button>
-            <button class="reaction-btn not-helpful" (click)="toggleReaction(review, 'not_helpful')" [title]="'Mark as not helpful'" [disabled]="isUserReview(review)">
+            <button
+              class="reaction-btn not-helpful"
+              title="Not helpful"
+              (click)="toggleReaction(review, 'not_helpful')">
               <lucide-icon [img]="ThumbsDown" [size]="18"></lucide-icon>
               <span class="count" *ngIf="review.reactions?.notHelpful > 0">{{ review.reactions.notHelpful }}</span>
             </button>
@@ -251,6 +280,7 @@
             <span>Reply as Business</span>
           </button>
         </div>
+
         
         <!-- Reply Form -->
         <div class="reply-form" *ngIf="replyingToReview === review._id">

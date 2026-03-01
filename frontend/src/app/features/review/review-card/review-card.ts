@@ -34,6 +34,11 @@ export class ReviewCard implements OnInit, OnChanges {
   userReaction: 'helpful' | 'not_helpful' | null = null;
   reactionLoading = false;
 
+  // Who found this helpful
+  showHelpfulList = false;
+  helpfulUsers: any[] = [];
+  helpfulUsersLoading = false;
+
   constructor(
     private router: Router,
     private reactionService: ReactionService,
@@ -163,5 +168,51 @@ export class ReviewCard implements OnInit, OnChanges {
 
   onAvatarError(): void {
     this.avatarFailed = true;
+  }
+
+  toggleHelpfulList(event: Event): void {
+    event.stopPropagation();
+    if (this.helpfulCount === 0) return;
+    this.showHelpfulList = !this.showHelpfulList;
+    if (this.showHelpfulList && this.helpfulUsers.length === 0) {
+      this.loadHelpfulUsers();
+    }
+  }
+
+  loadHelpfulUsers(): void {
+    if (!this.review?._id) return;
+    this.helpfulUsersLoading = true;
+    this.reactionService.getReactionsByReview(this.review._id, 'helpful').subscribe({
+      next: (resp: any) => {
+        const data = resp.data || resp;
+        this.helpfulUsers = (data.reactions || []).map((r: any) => r.userId).filter(Boolean);
+        this.helpfulUsersLoading = false;
+      },
+      error: () => { this.helpfulUsersLoading = false; }
+    });
+  }
+
+  getHelpfulUserName(user: any): string {
+    const first = user.profile?.firstName || '';
+    const last = user.profile?.lastName || '';
+    return (first + ' ' + last).trim() || user.username || 'User';
+  }
+
+  getHelpfulUserInitial(user: any): string {
+    return this.getHelpfulUserName(user).charAt(0).toUpperCase();
+  }
+
+  getHelpfulUserAvatar(user: any): string | null {
+    return user.profile?.avatar || null;
+  }
+
+  navigateToHelpfulUser(user: any, event: Event): void {
+    event.stopPropagation();
+    const id = typeof user === 'object' ? user._id : user;
+    if (id) this.router.navigate(['/user', id]);
+  }
+
+  closeHelpfulList(): void {
+    this.showHelpfulList = false;
   }
 }

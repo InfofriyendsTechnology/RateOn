@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { StorageService } from '../../../core/services/storage';
 import { UserService } from '../../../core/services/user';
 import { ReviewService } from '../../../core/services/review';
+import { FollowService } from '../../../core/services/follow.service';
 import { LucideAngularModule, User, Edit, Mail, Phone, MapPin, Shield, Star, FileText, Users, UserPlus, ThumbsUp, Camera, Trash2, X, Check, ArrowLeft, Award, Image, Search, Building2, ChevronRight } from 'lucide-angular';
 import { ToastService } from '../../../core/services/toast';
 import { ThemeService } from '../../../core/services/theme';
@@ -51,7 +52,13 @@ export class ProfileComponent implements OnInit {
   saving = false;
   converting = false;
   starPositions: any[] = [];
-  
+
+  // Followers / Following modal
+  showFollowModal = false;
+  followModalType: 'followers' | 'following' = 'followers';
+  followModalList: any[] = [];
+  followModalLoading = false;
+
   // Delete modal
   showDeleteModal: boolean = false;
   deleting = false;
@@ -76,6 +83,7 @@ export class ProfileComponent implements OnInit {
     public router: Router,
     private userService: UserService,
     private reviewService: ReviewService,
+    private followService: FollowService,
     private toast: ToastService,
     public themeService: ThemeService
   ) {}
@@ -88,6 +96,28 @@ export class ProfileComponent implements OnInit {
       return;
     }
     
+    this.mapUser(storedUser);
+    this.resetEditForm();
+    this.generateStarPositions();
+    this.loadReviews();
+
+    // Fetch fresh profile data from API to get accurate follow counts
+    this.userService.getProfile().subscribe({
+      next: (response: any) => {
+        // getUserProfile returns: { success, data: { user: { stats, ... } } }
+        const freshUser = response.data?.user || response.data || response;
+        if (freshUser?.stats) {
+          this.user.totalFollowers = freshUser.stats.totalFollowers ?? this.user.totalFollowers;
+          this.user.totalFollowing = freshUser.stats.totalFollowing ?? this.user.totalFollowing;
+          this.user.totalReviews   = freshUser.stats.totalReviews   ?? this.user.totalReviews;
+          this.user.trustScore     = freshUser.trustScore           ?? this.user.trustScore;
+        }
+      },
+      error: () => { /* silently use cached data */ }
+    });
+  }
+
+  private mapUser(storedUser: any): void {
     this.user = {
       id: storedUser.id || storedUser._id,
       username: storedUser.username || 'User',
@@ -114,10 +144,6 @@ export class ProfileComponent implements OnInit {
       const badge = this.badges.find(b => b.id === badgeId);
       if (badge) badge.selected = true;
     });
-
-    this.resetEditForm();
-    this.generateStarPositions();
-    this.loadReviews();
   }
 
   generateStarPositions() {
@@ -378,6 +404,57 @@ export class ProfileComponent implements OnInit {
 
   navigateToHome(): void {
     this.router.navigate(['/']);
+  }
+
+  openFollowModal(type: 'followers' | 'following'): void {
+    this.followModalType = type;
+    this.showFollowModal = true;
+    this.followModalList = [];
+    this.followModalLoading = true;
+
+    const userId = this.user?.id;
+    if (!userId) { this.followModalLoading = false; return; }
+
+    const obs = type === 'followers'
+      ? this.followService.getFollowers(userId)
+      : this.followService.getFollowing(userId);
+
+    obs.subscribe({
+      next: (resp: any) => {
+        const data = resp.data || resp;
+        this.followModalList = data.followers || data.following || [];
+        this.followModalLoading = false;
+      },
+      error: () => { this.followModalLoading = false; }
+    });
+  }
+
+  closeFollowModal(): void {
+    this.showFollowModal = false;
+  }
+
+  navigateToFollowUser(item: any): void {
+    const id = item?._id || item?.user?._id;
+    if (id) {
+      this.closeFollowModal();
+      this.router.navigate(['/user', id]);
+    }
+  }
+
+  getFollowUserName(item: any): string {
+    const u = item.user || item;
+    const first = u.profile?.firstName || '';
+    const last = u.profile?.lastName || '';
+    return (first + ' ' + last).trim() || u.username || 'User';
+  }
+
+  getFollowUserInitial(item: any): string {
+    return this.getFollowUserName(item).charAt(0).toUpperCase();
+  }
+
+  getFollowUserAvatar(item: any): string | null {
+    const u = item.user || item;
+    return u.profile?.avatar || null;
   }
 
   openDeleteModal(): void {

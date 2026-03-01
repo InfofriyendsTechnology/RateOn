@@ -15,8 +15,7 @@
 
           <!-- Notification Bell -->
           <div class="notif-wrapper">
-            <app-notification-bell [count]="unreadCount" (openPanel)="panelOpen = !panelOpen"></app-notification-bell>
-            <app-notification-panel [open]="panelOpen" (closed)="panelOpen = false"></app-notification-panel>
+            <app-notification-bell [count]="unreadCount" (openPanel)="goToNotifications()"></app-notification-bell>
           </div>
 
           <!-- Profile Avatar — click opens full menu -->
@@ -65,6 +64,10 @@
               <a routerLink="/my-reviews" routerLinkActive="pm-active" class="pm-item" (click)="showProfileDropdown = false">
                 <lucide-icon [img]="FileText" [size]="16" [strokeWidth]="2"></lucide-icon>
                 <span>My Reviews</span>
+              </a>
+              <a routerLink="/notifications" routerLinkActive="pm-active" class="pm-item" (click)="showProfileDropdown = false">
+                <lucide-icon [img]="Bell" [size]="16" [strokeWidth]="2"></lucide-icon>
+                <span>Notifications</span>
               </a>
               <a *ngIf="isBusinessOwner" routerLink="/owner" routerLinkActive="pm-active" class="pm-item" (click)="showProfileDropdown = false">
                 <lucide-icon [img]="Building2" [size]="16" [strokeWidth]="2"></lucide-icon>

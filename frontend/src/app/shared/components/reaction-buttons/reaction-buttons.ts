@@ -102,13 +102,15 @@ export class ReactionButtons implements OnInit, OnDestroy {
             // Update current user reaction based on action
             if (action === 'removed') {
               this.currentUserReaction = null;
-              this.toastService.success('Reaction removed');
+              this.toastService.info('Reaction removed');
             } else if (action === 'added') {
               this.currentUserReaction = type;
-              this.toastService.success('Reaction added');
+              const msg = type === 'helpful' ? '👍 Marked as Helpful!' : '👎 Marked as Not Helpful';
+              this.toastService.success(msg);
             } else if (action === 'updated') {
               this.currentUserReaction = type;
-              this.toastService.success('Reaction updated');
+              const msg = type === 'helpful' ? '👍 Changed to Helpful' : '👎 Changed to Not Helpful';
+              this.toastService.success(msg);
             }
 
             // Emit change event

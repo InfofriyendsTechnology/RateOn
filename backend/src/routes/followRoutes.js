@@ -11,22 +11,15 @@ import auth from '../middleware/auth.js';
 
 const router = Router();
 
-// All routes require authentication
-router.use(auth);
-
-// Follow/Unfollow a user
-router.post('/:userId', followUser);
-router.delete('/:userId', unfollowUser);
-
-// Get followers and following lists
+// Public routes - no auth needed to view lists
 router.get('/followers/:userId', getFollowers);
 router.get('/following/:userId', getFollowing);
 
-// Check if current user is following another user
-router.get('/status/:userId', checkFollowStatus);
-
-// Check if another user is following the current user
-router.get('/follows-me/:userId', checkFollowsMe);
+// Protected routes - require authentication
+router.post('/:userId', auth, followUser);
+router.delete('/:userId', auth, unfollowUser);
+router.get('/status/:userId', auth, checkFollowStatus);
+router.get('/follows-me/:userId', auth, checkFollowsMe);
 
 export default router;
 
