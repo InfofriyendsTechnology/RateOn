@@ -9,6 +9,7 @@ import { ToastService } from '../../../core/services/toast';
 import { ThemeService } from '../../../core/services/theme';
 import { UserNotificationsService, AppNotification } from '../../../core/services/user-notifications.service';
 import { UserService } from '../../../core/services/user';
+import { BusinessStateService } from '../../../core/services/business-state.service';
 import { LucideAngularModule, LayoutDashboard, Compass, Trophy, ShoppingBag, Settings, Edit, LogOut, Menu, User, Plus, ArrowLeft, X, Star, Sun, Moon, Bell, MessageSquare } from 'lucide-angular';
 import { filter } from 'rxjs/operators';
 
@@ -85,7 +86,8 @@ export class BusinessDashboardComponent implements OnInit {
     private toastService: ToastService,
     private themeService: ThemeService,
     private notificationService: UserNotificationsService,
-    private userService: UserService
+    private userService: UserService,
+    private businessStateService: BusinessStateService
   ) {}
   
   ngOnInit() {
@@ -463,12 +465,16 @@ export class BusinessDashboardComponent implements OnInit {
     
     this.businessService.createBusiness(businessData).subscribe({
       next: (response: any) => {
+        const newBusiness = response.data || response;
         this.toastService.success('Business created successfully!');
         this.closeBusinessModal();
-        this.loadBusinessData(); // Reload all businesses
+        // Emit via shared service — works even if already on /owner/businesses
+        this.businessStateService.emitBusinessCreated(newBusiness);
+        this.router.navigate(['/owner/businesses']);
       },
       error: (err) => {
-        this.toastService.error('Failed to create business. Please try again.');
+        const msg = err?.error?.message || 'Failed to create business. Please try again.';
+        this.toastService.error(msg);
         this.addingBusiness = false;
       },
       complete: () => {

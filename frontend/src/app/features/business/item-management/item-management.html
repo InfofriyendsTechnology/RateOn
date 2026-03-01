@@ -170,9 +170,9 @@
     </div>
     
     <div class="modal-footer">
-      <button (click)="closeModal()" class="btn-cancel">Cancel</button>
-      <button (click)="saveItem()" class="btn-save">
-        {{editMode ? 'Update' : 'Add'}} Item
+      <button (click)="closeModal()" class="btn-cancel" [disabled]="saving">Cancel</button>
+      <button (click)="saveItem()" class="btn-save" [disabled]="saving">
+        {{ saving ? 'Saving...' : (editMode ? 'Update' : 'Add') + ' Item' }}
       </button>
     </div>
   </div>

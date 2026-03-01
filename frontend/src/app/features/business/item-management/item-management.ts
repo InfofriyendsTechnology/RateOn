@@ -48,6 +48,7 @@ export class ItemManagementComponent implements OnInit, OnDestroy {
   selectedFiles: File[] = [];
   imagePreviewUrls: string[] = [];
   existingImageUrls: string[] = []; // Track existing images separately
+  saving = false;
 
   constructor(
     private itemService: ItemService,
@@ -148,6 +149,7 @@ export class ItemManagementComponent implements OnInit, OnDestroy {
     this.selectedFiles = [];
     this.imagePreviewUrls = [];
     this.existingImageUrls = [];
+    this.saving = false;
   }
   
   onFileSelected(event: any) {
@@ -305,28 +307,35 @@ export class ItemManagementComponent implements OnInit, OnDestroy {
       };
     }
     
+    if (this.saving) return; // Prevent duplicate submissions
+    this.saving = true;
+
     if (this.editMode && this.currentItem) {
       this.itemService.updateItem(this.currentItem._id, requestData).subscribe({
         next: () => {
           this.notificationService.showSuccess('Item updated!');
+          this.saving = false;
           this.closeModal();
           this.loadItems();
         },
         error: (err) => {
           const message = err.error?.message || err.message || 'Update failed';
           this.notificationService.showError(message);
+          this.saving = false;
         }
       });
     } else {
       this.itemService.createItem(this.businessId, requestData).subscribe({
         next: () => {
           this.notificationService.showSuccess('Item added!');
+          this.saving = false;
           this.closeModal();
           this.loadItems();
         },
         error: (err) => {
           const message = err.error?.message || err.message || 'Add failed';
           this.notificationService.showError(message);
+          this.saving = false;
         }
       });
     }

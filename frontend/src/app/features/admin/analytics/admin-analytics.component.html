@@ -1,0 +1,206 @@
+<div class="analytics-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <lucide-icon [img]="BarChart2" [size]="22"></lucide-icon>
+      </div>
+      <div class="header-text">
+        <h1>Analytics</h1>
+        <p class="subtitle">Platform command centre</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="btn-refresh" (click)="load()" [disabled]="isLoading">
+        <lucide-icon [img]="RefreshCw" [size]="14"></lucide-icon>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading analytics...</p>
+  </div>
+
+  <ng-container *ngIf="!isLoading">
+
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- SECTION A — Today's Pulse                        -->
+    <!-- ════════════════════════════════════════════════ -->
+    <div class="kpi-section">
+      <div class="section-label">
+        <lucide-icon [img]="Zap" [size]="14"></lucide-icon>
+        Today's Pulse
+      </div>
+      <div class="kpi-grid">
+
+        <div class="stat-card">
+          <div class="stat-icon c-blue"><lucide-icon [img]="UserPlus" [size]="22"></lucide-icon></div>
+          <div class="stat-body">
+            <div class="stat-val">{{ realTimeMetrics?.today?.newUsers ?? 0 }}</div>
+            <div class="stat-lbl">New Users Today</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon c-green"><lucide-icon [img]="MessageSquare" [size]="22"></lucide-icon></div>
+          <div class="stat-body">
+            <div class="stat-val">{{ realTimeMetrics?.today?.newReviews ?? 0 }}</div>
+            <div class="stat-lbl">New Reviews Today</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon c-purple"><lucide-icon [img]="ThumbsUp" [size]="22"></lucide-icon></div>
+          <div class="stat-body">
+            <div class="stat-val">{{ realTimeMetrics?.today?.newReactions ?? 0 }}</div>
+            <div class="stat-lbl">New Reactions Today</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon c-yellow"><lucide-icon [img]="Zap" [size]="22"></lucide-icon></div>
+          <div class="stat-body">
+            <div class="stat-val">{{ realTimeMetrics?.realTime?.activeUsersNow ?? 0 }}</div>
+            <div class="stat-lbl">Active Right Now</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- SECTION B — Review Quality                       -->
+    <!-- ════════════════════════════════════════════════ -->
+    <div class="kpi-section">
+      <div class="section-label">
+        <lucide-icon [img]="Star" [size]="14"></lucide-icon>
+        Review Quality
+      </div>
+      <div class="kpi-grid">
+
+        <div class="stat-card">
+          <div class="stat-icon c-green"><lucide-icon [img]="FileText" [size]="22"></lucide-icon></div>
+          <div class="stat-body">
+            <div class="stat-val">{{ reviewStatistics?.totalReviews ?? 0 }}</div>
+            <div class="stat-lbl">Total Reviews</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon c-yellow"><lucide-icon [img]="Star" [size]="22"></lucide-icon></div>
+          <div class="stat-body">
+            <div class="stat-val">{{ (reviewStatistics?.averageRating ?? 0) | number:'1.1-1' }} ★</div>
+            <div class="stat-lbl">Avg Rating</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon c-purple"><lucide-icon [img]="ThumbsUp" [size]="22"></lucide-icon></div>
+          <div class="stat-body">
+            <div class="stat-val">{{ reviewStatistics?.totalReactions ?? 0 }}</div>
+            <div class="stat-lbl">Total Reactions</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon c-teal"><lucide-icon [img]="MessageCircle" [size]="22"></lucide-icon></div>
+          <div class="stat-body">
+            <div class="stat-val">{{ reviewStatistics?.totalReplies ?? 0 }}</div>
+            <div class="stat-lbl">Total Replies</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- SECTION C — Business Health                      -->
+    <!-- ════════════════════════════════════════════════ -->
+    <div class="kpi-section">
+      <div class="section-label">
+        <lucide-icon [img]="Building2" [size]="14"></lucide-icon>
+        Business Health
+      </div>
+      <div class="kpi-grid">
+
+        <div class="stat-card">
+          <div class="stat-icon c-blue"><lucide-icon [img]="Building2" [size]="22"></lucide-icon></div>
+          <div class="stat-body">
+            <div class="stat-val">{{ businessStats?.totalBusinesses ?? 0 }}</div>
+            <div class="stat-lbl">Total Businesses</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon c-green"><lucide-icon [img]="ShieldCheck" [size]="22"></lucide-icon></div>
+          <div class="stat-body">
+            <div class="stat-val">{{ businessStats?.verified ?? 0 }}</div>
+            <div class="stat-lbl">Verified</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon c-teal"><lucide-icon [img]="BadgeCheck" [size]="22"></lucide-icon></div>
+          <div class="stat-body">
+            <div class="stat-val">{{ businessStats?.claimed ?? 0 }}</div>
+            <div class="stat-lbl">Claimed</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon c-orange"><lucide-icon [img]="Package" [size]="22"></lucide-icon></div>
+          <div class="stat-body">
+            <div class="stat-val">{{ businessStats?.items?.total ?? 0 }}</div>
+            <div class="stat-lbl">Total Items</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- CHARTS ROW 1 — 3 columns                         -->
+    <!-- ════════════════════════════════════════════════ -->
+    <div class="charts-row">
+
+      <div class="chart-card" *ngIf="ratingChart">
+        <h3 class="chart-title">Rating Distribution</h3>
+        <app-analytics-charts type="bar" [data]="ratingChart" height="240px"></app-analytics-charts>
+      </div>
+
+      <div class="chart-card" *ngIf="authMethodChart">
+        <h3 class="chart-title">Auth Method Breakdown</h3>
+        <app-analytics-charts type="doughnut" [data]="authMethodChart" height="240px"></app-analytics-charts>
+      </div>
+
+      <div class="chart-card" *ngIf="availabilityChart">
+        <h3 class="chart-title">Item Availability</h3>
+        <app-analytics-charts type="bar" [data]="availabilityChart" height="240px"></app-analytics-charts>
+      </div>
+
+    </div>
+
+    <!-- ════════════════════════════════════════════════ -->
+    <!-- CHARTS ROW 2 — 2 columns                         -->
+    <!-- ════════════════════════════════════════════════ -->
+    <div class="charts-row two-col">
+
+      <div class="chart-card" *ngIf="reactionsTypeChart">
+        <h3 class="chart-title">Reactions by Type</h3>
+        <app-analytics-charts type="doughnut" [data]="reactionsTypeChart" height="240px"></app-analytics-charts>
+      </div>
+
+      <div class="chart-card" *ngIf="topCountriesChart">
+        <h3 class="chart-title">Top Countries</h3>
+        <app-analytics-charts type="bar" [data]="topCountriesChart" height="240px"></app-analytics-charts>
+      </div>
+
+    </div>
+
+  </ng-container>
+
+</div>

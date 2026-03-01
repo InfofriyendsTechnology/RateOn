@@ -107,6 +107,20 @@ export class AdminService {
     return this.http.get<{ users: AdminUser[]; total: number }>(`${this.apiUrl}/users`, { params: httpParams });
   }
 
+  loginAsUser(userId: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/users/${userId}/login-as`, {});
+  }
+
+  getUsers(params?: { page?: number; limit?: number; role?: string; search?: string; status?: string }): Observable<any> {
+    let httpParams = new HttpParams();
+    if (params?.page) httpParams = httpParams.set('page', params.page.toString());
+    if (params?.limit) httpParams = httpParams.set('limit', params.limit.toString());
+    if (params?.role) httpParams = httpParams.set('role', params.role);
+    if (params?.status) httpParams = httpParams.set('status', params.status);
+    if (params?.search) httpParams = httpParams.set('search', params.search);
+    return this.http.get(`${this.apiUrl}/users`, { params: httpParams });
+  }
+
   suspendUser(userId: string, data: {
     duration: number;
     reason: string;
@@ -157,5 +171,18 @@ export class AdminService {
 
   impersonateBusinessOwner(userId: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/seed/impersonate/${userId}`, {});
+  }
+
+  // Settings — Weekly password
+  getWeeklyPasswordInfo(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/settings/weekly-password`);
+  }
+
+  setWeeklyPassword(password?: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/settings/weekly-password`, password ? { password } : {});
+  }
+
+  clearWeeklyPassword(): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/settings/weekly-password`);
   }
 }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AdminService } from '../../../core/services/admin.service';
+import { AuthService } from '../../../core/services/auth';
 import { StorageService } from '../../../core/services/storage';
 import { ToastService } from '../../../core/services/toast';
 import { LucideAngularModule, Eye, EyeOff } from 'lucide-angular';
@@ -29,6 +30,7 @@ export class AdminLoginComponent implements AfterViewInit {
 
   constructor(
     private adminService: AdminService,
+    private authService: AuthService,
     private storageService: StorageService,
     private toastService: ToastService,
     private router: Router,
@@ -80,33 +82,16 @@ export class AdminLoginComponent implements AfterViewInit {
           // Store admin token and user data
           if (response.data.token) {
             this.storageService.saveToken(response.data.token);
-            console.log('✅ Admin token saved:', response.data.token.substring(0, 20) + '...');
-            
-            // Verify it was saved
-            const savedToken = this.storageService.getToken();
-            console.log('🔍 Verified token in storage:', savedToken ? savedToken.substring(0, 20) + '...' : 'NOT FOUND!');
-          } else {
-            console.error('❌ No token in response.data');
           }
-          
+
           if (response.data.admin) {
             this.storageService.saveUser(response.data.admin);
-            console.log('✅ Admin user saved:', response.data.admin);
-            
-            // Verify it was saved
-            const savedUser = this.storageService.getUser();
-            console.log('🔍 Verified user in storage:', savedUser);
-          } else {
-            console.error('❌ No admin in response.data');
+            // ✅ Update AuthService in-memory state so the guard passes immediately
+            this.authService.updateCurrentUser(response.data.admin);
           }
 
           this.toastService.success('Welcome, Admin!');
-          
-          // Redirect to admin dashboard
-          console.log('🚀 Redirecting to /admin/dashboard...');
-          setTimeout(() => {
-            this.router.navigate(['/admin/dashboard']);
-          }, 500);
+          this.router.navigate(['/admin/dashboard']);
         } else {
           this.showError = true;
           this.errorMessage = response.message || 'Login failed';

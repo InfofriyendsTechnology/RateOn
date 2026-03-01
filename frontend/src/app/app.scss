@@ -1,3 +1,35 @@
+// Back-to-Admin floating button (shown during impersonation)
+.back-to-admin-btn {
+  position: fixed;
+  bottom: 4.5rem;        // sits above the theme toggle (1.25rem + 36px + 0.75rem)
+  right: 1.25rem;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 14px 0 10px;
+  height: 36px;
+  border-radius: 18px;
+  border: none;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #000;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(251, 191, 36, 0.4);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  lucide-icon { display: flex; flex-shrink: 0; }
+
+  &:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 8px 24px rgba(251, 191, 36, 0.5);
+  }
+
+  &:active { transform: scale(0.97); }
+}
+
 .global-theme-toggle {
   position: fixed;
   bottom: 1.25rem;

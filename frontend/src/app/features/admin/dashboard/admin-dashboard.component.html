@@ -1,99 +1,87 @@
-<!-- Top Bar -->
-<div class="top-bar">
-  <div class="page-title">
-    <h1>Super Admin Dashboard</h1>
-    <p class="header-subtitle">{{ todayDate }}</p>
+<div class="admin-dashboard">
+
+  <!-- Header -->
+  <div class="dash-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <lucide-icon [img]="ShieldCheck" [size]="22"></lucide-icon>
+      </div>
+      <div class="header-text">
+        <h1>Dashboard</h1>
+        <p class="subtitle">{{ todayDate }}</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="btn-refresh" (click)="loadData()" [disabled]="isLoading">
+        <lucide-icon [img]="TrendingUp" [size]="14"></lucide-icon>
+        Refresh
+      </button>
+    </div>
   </div>
-</div>
 
-<!-- Main Content -->
-<div class="page-content">
+  <!-- Loading -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading...</p>
+  </div>
 
-    <!-- Loading State -->
-    <div *ngIf="isLoading" class="loading-container">
-      <div class="spinner"></div>
-      <p>Loading analytics...</p>
-    </div>
+  <ng-container *ngIf="!isLoading">
 
-    <!-- Analytics Cards -->
-    <div *ngIf="!isLoading" class="analytics-grid">
-      <div class="analytics-card">
-        <div class="card-icon users">
-          <lucide-icon [img]="Users" [size]="28"></lucide-icon>
-        </div>
-        <div class="card-content">
-          <div class="card-value">{{ userAnalytics?.total?.allUsers || 0 }}</div>
-          <div class="card-label">Total Users</div>
+    <!-- ─── STAT CARDS ─── -->
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="stat-icon c-blue"><lucide-icon [img]="Users" [size]="24"></lucide-icon></div>
+        <div class="stat-body">
+          <div class="stat-val">{{ userAnalytics?.total?.allUsers || 0 }}</div>
+          <div class="stat-lbl">Total Users</div>
         </div>
       </div>
-
-      <div class="analytics-card">
-        <div class="card-icon businesses">
-          <lucide-icon [img]="Building2" [size]="28"></lucide-icon>
-        </div>
-        <div class="card-content">
-          <div class="card-value">{{ contentAnalytics?.businesses?.total || 0 }}</div>
-          <div class="card-label">Businesses</div>
+      <div class="stat-card">
+        <div class="stat-icon c-orange"><lucide-icon [img]="ShieldCheck" [size]="24"></lucide-icon></div>
+        <div class="stat-body">
+          <div class="stat-val">{{ userAnalytics?.total?.businessOwners || 0 }}</div>
+          <div class="stat-lbl">Business Owners</div>
         </div>
       </div>
-
-      <div class="analytics-card">
-        <div class="card-icon reviews">
-          <lucide-icon [img]="FileText" [size]="28"></lucide-icon>
-        </div>
-        <div class="card-content">
-          <div class="card-value">{{ contentAnalytics?.reviews?.total || 0 }}</div>
-          <div class="card-label">Reviews</div>
+      <div class="stat-card">
+        <div class="stat-icon c-purple"><lucide-icon [img]="Building2" [size]="24"></lucide-icon></div>
+        <div class="stat-body">
+          <div class="stat-val">{{ contentAnalytics?.businesses?.total || 0 }}</div>
+          <div class="stat-lbl">Businesses</div>
         </div>
       </div>
-
-      <div class="analytics-card">
-        <div class="card-icon growth">
-          <lucide-icon [img]="TrendingUp" [size]="28"></lucide-icon>
-        </div>
-        <div class="card-content">
-          <div class="card-value">{{ contentAnalytics?.items?.total || 0 }}</div>
-          <div class="card-label">Items</div>
+      <div class="stat-card">
+        <div class="stat-icon c-green"><lucide-icon [img]="FileText" [size]="24"></lucide-icon></div>
+        <div class="stat-body">
+          <div class="stat-val">{{ contentAnalytics?.reviews?.total || 0 }}</div>
+          <div class="stat-lbl">Reviews</div>
         </div>
       </div>
-    </div>
-
-    <!-- Detailed Stats -->
-    <div *ngIf="!isLoading && userAnalytics" class="detailed-stats">
-      <div class="stat-section">
-        <h2>User Analytics</h2>
-        <div class="stat-grid">
-          <div class="stat-item">
-            <span class="stat-label">Business Owners</span>
-            <span class="stat-value highlight">{{ userAnalytics?.total?.businessOwners || 0 }}</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Gmail Users</span>
-            <span class="stat-value">{{ userAnalytics?.emailProviders?.gmail || 0 }}</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Other Email</span>
-            <span class="stat-value">{{ userAnalytics?.emailProviders?.other || 0 }}</span>
-          </div>
+      <div class="stat-card">
+        <div class="stat-icon c-yellow"><lucide-icon [img]="TrendingUp" [size]="24"></lucide-icon></div>
+        <div class="stat-body">
+          <div class="stat-val">{{ contentAnalytics?.items?.total || 0 }}</div>
+          <div class="stat-lbl">Items</div>
         </div>
       </div>
-
-      <div class="stat-section" *ngIf="contentAnalytics">
-        <h2>Content Analytics</h2>
-        <div class="stat-grid">
-          <div class="stat-item">
-            <span class="stat-label">Total Businesses</span>
-            <span class="stat-value">{{ contentAnalytics?.businesses?.total || 0 }}</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Total Items</span>
-            <span class="stat-value">{{ contentAnalytics?.items?.total || 0 }}</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Total Reviews</span>
-            <span class="stat-value">{{ contentAnalytics?.reviews?.total || 0 }}</span>
-          </div>
+      <div class="stat-card">
+        <div class="stat-icon c-teal"><lucide-icon [img]="UserCheck" [size]="24"></lucide-icon></div>
+        <div class="stat-body">
+          <div class="stat-val">{{ userAnalytics?.growth?.last7Days || 0 }}</div>
+          <div class="stat-lbl">New (7 days)</div>
         </div>
       </div>
     </div>
+
+    <!-- ─── TOP BUSINESSES ─── -->
+    <div class="section-card" *ngIf="topBusinesses.length > 0">
+      <app-top-businesses
+        [businesses]="topBusinesses"
+        [selectedPeriod]="selectedPeriod"
+        (periodChange)="onPeriodChange($event)">
+      </app-top-businesses>
+    </div>
+
+  </ng-container>
+
 </div>

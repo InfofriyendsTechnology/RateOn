@@ -19,6 +19,18 @@
     </div>
   </div>
 
+  <!-- Filter Chips -->
+  <div class="filter-chips">
+    @for (chip of filterChips; track chip.column) {
+      <button
+        class="chip"
+        [class.active]="isChipActive(chip.column, chip.dir)"
+        (click)="setFilter(chip.column, chip.dir)">
+        {{ chip.label }}
+      </button>
+    }
+  </div>
+
   @if (loading) {
     <div class="table-skeleton">
       <div class="skeleton-row" *ngFor="let i of [1,2,3,4,5]">

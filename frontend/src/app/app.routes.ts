@@ -11,6 +11,7 @@ import { BusinessDashboardComponent } from './features/business/dashboard/dashbo
 import { BusinessesComponent } from './features/business/businesses/businesses';
 import { ItemManagementComponent } from './features/business/item-management/item-management';
 import { EditBusinessComponent } from './features/business/edit-business/edit-business';
+import { AddBusinessComponent } from './features/business/add-business/add-business';
 import { BusinessDetail as BusinessOwnerDetail } from './features/business/business-detail/business-detail';
 import { AccountSettingsComponent } from './features/business/account-settings/account-settings';
 import { NotificationsPageComponent } from './features/business/notifications/notifications';
@@ -26,6 +27,9 @@ import { AdminLoginComponent } from './features/admin/login/admin-login.componen
 import { AdminShellComponent } from './features/admin/shell/admin-shell.component';
 import { AdminDashboardComponent } from './features/admin/dashboard/admin-dashboard.component';
 import { SeedComponent } from './features/admin/seed/seed.component';
+import { AdminUsersComponent } from './features/admin/users/admin-users.component';
+import { AdminAnalyticsComponent } from './features/admin/analytics/admin-analytics.component';
+import { AdminSettingsComponent } from './features/admin/settings/admin-settings.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -44,7 +48,10 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', component: AdminDashboardComponent },
-      { path: 'seed', component: SeedComponent }
+      { path: 'users', component: AdminUsersComponent },
+      { path: 'analytics', component: AdminAnalyticsComponent },
+      { path: 'seed', component: SeedComponent },
+      { path: 'settings', component: AdminSettingsComponent }
     ]
   },
   
@@ -78,6 +85,7 @@ export const routes: Routes = [
     canActivate: [businessOwnerGuard],
     children: [
       { path: 'businesses', component: BusinessesComponent },
+      { path: 'businesses/new', component: AddBusinessComponent },
       { path: 'businesses/:id', component: BusinessOwnerDetail },
       { path: 'businesses/:businessId/items', component: ItemManagementComponent },
       { path: 'businesses/:id/edit', component: EditBusinessComponent },

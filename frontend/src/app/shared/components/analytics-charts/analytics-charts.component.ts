@@ -45,6 +45,15 @@ export class AnalyticsChartsComponent implements AfterViewInit, OnChanges {
     }
   }
 
+  private getThemeColors(): { textColor: string; gridColor: string } {
+    const isLight = typeof document !== 'undefined' &&
+      document.body.classList.contains('light-theme');
+    return {
+      textColor: isLight ? '#666666' : '#a1a1a1',
+      gridColor: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(255,255,255,0.08)'
+    };
+  }
+
   private renderChart(): void {
     if (this.chart) {
       this.chart.destroy();
@@ -55,6 +64,9 @@ export class AnalyticsChartsComponent implements AfterViewInit, OnChanges {
     const ctx = this.chartCanvas.nativeElement.getContext('2d');
     if (!ctx) return;
 
+    const { textColor, gridColor } = this.getThemeColors();
+    const isPolar = this.type === 'pie' || this.type === 'doughnut';
+
     const config: ChartConfiguration = {
       type: this.type,
       data: this.data,
@@ -63,19 +75,21 @@ export class AnalyticsChartsComponent implements AfterViewInit, OnChanges {
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            display: this.type === 'pie' || this.type === 'doughnut',
+            display: isPolar,
             position: 'bottom',
+            labels: { color: textColor, padding: 16, font: { size: 12 } }
           },
-          title: {
-            display: false
-          }
+          title: { display: false }
         },
-        scales: this.type !== 'pie' && this.type !== 'doughnut' ? {
+        scales: !isPolar ? {
           y: {
             beginAtZero: true,
-            ticks: {
-              precision: 0
-            }
+            ticks: { precision: 0, color: textColor },
+            grid:  { color: gridColor }
+          },
+          x: {
+            ticks: { color: textColor },
+            grid:  { color: gridColor }
           }
         } : undefined
       }

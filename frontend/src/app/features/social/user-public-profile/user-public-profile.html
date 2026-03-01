@@ -94,7 +94,7 @@
         <div class="profile-info">
           <h1 class="profile-name">
             {{ getUserName() }}
-            <lucide-icon *ngIf="isVerified()" [img]="BadgeCheck" [size]="26" class="verified-tick" title="Verified"></lucide-icon>
+            <lucide-icon *ngIf="isBusinessOwner()" [img]="BadgeCheck" [size]="26" class="verified-tick" title="Business Owner"></lucide-icon>
           </h1>
           <p class="profile-username">&#64;{{ profileUser.username }}</p>
           <div class="profile-badges">

@@ -2,58 +2,76 @@
   <app-navbar></app-navbar>
 
   <div class="notif-container">
-
-    <!-- Breadcrumb -->
     <app-breadcrumbs [crumbs]="breadcrumbs"></app-breadcrumbs>
 
-    <!-- Header -->
+    <!-- ── Header Card ───────────────────────────────── -->
     <div class="notif-header">
       <div class="header-left">
         <div class="header-icon">
           <lucide-icon [img]="Bell" [size]="22"></lucide-icon>
         </div>
-        <div>
+        <div class="header-text">
           <h1>Notifications</h1>
-          <p *ngIf="unreadCount > 0" class="subtitle unread">{{ unreadCount }} unread notification{{ unreadCount > 1 ? 's' : '' }}</p>
-          <p *ngIf="unreadCount === 0" class="subtitle">You're all caught up ✅</p>
+          <p class="subtitle" *ngIf="unreadCount > 0">
+            <span class="unread-pill">{{ unreadCount }}</span>
+            unread notification{{ unreadCount > 1 ? 's' : '' }}
+          </p>
+          <p class="subtitle all-read" *ngIf="unreadCount === 0">
+            <span class="check-badge"><lucide-icon [img]="Check" [size]="11"></lucide-icon></span>
+            You're all caught up
+          </p>
         </div>
       </div>
-      <button class="btn-mark-all" (click)="markAllAsRead()" *ngIf="unreadCount > 0" [disabled]="markingAll">
-        <lucide-icon [img]="CheckCheck" [size]="15"></lucide-icon>
-        <span>{{ markingAll ? 'Marking...' : 'Mark all read' }}</span>
-      </button>
+      <div class="header-right">
+        <div class="header-stats">
+          <div class="hstat">
+            <span class="hstat-val">{{ notifications.length }}</span>
+            <span class="hstat-lbl">Total</span>
+          </div>
+          <div class="hstat-divider"></div>
+          <div class="hstat">
+            <span class="hstat-val">{{ todayCount }}</span>
+            <span class="hstat-lbl">Today</span>
+          </div>
+        </div>
+        <button class="btn-mark-all" (click)="markAllAsRead()" *ngIf="unreadCount > 0" [disabled]="markingAll">
+          <lucide-icon [img]="CheckCheck" [size]="14"></lucide-icon>
+          <span>{{ markingAll ? 'Marking...' : 'Mark all read' }}</span>
+        </button>
+      </div>
     </div>
 
-    <!-- Filter Tabs -->
+    <!-- ── Filter Tabs ───────────────────────────────── -->
     <div class="notif-filters">
       <button class="filter-tab" [class.active]="filterType === 'all'" (click)="setFilter('all')">
-        <lucide-icon [img]="Bell" [size]="14"></lucide-icon>
+        <lucide-icon [img]="Bell" [size]="13"></lucide-icon>
         All
+        <span class="badge-count" *ngIf="notifications.length > 0">{{ notifications.length }}</span>
       </button>
       <button class="filter-tab" [class.active]="filterType === 'unread'" (click)="setFilter('unread')">
-        <lucide-icon [img]="Inbox" [size]="14"></lucide-icon>
+        <lucide-icon [img]="Inbox" [size]="13"></lucide-icon>
         Unread
-        <span class="tab-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+        <span class="badge-hot" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
       </button>
       <button class="filter-tab" [class.active]="filterType === 'follow'" (click)="setFilter('follow')">
-        <lucide-icon [img]="UserPlus" [size]="14"></lucide-icon>
+        <lucide-icon [img]="UserPlus" [size]="13"></lucide-icon>
         Follows
-        <span class="tab-count" *ngIf="getTypeCount('follow') > 0">{{ getTypeCount('follow') }}</span>
+        <span class="badge-count" *ngIf="getTypeCount('follow') > 0">{{ getTypeCount('follow') }}</span>
       </button>
       <button class="filter-tab" [class.active]="filterType === 'review'" (click)="setFilter('review')">
-        <lucide-icon [img]="Star" [size]="14"></lucide-icon>
+        <lucide-icon [img]="Star" [size]="13"></lucide-icon>
         Reviews
-        <span class="tab-count" *ngIf="getTypeCount('review') > 0">{{ getTypeCount('review') }}</span>
+        <span class="badge-count" *ngIf="getTypeCount('review') > 0">{{ getTypeCount('review') }}</span>
       </button>
       <button class="filter-tab" [class.active]="filterType === 'reaction'" (click)="setFilter('reaction')">
-        <lucide-icon [img]="ThumbsUp" [size]="14"></lucide-icon>
+        <lucide-icon [img]="ThumbsUp" [size]="13"></lucide-icon>
         Reactions
-        <span class="tab-count" *ngIf="getTypeCount('reaction') > 0">{{ getTypeCount('reaction') }}</span>
+        <span class="badge-count" *ngIf="getTypeCount('reaction') > 0">{{ getTypeCount('reaction') }}</span>
       </button>
     </div>
 
-    <!-- Skeleton Loader -->
-    <div class="notif-skeleton" *ngIf="loading">
+    <!-- ── Skeleton Loader ───────────────────────────── -->
+    <div class="notif-card" *ngIf="loading">
       <div class="skeleton-item" *ngFor="let i of [1,2,3,4,5]">
         <div class="skel skel-avatar"></div>
         <div class="skel-body">
@@ -63,79 +81,75 @@
       </div>
     </div>
 
-    <!-- Empty State -->
+    <!-- ── Empty State ───────────────────────────────── -->
     <div class="notif-empty" *ngIf="!loading && filteredNotifications.length === 0">
-      <div class="empty-icon">
-        <lucide-icon [img]="getEmptyIcon()" [size]="36"></lucide-icon>
+      <div class="empty-icon-wrap">
+        <lucide-icon [img]="getEmptyIcon()" [size]="30"></lucide-icon>
       </div>
       <h3>{{ filterType === 'unread' ? "You're all caught up!" : 'Nothing here yet' }}</h3>
       <p>{{ getEmptyMessage() }}</p>
     </div>
 
-    <!-- Notification List -->
-    <div class="notif-list" *ngIf="!loading && filteredNotifications.length > 0">
+    <!-- ── Notification List ─────────────────────────── -->
+    <div class="notif-card" *ngIf="!loading && filteredNotifications.length > 0">
       <div
         class="notif-item"
         *ngFor="let n of filteredNotifications"
-        [class.unread]="!n.isRead"
-        [class]="'notif-item type-' + getIconClass(n.type)"
+        [class.is-unread]="!n.isRead"
         (click)="handleClick(n)">
 
-        <!-- Left color bar (shows type) -->
-        <div class="type-bar" [class]="getIconClass(n.type)"></div>
+        <!-- left accent bar -->
+        <span class="accent-bar" [class]="getIconClass(n.type)"></span>
 
-        <!-- Avatar + type badge -->
-        <div class="item-avatar-wrap">
-          <div class="item-avatar">
-            <img
-              *ngIf="getAvatar(n) && !avatarFailed[n._id]"
-              [src]="getAvatar(n)"
-              [alt]="getName(n)"
-              crossorigin="anonymous"
-              referrerpolicy="no-referrer"
-              (error)="onAvatarError(n._id)"
-            />
-            <span *ngIf="!getAvatar(n) || avatarFailed[n._id]" class="avatar-initial">
-              {{ getName(n).charAt(0).toUpperCase() }}
-            </span>
+        <!-- avatar -->
+        <div class="n-avatar">
+          <img
+            *ngIf="getAvatar(n) && !avatarFailed[n._id]"
+            [src]="getAvatar(n)"
+            [alt]="getName(n)"
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+            (error)="onAvatarError(n._id)"
+          />
+          <span *ngIf="!getAvatar(n) || avatarFailed[n._id]" class="n-initial">
+            {{ getName(n).charAt(0).toUpperCase() }}
+          </span>
+          <span class="n-type-badge" [class]="getIconClass(n.type)">
+            <lucide-icon [img]="getIcon(n.type)" [size]="10"></lucide-icon>
+          </span>
+        </div>
+
+        <!-- content -->
+        <div class="n-content">
+          <p class="n-message">{{ getDisplayMessage(n) }}</p>
+          <div class="n-meta">
+            <span class="n-chip" [class]="getIconClass(n.type)">{{ getIconClass(n.type) }}</span>
+            <span class="n-dot-sep">·</span>
+            <span class="n-time">{{ getTimeAgo(n.createdAt) }}</span>
           </div>
-          <div class="type-badge" [class]="getIconClass(n.type)">
-            <lucide-icon [img]="getIcon(n.type)" [size]="11"></lucide-icon>
+        </div>
+
+        <!-- right: unread dot + actions -->
+        <div class="n-right">
+          <div class="unread-dot" *ngIf="!n.isRead"></div>
+          <div class="n-actions" (click)="$event.stopPropagation()">
+            <button class="n-btn n-read" *ngIf="!n.isRead" (click)="markAsRead(n, $event)" title="Mark as read">
+              <lucide-icon [img]="Check" [size]="13"></lucide-icon>
+            </button>
+            <button class="n-btn n-del" (click)="deleteNotification(n, $event)" title="Delete">
+              <lucide-icon [img]="Trash2" [size]="13"></lucide-icon>
+            </button>
           </div>
         </div>
 
-        <!-- Content -->
-        <div class="item-content">
-          <p class="item-message">{{ getDisplayMessage(n) }}</p>
-          <span class="item-time">{{ getTimeAgo(n.createdAt) }}</span>
-        </div>
-
-        <!-- Unread dot -->
-        <div class="unread-dot" *ngIf="!n.isRead"></div>
-
-        <!-- Actions -->
-        <div class="item-actions" (click)="$event.stopPropagation()">
-          <button
-            class="btn-action"
-            *ngIf="!n.isRead"
-            (click)="markAsRead(n, $event)"
-            title="Mark as read">
-            <lucide-icon [img]="Check" [size]="14"></lucide-icon>
-          </button>
-          <button
-            class="btn-action btn-del"
-            (click)="deleteNotification(n, $event)"
-            title="Delete">
-            <lucide-icon [img]="Trash2" [size]="14"></lucide-icon>
-          </button>
-        </div>
       </div>
     </div>
 
-    <!-- Load More -->
-    <div class="notif-load-more" *ngIf="!loading && hasMore">
-      <button (click)="loadMore()" [disabled]="loadingMore">
-        {{ loadingMore ? 'Loading...' : 'Load more notifications' }}
+    <!-- ── Load More ─────────────────────────────────── -->
+    <div class="load-more-wrap" *ngIf="!loading && hasMore">
+      <button class="load-more-btn" (click)="loadMore()" [disabled]="loadingMore">
+        <lucide-icon [img]="Bell" [size]="14"></lucide-icon>
+        {{ loadingMore ? 'Loading...' : 'Load more' }}
       </button>
     </div>
 

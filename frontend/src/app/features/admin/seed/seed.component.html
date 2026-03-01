@@ -1,0 +1,199 @@
+<div class="seed-page">
+
+  <!-- ── Header ─────────────────────────────────── -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <lucide-icon [img]="Database" [size]="22"></lucide-icon>
+      </div>
+      <div class="header-text">
+        <h1>Seed Data</h1>
+        <p class="subtitle">Generate & manage dummy data for testing</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <button class="btn-refresh" (click)="load()" [disabled]="isCreating || isClearing">
+        <lucide-icon [img]="RefreshCw" [size]="14"></lucide-icon>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Alerts ─────────────────────────────────── -->
+  <div class="alert alert-success" *ngIf="success">
+    <span class="alert-dot success"></span>
+    {{ success }}
+    <button class="alert-close" (click)="success = ''">✕</button>
+  </div>
+  <div class="alert alert-error" *ngIf="error">
+    <span class="alert-dot error"></span>
+    {{ error }}
+    <button class="alert-close" (click)="error = ''">✕</button>
+  </div>
+
+  <!-- ── Stats Row ──────────────────────────────── -->
+  <div class="stats-row">
+
+    <div class="stat-card" [class.highlight]="stats?.hasDummyData">
+      <div class="stat-icon c-blue"><lucide-icon [img]="Users" [size]="22"></lucide-icon></div>
+      <div class="stat-body">
+        <div class="stat-val">{{ stats?.dummyUsers ?? '—' }}</div>
+        <div class="stat-lbl">Dummy Users</div>
+      </div>
+      <div class="stat-status" *ngIf="stats?.hasDummyData">
+        <span class="status-dot active"></span> Active
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon c-purple"><lucide-icon [img]="Building2" [size]="22"></lucide-icon></div>
+      <div class="stat-body">
+        <div class="stat-val">{{ stats?.businesses ?? '—' }}</div>
+        <div class="stat-lbl">Businesses</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon c-orange"><lucide-icon [img]="Package" [size]="22"></lucide-icon></div>
+      <div class="stat-body">
+        <div class="stat-val">{{ stats?.items ?? '—' }}</div>
+        <div class="stat-lbl">Items</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon c-teal"><lucide-icon [img]="UserCheck" [size]="22"></lucide-icon></div>
+      <div class="stat-body">
+        <div class="stat-val">{{ stats?.reviews ?? '—' }}</div>
+        <div class="stat-lbl">Reviews</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Actions ────────────────────────────────── -->
+  <div class="section-card actions-card">
+
+    <div class="section-header">
+      <h3 class="section-title">Actions</h3>
+    </div>
+
+    <div class="actions-row">
+
+      <!-- Create button -->
+      <button
+        class="action-btn create"
+        (click)="create()"
+        [disabled]="isCreating || isClearing || stats?.hasDummyData">
+        <lucide-icon [img]="isCreating ? RefreshCw : Database" [size]="18" [class.spin]="isCreating"></lucide-icon>
+        <div class="btn-text">
+          <span class="btn-label">{{ isCreating ? 'Creating...' : stats?.hasDummyData ? 'Data Already Exists' : 'Create Seed Data' }}</span>
+          <span class="btn-sub">{{ stats?.hasDummyData ? 'Clear existing data first' : 'Generates users, businesses, items & reviews' }}</span>
+        </div>
+      </button>
+
+      <!-- Confirm clear -->
+      <ng-container *ngIf="!confirmClear; else confirmBlock">
+        <button
+          class="action-btn clear"
+          (click)="requestClear()"
+          [disabled]="isClearing || isCreating || !stats?.hasDummyData">
+          <lucide-icon [img]="isClearing ? RefreshCw : Trash2" [size]="18" [class.spin]="isClearing"></lucide-icon>
+          <div class="btn-text">
+            <span class="btn-label">{{ isClearing ? 'Clearing...' : 'Clear Seed Data' }}</span>
+            <span class="btn-sub">{{ !stats?.hasDummyData ? 'No seed data to clear' : 'Removes all dummy users and content' }}</span>
+          </div>
+        </button>
+      </ng-container>
+
+      <ng-template #confirmBlock>
+        <div class="confirm-clear">
+          <div class="confirm-text">
+            <strong>⚠ Are you sure?</strong>
+            <span>This will delete all dummy users, businesses and reviews.</span>
+          </div>
+          <div class="confirm-actions">
+            <button class="confirm-yes" (click)="clear()">Yes, Delete All</button>
+            <button class="confirm-no"  (click)="cancelClear()">Cancel</button>
+          </div>
+        </div>
+      </ng-template>
+
+    </div>
+  </div>
+
+  <!-- ── Credentials Info ───────────────────────── -->
+  <div class="section-card info-card">
+    <div class="section-header">
+      <h3 class="section-title">
+        <lucide-icon [img]="Key" [size]="16"></lucide-icon>
+        Test Credentials
+      </h3>
+    </div>
+    <div class="info-grid">
+      <div class="info-item">
+        <span class="info-label">Default Password</span>
+        <code class="info-code">Password123</code>
+      </div>
+      <div class="info-item">
+        <span class="info-label">User Roles</span>
+        <div class="badge-row">
+          <span class="badge user-role">user</span>
+          <span class="badge owner">business_owner</span>
+        </div>
+      </div>
+      <div class="info-item">
+        <span class="info-label">Data Type</span>
+        <span class="info-val">Dummy / Test only</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Accounts Table ─────────────────────────── -->
+  <div class="section-card" *ngIf="stats?.hasDummyData">
+
+    <div class="section-header">
+      <h3 class="section-title">
+        <lucide-icon [img]="Users" [size]="16"></lucide-icon>
+        Dummy Accounts
+        <span class="count-pill">{{ accounts.length }}</span>
+      </h3>
+    </div>
+
+    <div class="loading-row" *ngIf="loadingAccounts">
+      <div class="spinner"></div>
+      <span>Loading accounts...</span>
+    </div>
+
+    <div class="table-wrap" *ngIf="!loadingAccounts && accounts.length > 0">
+      <table class="accounts-table">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Password</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let acc of accounts">
+            <td class="username-cell">{{ acc.username }}</td>
+            <td class="email-cell">{{ acc.email }}</td>
+            <td>
+              <span class="badge" [class.owner]="acc.role === 'business_owner'" [class.user-role]="acc.role === 'user'">
+                {{ getRoleBadge(acc.role) }}
+              </span>
+            </td>
+            <td><code class="pass-code">Password123</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="empty-msg" *ngIf="!loadingAccounts && accounts.length === 0">
+      No accounts found.
+    </div>
+
+  </div>
+
+</div>

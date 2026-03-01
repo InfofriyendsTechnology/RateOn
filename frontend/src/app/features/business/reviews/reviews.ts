@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, NavigationEnd, ActivatedRoute } from '@angular/router';
 import { filter } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
-import { LucideAngularModule, MessageSquare, Star, ThumbsUp, ThumbsDown, Filter, Search, ChevronDown, ShoppingBag, ExternalLink } from 'lucide-angular';
+import { LucideAngularModule, MessageSquare, Star, ThumbsUp, ThumbsDown, Filter, Search, ChevronDown, ShoppingBag, ExternalLink, Clock, CheckCheck, Check, Reply } from 'lucide-angular';
 import { StorageService } from '../../../core/services/storage';
 import { BusinessService } from '../../../core/services/business';
 import { ReviewService } from '../../../core/services/review';
@@ -30,6 +30,10 @@ export class ReviewsManagementComponent implements OnInit, OnDestroy {
   readonly ChevronDown = ChevronDown;
   readonly ShoppingBag = ShoppingBag;
   readonly ExternalLink = ExternalLink;
+  readonly Clock = Clock;
+  readonly CheckCheck = CheckCheck;
+  readonly Check = Check;
+  readonly Reply = Reply;
 
   // Data
   currentUser: any = null;
@@ -340,6 +344,21 @@ export class ReviewsManagementComponent implements OnInit, OnDestroy {
   viewItem(review: any): void {
     const itemId = review.itemId?._id || review.itemId;
     if (itemId) this.router.navigate(['/item', itemId]);
+  }
+
+  getAverageRating(): string {
+    if (this.reviews.length === 0) return '0.0';
+    const sum = this.reviews.reduce((acc, r) => acc + (r.rating || 0), 0);
+    return (sum / this.reviews.length).toFixed(1);
+  }
+
+  getRatingClass(rating: number): string {
+    if (rating >= 5) return 'rating-5';
+    if (rating >= 4) return 'rating-4';
+    if (rating >= 3) return 'rating-3';
+    if (rating >= 2) return 'rating-2';
+    if (rating >= 1) return 'rating-1';
+    return 'rating-default';
   }
 
   isVerified(review: any): boolean {

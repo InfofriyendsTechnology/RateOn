@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { LucideAngularModule, Bell, MessageSquare, Star, ShoppingBag, Check, CheckCheck, Trash2, ThumbsUp, Reply, ExternalLink } from 'lucide-angular';
+import { LucideAngularModule, Bell, MessageSquare, Star, ShoppingBag, Check, CheckCheck, Trash2, ThumbsUp, Reply, ExternalLink, UserPlus } from 'lucide-angular';
 import { UserNotificationsService, AppNotification } from '../../../core/services/user-notifications.service';
 import { ToastService } from '../../../core/services/toast';
 import { Subscription } from 'rxjs';
@@ -28,6 +28,7 @@ export class NotificationsPageComponent implements OnInit, OnDestroy {
   readonly ThumbsUp = ThumbsUp;
   readonly Reply = Reply;
   readonly ExternalLink = ExternalLink;
+  readonly UserPlus = UserPlus;
 
   // Data
   notifications: AppNotification[] = [];
@@ -38,7 +39,7 @@ export class NotificationsPageComponent implements OnInit, OnDestroy {
   todayCount = 0;
   
   // Filters
-  filterType: 'all' | 'unread' = 'all';
+  filterType: 'all' | 'unread' | 'follow' | 'review' | 'reply' | 'reaction' = 'all';
   
   // Pagination
   currentPage = 1;
@@ -170,17 +171,40 @@ export class NotificationsPageComponent implements OnInit, OnDestroy {
     }).length;
   }
 
-  setFilter(type: 'all' | 'unread') {
+  setFilter(type: 'all' | 'unread' | 'follow' | 'review' | 'reply' | 'reaction') {
     this.filterType = type;
     this.applyFilters();
+  }
+
+  getTypeCount(type: 'follow' | 'review' | 'reply' | 'reaction'): number {
+    const typeMap: Record<string, string[]> = {
+      follow:   ['follow'],
+      review:   ['new_review'],
+      reply:    ['review_reply', 'reply_to_reply'],
+      reaction: ['review_reaction', 'reply_reaction'],
+    };
+    return this.notifications.filter(n => typeMap[type].includes(n.type)).length;
   }
 
   applyFilters() {
     let filtered = [...this.notifications];
 
-    // Filter by unread if selected
-    if (this.filterType === 'unread') {
-      filtered = filtered.filter(n => !n.isRead);
+    switch (this.filterType) {
+      case 'unread':
+        filtered = filtered.filter(n => !n.isRead);
+        break;
+      case 'follow':
+        filtered = filtered.filter(n => n.type === 'follow');
+        break;
+      case 'review':
+        filtered = filtered.filter(n => n.type === 'new_review');
+        break;
+      case 'reply':
+        filtered = filtered.filter(n => ['review_reply', 'reply_to_reply'].includes(n.type));
+        break;
+      case 'reaction':
+        filtered = filtered.filter(n => ['review_reaction', 'reply_reaction'].includes(n.type));
+        break;
     }
 
     // Sort by date (newest first)

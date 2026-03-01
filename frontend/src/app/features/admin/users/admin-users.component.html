@@ -1,0 +1,173 @@
+<div class="users-page">
+
+  <!-- Header Card -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <lucide-icon [img]="Users" [size]="22"></lucide-icon>
+      </div>
+      <div class="header-text">
+        <h1>All Users</h1>
+        <p class="subtitle">
+          Registered accounts
+          <span class="count-pill">{{ total }}</span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="search-wrap">
+      <lucide-icon [img]="Search" [size]="16" class="search-icon"></lucide-icon>
+      <input
+        class="search-input"
+        type="text"
+        placeholder="Search by name or email..."
+        [(ngModel)]="search"
+        (ngModelChange)="onSearchChange()"
+      >
+    </div>
+
+    <select class="filter-select" [(ngModel)]="roleFilter" (ngModelChange)="onFilterChange()">
+      <option value="">All Roles</option>
+      <option value="user">Regular User</option>
+      <option value="business_owner">Business Owner</option>
+    </select>
+
+    <select class="filter-select" [(ngModel)]="statusFilter" (ngModelChange)="onFilterChange()">
+      <option value="">All Status</option>
+      <option value="active">Active</option>
+      <option value="suspended">Suspended</option>
+    </select>
+
+    <button class="btn-icon" (click)="loadUsers()" title="Refresh">
+      <lucide-icon [img]="RefreshCw" [size]="16"></lucide-icon>
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="loading" class="loading-row">
+    <div class="spinner"></div>
+    <span>Loading users...</span>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrap" *ngIf="!loading">
+    <table class="users-table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th class="th-actions">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let user of users">
+
+          <!-- Main compact row -->
+          <tr [class.row-expanded]="expandedUserId === user._id">
+
+            <!-- Identity -->
+            <td class="user-cell">
+              <div class="avatar"
+                [style.backgroundImage]="user.profile?.avatar ? 'url('+user.profile.avatar+')' : ''">
+                <span *ngIf="!user.profile?.avatar">{{ getInitial(user) }}</span>
+              </div>
+              <div class="user-info">
+                <span class="username">{{ user.username }}</span>
+                <span class="user-email">{{ user.email }}</span>
+              </div>
+            </td>
+
+            <!-- Role -->
+            <td>
+              <span class="badge owner"     *ngIf="user.role === 'business_owner'">Owner</span>
+              <span class="badge user-role" *ngIf="user.role === 'user'">User</span>
+            </td>
+
+            <!-- Status -->
+            <td>
+              <span class="status-dot active"   *ngIf="user.isActive">Active</span>
+              <span class="status-dot inactive" *ngIf="!user.isActive">Inactive</span>
+            </td>
+
+            <!-- Actions: Login As (yellow) + Info toggle -->
+            <td class="actions-cell">
+              <button
+                class="btn-login-as"
+                (click)="loginAsUser(user)"
+                [disabled]="loggingInAs === user._id"
+                title="Login as this user">
+                <lucide-icon [img]="LogIn" [size]="14"></lucide-icon>
+                {{ loggingInAs === user._id ? '...' : 'Login' }}
+              </button>
+              <button
+                class="btn-info"
+                [class.active]="expandedUserId === user._id"
+                (click)="toggleDetails(user._id)"
+                title="More details">
+                <lucide-icon [img]="Info" [size]="14"></lucide-icon>
+              </button>
+            </td>
+          </tr>
+
+          <!-- Expanded detail row -->
+          <tr class="detail-row" *ngIf="expandedUserId === user._id">
+            <td colspan="4">
+              <div class="detail-grid">
+                <div class="detail-item" *ngIf="user.profile?.firstName">
+                  <span class="detail-lbl">Full Name</span>
+                  <span class="detail-val">{{ user.profile.firstName }} {{ user.profile.lastName }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-lbl">Auth</span>
+                  <span class="badge google"     *ngIf="user.googleId">Google</span>
+                  <span class="badge email-auth" *ngIf="!user.googleId">Email</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-lbl">Trust Score</span>
+                  <div class="trust-bar-wrap">
+                    <div class="trust-track"><div class="trust-bar" [style.width]="(user.trustScore || 0) + '%'"></div></div>
+                    <span class="trust-val">{{ user.trustScore || 0 }}</span>
+                  </div>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-lbl">Reviews</span>
+                  <span class="detail-val">{{ user.stats?.totalReviews || 0 }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-lbl">Joined</span>
+                  <span class="detail-val">{{ formatDate(user.createdAt) }}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-lbl">Email Type</span>
+                  <span class="badge gmail" *ngIf="isGmail(user.email)">Gmail</span>
+                  <span class="badge other" *ngIf="!isGmail(user.email)">Other</span>
+                </div>
+              </div>
+            </td>
+          </tr>
+
+        </ng-container>
+
+        <tr *ngIf="users.length === 0">
+          <td colspan="4" class="empty-row">No users found.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination" *ngIf="!loading && totalPages > 1">
+    <button [disabled]="page === 1" (click)="prevPage()">
+      <lucide-icon [img]="ChevronLeft" [size]="16"></lucide-icon>
+    </button>
+    <span>Page {{ page }} of {{ totalPages }}</span>
+    <button [disabled]="page === totalPages" (click)="nextPage()">
+      <lucide-icon [img]="ChevronRight" [size]="16"></lucide-icon>
+    </button>
+  </div>
+
+</div>

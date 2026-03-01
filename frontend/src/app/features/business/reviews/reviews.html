@@ -1,204 +1,225 @@
-<div class="reviews-management-container">
-  <!-- Header with Stats -->
+<div class="reviews-page">
+
+  <!-- ── Header Card ───────────────────────────────── -->
   <div class="reviews-header">
-    <div class="header-content">
-      <h1>Review Management</h1>
-      <p>Manage and respond to reviews across all your businesses</p>
-    </div>
-    
-    <div class="stats-summary">
-      <div class="stat-item">
-        <span class="stat-value">{{ reviews.length }}</span>
-        <span class="stat-label">Total Reviews</span>
+    <div class="header-left">
+      <div class="header-icon">
+        <lucide-icon [img]="Star" [size]="22"></lucide-icon>
       </div>
-      <div class="stat-item pending">
-        <span class="stat-value">{{ getPendingRepliesCount() }}</span>
-        <span class="stat-label">Pending Reply</span>
-      </div>
-      <div class="stat-item replied">
-        <span class="stat-value">{{ getRepliedCount() }}</span>
-        <span class="stat-label">Replied</span>
+      <div class="header-text">
+        <h1>Review Management</h1>
+        <p class="subtitle" *ngIf="getPendingRepliesCount() > 0">
+          <span class="pending-pill">{{ getPendingRepliesCount() }}</span>
+          pending repl{{ getPendingRepliesCount() > 1 ? 'ies' : 'y' }}
+        </p>
+        <p class="subtitle all-read" *ngIf="getPendingRepliesCount() === 0 && !loadingReviews">
+          <span class="check-badge"><lucide-icon [img]="Check" [size]="11"></lucide-icon></span>
+          All reviews replied
+        </p>
+        <p class="subtitle" *ngIf="loadingReviews">Loading reviews...</p>
       </div>
     </div>
-  </div>
-
-  <!-- Filters -->
-  <div class="filters-bar">
-    <div class="filter-group">
-      <lucide-icon [img]="Filter" [size]="18"></lucide-icon>
-      <select class="filter-select" [(ngModel)]="selectedBusiness" (change)="onBusinessFilterChange()">
-        <option value="all">All Businesses</option>
-        <option *ngFor="let business of businesses" [value]="business._id">{{ business.name }}</option>
-      </select>
-    </div>
-    
-    <div class="filter-group">
-      <select class="filter-select" [(ngModel)]="selectedStatus" (change)="onStatusFilterChange()">
-        <option value="all">All Status</option>
-        <option value="pending">Pending Reply</option>
-        <option value="replied">Replied</option>
-      </select>
-    </div>
-    
-    <div class="search-box">
-      <lucide-icon [img]="Search" [size]="18"></lucide-icon>
-      <input 
-        type="text" 
-        placeholder="Search reviews..." 
-        [(ngModel)]="searchQuery"
-        (input)="onSearchChange()"
-        class="search-input"
-      />
+    <div class="header-right">
+      <div class="header-stats">
+        <div class="hstat">
+          <span class="hstat-val">{{ reviews.length }}</span>
+          <span class="hstat-lbl">Total</span>
+        </div>
+        <div class="hstat-divider"></div>
+        <div class="hstat">
+          <span class="hstat-val">{{ getPendingRepliesCount() }}</span>
+          <span class="hstat-lbl">Pending</span>
+        </div>
+        <div class="hstat-divider"></div>
+        <div class="hstat">
+          <span class="hstat-val">{{ getRepliedCount() }}</span>
+          <span class="hstat-lbl">Replied</span>
+        </div>
+        <div class="hstat-divider"></div>
+        <div class="hstat">
+          <span class="hstat-val">{{ getAverageRating() }}</span>
+          <span class="hstat-lbl">Avg ★</span>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Reviews List -->
-  <div class="reviews-list" *ngIf="!loadingReviews && filteredReviews.length > 0">
-    <div class="review-card" *ngFor="let review of filteredReviews" [id]="'review-' + review._id">
-      <!-- Review Header -->
-      <div class="review-header">
-        <div class="reviewer-info">
-          <div class="reviewer-avatar">
-            <img *ngIf="getAvatarUrl(review) && !avatarFailed[review._id]" 
-                 [src]="getAvatarUrl(review)" 
-                 [alt]="getUserDisplayName(review)"
-                 class="avatar-image"
-                 crossorigin="anonymous"
-                 referrerpolicy="no-referrer"
-                 (error)="onAvatarError(review._id)" />
-            <span *ngIf="!getAvatarUrl(review) || avatarFailed[review._id]" class="avatar-initial">
-              {{ getUserDisplayName(review).charAt(0).toUpperCase() }}
-            </span>
-          </div>
-          <div class="reviewer-details">
-            <h4 class="reviewer-name">
-              <button class="reviewer-name-link" (click)="viewUserProfile(review)" title="View profile">
-                {{ review.userId?.name || review.userId?.firstName || review.userId?.username || 'Anonymous User' }}
-              </button>
-              <span *ngIf="isVerified(review)" class="verified-badge" title="Verified account">✓</span>
-            </h4>
-            <div class="review-meta">
-              <div class="rating-stars">
-                <span *ngFor="let i of [1,2,3,4,5]" 
-                  class="star"
-                  [class.filled]="i <= review.rating"
-                  [class.empty]="i > review.rating">
-                  ★
-                </span>
-              </div>
-              <span class="review-date">{{ getTimeAgo(review.createdAt) }}</span>
-            </div>
-          </div>
-        </div>
-        
-        <div class="review-header-actions">
-          <!-- Business Badge -->
-          <div class="business-badge-inline">
-            <lucide-icon [img]="ShoppingBag" [size]="12"></lucide-icon>
-            <span>{{ review.businessInfo?.name }}</span>
-          </div>
-          <button class="btn-view" (click)="viewReview(review)" title="View on public page">
-            <lucide-icon [img]="ExternalLink" [size]="14"></lucide-icon>
-            <span>View</span>
-          </button>
-        </div>
-      </div>
-      
-      <!-- Review Context (item or business) -->
-      <div class="review-context">
-        <span *ngIf="review.itemId" class="item-chip" (click)="viewItem(review)" title="View item">
-          🛒 {{ review.itemId?.name || 'Item' }}
-        </span>
-        <span *ngIf="!review.itemId" class="business-chip">
-          🏢 Business review
-        </span>
-      </div>
-
-      <!-- Review Content -->
-      <div class="review-content">
-        <p>{{ review.reviewText || review.comment }}</p>
-      </div>
-      
-      <!-- Review Images -->
-      <div class="review-images" *ngIf="review.images?.length > 0">
-        <img *ngFor="let img of review.images.slice(0, 3)" 
-             [src]="img" 
-             [alt]="'Review photo'" 
-             class="review-image" />
-      </div>
-      
-      <!-- Reactions - Interactive Buttons -->
-      <div class="review-reactions">
-        <app-reaction-buttons
-          [reviewId]="review._id"
-          [reviewOwnerId]="getReviewOwnerId(review)"
-          [initialStats]="{
-            helpful: review.reactions?.helpful || 0,
-            notHelpful: review.reactions?.notHelpful || 0,
-            total: (review.reactions?.helpful || 0) + (review.reactions?.notHelpful || 0)
-          }"
-          [compact]="true"
-          (reactionChanged)="onReactionChanged(review, $event)">
-        </app-reaction-buttons>
-      </div>
-      
-      <!-- Reply Section -->
-      <div class="reply-section" *ngIf="review.replies && review.replies.length > 0">
-        <div class="reply-indicator">
-          <lucide-icon [img]="MessageSquare" [size]="16"></lucide-icon>
-          <span>Your Reply</span>
-        </div>
-        <div class="reply-content">
-          <p>{{ review.replies[0].comment || review.replies[0].text }}</p>
-          <span class="reply-time">{{ getTimeAgo(review.replies[0].createdAt) }}</span>
-        </div>
-      </div>
-      
-      <!-- Reply Form -->
-      <div class="reply-form" *ngIf="replyingToReview === review._id">
-        <textarea 
-          class="reply-input" 
-          [(ngModel)]="replyText[review._id]" 
-          placeholder="Write your reply as business owner..."
-          rows="3"
-          [disabled]="submittingReply">
-        </textarea>
-        <div class="reply-actions">
-          <button class="btn-cancel" (click)="cancelReply(review._id)" [disabled]="submittingReply">
-            Cancel
-          </button>
-          <button class="btn-submit" (click)="submitReply(review)" [disabled]="submittingReply || !replyText[review._id]?.trim()">
-            {{ submittingReply ? 'Sending...' : 'Send Reply' }}
-          </button>
-        </div>
-      </div>
-      
-      <!-- Reply Button (only if no reply exists) -->
-      <button 
-        class="btn-reply" 
-        *ngIf="(!review.replies || review.replies.length === 0) && replyingToReview !== review._id"
-        (click)="startReply(review._id)">
-        <lucide-icon [img]="MessageSquare" [size]="16"></lucide-icon>
-        <span>Reply as Business</span>
+  <!-- ── Toolbar ───────────────────────────────────── -->
+  <div class="reviews-toolbar">
+    <div class="filter-tabs">
+      <button class="filter-tab" [class.active]="selectedStatus === 'all'" (click)="selectedStatus = 'all'; applyFilters()">
+        <lucide-icon [img]="MessageSquare" [size]="13"></lucide-icon>
+        All
+        <span class="badge-count" *ngIf="reviews.length > 0">{{ reviews.length }}</span>
+      </button>
+      <button class="filter-tab" [class.active]="selectedStatus === 'pending'" (click)="selectedStatus = 'pending'; applyFilters()">
+        <lucide-icon [img]="Clock" [size]="13"></lucide-icon>
+        Pending
+        <span class="badge-hot" *ngIf="getPendingRepliesCount() > 0">{{ getPendingRepliesCount() }}</span>
+      </button>
+      <button class="filter-tab" [class.active]="selectedStatus === 'replied'" (click)="selectedStatus = 'replied'; applyFilters()">
+        <lucide-icon [img]="CheckCheck" [size]="13"></lucide-icon>
+        Replied
+        <span class="badge-count" *ngIf="getRepliedCount() > 0">{{ getRepliedCount() }}</span>
       </button>
     </div>
+    <div class="toolbar-right">
+      <div class="biz-select-wrap">
+        <lucide-icon [img]="ShoppingBag" [size]="14"></lucide-icon>
+        <select [(ngModel)]="selectedBusiness" (change)="onBusinessFilterChange()" class="biz-select">
+          <option value="all">All Businesses</option>
+          <option *ngFor="let business of businesses" [value]="business._id">{{ business.name }}</option>
+        </select>
+        <lucide-icon [img]="ChevronDown" [size]="14"></lucide-icon>
+      </div>
+      <div class="search-wrap">
+        <lucide-icon [img]="Search" [size]="14"></lucide-icon>
+        <input type="text" placeholder="Search reviews..." [(ngModel)]="searchQuery" (input)="onSearchChange()" class="search-input" />
+      </div>
+    </div>
   </div>
 
-  <!-- Empty State -->
-  <div class="empty-state" *ngIf="!loadingReviews && filteredReviews.length === 0 && !loadingBusinesses">
-    <lucide-icon [img]="MessageSquare" [size]="64"></lucide-icon>
+  <!-- ── Skeleton Loader ───────────────────────────── -->
+  <div class="review-card-wrap" *ngIf="loadingReviews || loadingBusinesses">
+    <div class="skeleton-item" *ngFor="let i of [1,2,3,4]">
+      <div class="skel skel-accent"></div>
+      <div class="skel skel-avatar"></div>
+      <div class="skel-body">
+        <div class="skel skel-line long"></div>
+        <div class="skel skel-line short"></div>
+        <div class="skel skel-line medium"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Empty State ───────────────────────────────── -->
+  <div class="reviews-empty" *ngIf="!loadingReviews && !loadingBusinesses && filteredReviews.length === 0">
+    <div class="empty-icon-wrap">
+      <lucide-icon [img]="Star" [size]="30"></lucide-icon>
+    </div>
     <h3>No Reviews Found</h3>
-    <p *ngIf="searchQuery || selectedBusiness !== 'all' || selectedStatus !== 'all'">
-      Try adjusting your filters
-    </p>
-    <p *ngIf="!searchQuery && selectedBusiness === 'all' && selectedStatus === 'all'">
-      Reviews for your businesses will appear here
-    </p>
+    <p *ngIf="searchQuery || selectedBusiness !== 'all' || selectedStatus !== 'all'">Try adjusting your filters</p>
+    <p *ngIf="!searchQuery && selectedBusiness === 'all' && selectedStatus === 'all'">Reviews for your businesses will appear here</p>
   </div>
 
-  <!-- Loading State -->
-  <div class="loading-state" *ngIf="loadingReviews || loadingBusinesses">
-    <div class="spinner"></div>
-    <p>Loading reviews...</p>
+  <!-- ── Review List ────────────────────────────────── -->
+  <div class="review-card-wrap" *ngIf="!loadingReviews && !loadingBusinesses && filteredReviews.length > 0">
+    <div class="review-item" *ngFor="let review of filteredReviews" [id]="'review-' + review._id">
+
+      <!-- Left accent bar -->
+      <span class="accent-bar" [class]="getRatingClass(review.rating)"></span>
+
+      <!-- Avatar -->
+      <div class="r-avatar">
+        <img
+          *ngIf="getAvatarUrl(review) && !avatarFailed[review._id]"
+          [src]="getAvatarUrl(review)"
+          [alt]="getUserDisplayName(review)"
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer"
+          (error)="onAvatarError(review._id)"
+        />
+        <span *ngIf="!getAvatarUrl(review) || avatarFailed[review._id]" class="r-initial">
+          {{ getUserDisplayName(review).charAt(0).toUpperCase() }}
+        </span>
+        <span class="r-rating-badge" [class]="getRatingClass(review.rating)">{{ review.rating }}★</span>
+      </div>
+
+      <!-- Content -->
+      <div class="r-content">
+
+        <!-- Name + meta -->
+        <div class="r-top">
+          <div class="r-user">
+            <button class="r-name" (click)="viewUserProfile(review)">{{ getUserDisplayName(review) }}</button>
+          </div>
+          <div class="r-meta">
+            <div class="rating-stars">
+              <span *ngFor="let i of [1,2,3,4,5]" class="star"
+                [class.filled]="i <= review.rating"
+                [class.empty]="i > review.rating">★</span>
+            </div>
+            <span class="r-sep">·</span>
+            <span class="r-time">{{ getTimeAgo(review.createdAt) }}</span>
+            <span class="r-sep">·</span>
+            <span class="r-biz">
+              <lucide-icon [img]="ShoppingBag" [size]="11"></lucide-icon>
+              {{ review.businessInfo?.name }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Review text -->
+        <p class="r-text">{{ review.reviewText || review.comment }}</p>
+
+        <!-- Images -->
+        <div class="r-images" *ngIf="review.images?.length > 0">
+          <img *ngFor="let img of review.images.slice(0, 3)" [src]="img" alt="Review photo" class="r-img" />
+        </div>
+
+        <!-- Reactions -->
+        <div class="r-reactions">
+          <app-reaction-buttons
+            [reviewId]="review._id"
+            [reviewOwnerId]="getReviewOwnerId(review)"
+            [initialStats]="{
+              helpful: review.reactions?.helpful || 0,
+              notHelpful: review.reactions?.notHelpful || 0,
+              total: (review.reactions?.helpful || 0) + (review.reactions?.notHelpful || 0)
+            }"
+            [compact]="true"
+            (reactionChanged)="onReactionChanged(review, $event)">
+          </app-reaction-buttons>
+        </div>
+
+        <!-- Existing reply -->
+        <div class="r-reply-display" *ngIf="review.replies?.length > 0">
+          <div class="reply-label">
+            <lucide-icon [img]="Reply" [size]="12"></lucide-icon>
+            <span>Your Reply</span>
+          </div>
+          <p class="reply-text">{{ review.replies[0].comment || review.replies[0].text }}</p>
+          <span class="reply-time">{{ getTimeAgo(review.replies[0].createdAt) }}</span>
+        </div>
+
+        <!-- Reply form -->
+        <div class="r-reply-form" *ngIf="replyingToReview === review._id">
+          <textarea
+            class="reply-input"
+            [(ngModel)]="replyText[review._id]"
+            placeholder="Write your reply as business owner..."
+            rows="3"
+            [disabled]="submittingReply">
+          </textarea>
+          <div class="reply-form-actions">
+            <button class="btn-cancel" (click)="cancelReply(review._id)" [disabled]="submittingReply">Cancel</button>
+            <button class="btn-submit-reply" (click)="submitReply(review)" [disabled]="submittingReply || !replyText[review._id]?.trim()">
+              {{ submittingReply ? 'Sending...' : 'Send Reply' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="r-actions">
+          <button
+            class="btn-reply-start"
+            *ngIf="(!review.replies || review.replies.length === 0) && replyingToReview !== review._id"
+            (click)="startReply(review._id)">
+            <lucide-icon [img]="Reply" [size]="13"></lucide-icon>
+            Reply
+          </button>
+          <button class="btn-view" (click)="viewReview(review)">
+            <lucide-icon [img]="ExternalLink" [size]="13"></lucide-icon>
+            View
+          </button>
+          <span class="r-replied-badge" *ngIf="review.replies?.length > 0">
+            <lucide-icon [img]="CheckCheck" [size]="12"></lucide-icon>
+            Replied
+          </span>
+        </div>
+
+      </div>
+    </div>
   </div>
+
 </div>

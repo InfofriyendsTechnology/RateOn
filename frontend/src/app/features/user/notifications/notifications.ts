@@ -39,6 +39,7 @@ export class UserNotificationsPageComponent implements OnInit, OnDestroy {
   filteredNotifications: AppNotification[] = [];
 
   unreadCount = 0;
+  todayCount = 0;
   filterType: 'all' | 'unread' | 'follow' | 'review' | 'reaction' = 'all';
 
   currentPage = 1;
@@ -69,6 +70,16 @@ export class UserNotificationsPageComponent implements OnInit, OnDestroy {
     this.subscriptions.forEach(s => s.unsubscribe());
   }
 
+  updateTodayCount() {
+    const today = new Date();
+    this.todayCount = this.notifications.filter(n => {
+      const d = new Date(n.createdAt);
+      return d.getFullYear() === today.getFullYear() &&
+             d.getMonth() === today.getMonth() &&
+             d.getDate() === today.getDate();
+    }).length;
+  }
+
   setupRealtime() {
     const newSub = this.notifService.onNewNotification().subscribe(n => {
       this.notifications.unshift(n);
@@ -93,6 +104,7 @@ export class UserNotificationsPageComponent implements OnInit, OnDestroy {
           const pg = resp.data.pagination;
           this.hasMore = !!pg && this.currentPage < (pg.pages || 1);
           this.applyFilter();
+          this.updateTodayCount();
         }
         this.loading = false;
       },

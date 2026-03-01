@@ -1,111 +1,161 @@
-<div class="notifications-container">
-  <!-- Header -->
-  <div class="notifications-header">
-    <div class="header-content">
-      <h1>Notifications</h1>
-      <p>Stay updated with your business activities</p>
+<div class="notif-page">
+
+  <!-- ── Header Card ───────────────────────────────── -->
+  <div class="notif-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <lucide-icon [img]="Bell" [size]="22"></lucide-icon>
+      </div>
+      <div class="header-text">
+        <h1>Notifications</h1>
+        <p class="subtitle" *ngIf="unreadCount > 0">
+          <span class="unread-pill">{{ unreadCount }}</span>
+          unread notification{{ unreadCount > 1 ? 's' : '' }}
+        </p>
+        <p class="subtitle all-read" *ngIf="unreadCount === 0">
+          <span class="check-badge"><lucide-icon [img]="CheckCheck" [size]="11"></lucide-icon></span>
+          You're all caught up
+        </p>
+      </div>
     </div>
-    
-    <div class="header-actions">
-      <button 
-        class="btn-mark-all" 
-        (click)="markAllAsRead()" 
-        *ngIf="unreadCount > 0"
-        [disabled]="markingAll">
-        <lucide-icon [img]="CheckCheck" [size]="18"></lucide-icon>
-        <span>Mark all as read</span>
+    <div class="header-right">
+      <div class="header-stats">
+        <div class="hstat">
+          <span class="hstat-val">{{ notifications.length }}</span>
+          <span class="hstat-lbl">Total</span>
+        </div>
+        <div class="hstat-divider"></div>
+        <div class="hstat">
+          <span class="hstat-val">{{ todayCount }}</span>
+          <span class="hstat-lbl">Today</span>
+        </div>
+      </div>
+      <button class="btn-mark-all" (click)="markAllAsRead()" *ngIf="unreadCount > 0" [disabled]="markingAll">
+        <lucide-icon [img]="CheckCheck" [size]="14"></lucide-icon>
+        <span>{{ markingAll ? 'Marking...' : 'Mark all read' }}</span>
       </button>
     </div>
   </div>
 
-  <!-- Stats Bar -->
-  <div class="notifications-stats">
-    <div class="stat-item">
-      <span class="stat-value">{{ notifications.length }}</span>
-      <span class="stat-label">Total</span>
-    </div>
-    <div class="stat-item unread">
-      <span class="stat-value">{{ unreadCount }}</span>
-      <span class="stat-label">Unread</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-value">{{ todayCount }}</span>
-      <span class="stat-label">Today</span>
-    </div>
-  </div>
-
-  <!-- Filter Tabs -->
-  <div class="filter-tabs">
-    <button 
-      class="tab-btn" 
-      [class.active]="filterType === 'all'"
-      (click)="setFilter('all')">
+  <!-- ── Filter Tabs ───────────────────────────────── -->
+  <div class="notif-filters">
+    <button class="filter-tab" [class.active]="filterType === 'all'" (click)="setFilter('all')">
+      <lucide-icon [img]="Bell" [size]="13"></lucide-icon>
       All
+      <span class="badge-count" *ngIf="notifications.length > 0">{{ notifications.length }}</span>
     </button>
-    <button 
-      class="tab-btn" 
-      [class.active]="filterType === 'unread'"
-      (click)="setFilter('unread')">
+    <button class="filter-tab" [class.active]="filterType === 'unread'" (click)="setFilter('unread')">
+      <lucide-icon [img]="MessageSquare" [size]="13"></lucide-icon>
       Unread
-      <span class="count-badge" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+      <span class="badge-hot" *ngIf="unreadCount > 0">{{ unreadCount }}</span>
+    </button>
+    <button class="filter-tab" [class.active]="filterType === 'follow'" (click)="setFilter('follow')">
+      <lucide-icon [img]="UserPlus" [size]="13"></lucide-icon>
+      Follows
+      <span class="badge-count" *ngIf="getTypeCount('follow') > 0">{{ getTypeCount('follow') }}</span>
+    </button>
+    <button class="filter-tab" [class.active]="filterType === 'review'" (click)="setFilter('review')">
+      <lucide-icon [img]="Star" [size]="13"></lucide-icon>
+      Reviews
+      <span class="badge-count" *ngIf="getTypeCount('review') > 0">{{ getTypeCount('review') }}</span>
+    </button>
+    <button class="filter-tab" [class.active]="filterType === 'reply'" (click)="setFilter('reply')">
+      <lucide-icon [img]="Reply" [size]="13"></lucide-icon>
+      Replies
+      <span class="badge-count" *ngIf="getTypeCount('reply') > 0">{{ getTypeCount('reply') }}</span>
+    </button>
+    <button class="filter-tab" [class.active]="filterType === 'reaction'" (click)="setFilter('reaction')">
+      <lucide-icon [img]="ThumbsUp" [size]="13"></lucide-icon>
+      Reactions
+      <span class="badge-count" *ngIf="getTypeCount('reaction') > 0">{{ getTypeCount('reaction') }}</span>
     </button>
   </div>
 
-  <!-- Notifications List -->
-  <div class="notifications-list" *ngIf="!loading && filteredNotifications.length > 0">
-    <div 
-      class="notification-item" 
+  <!-- ── Skeleton Loader ───────────────────────────── -->
+  <div class="notif-card" *ngIf="loading">
+    <div class="skeleton-item" *ngFor="let i of [1,2,3,4,5]">
+      <div class="skel skel-avatar"></div>
+      <div class="skel-body">
+        <div class="skel skel-line long"></div>
+        <div class="skel skel-line short"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Empty State ───────────────────────────────── -->
+  <div class="notif-empty" *ngIf="!loading && filteredNotifications.length === 0">
+    <div class="empty-icon-wrap">
+      <lucide-icon [img]="Bell" [size]="30"></lucide-icon>
+    </div>
+    <h3>{{ filterType === 'unread' ? "You're all caught up!" : 'No Notifications Yet' }}</h3>
+    <p>{{ filterType !== 'all' ? 'No ' + filterType + ' notifications found' : 'New reviews and interactions will appear here' }}</p>
+  </div>
+
+  <!-- ── Notification List ─────────────────────────── -->
+  <div class="notif-card" *ngIf="!loading && filteredNotifications.length > 0">
+    <div
+      class="notif-item"
       *ngFor="let notification of filteredNotifications"
-      [class.unread]="!notification.isRead"
+      [class.is-unread]="!notification.isRead"
       (click)="handleNotificationClick(notification)">
-      
-      <!-- User Avatar -->
-      <div class="notification-avatar" [attr.data-initial]="getUserName(notification).charAt(0).toUpperCase()">
-        <img *ngIf="getUserAvatar(notification) && !avatarFailed[notification._id]" 
-             [src]="getUserAvatar(notification)" 
-             [alt]="getUserName(notification)"
-             class="avatar-image"
-             crossorigin="anonymous"
-             referrerpolicy="no-referrer"
-             (error)="onAvatarError(notification._id)" />
-        <span *ngIf="!getUserAvatar(notification) || avatarFailed[notification._id]" class="avatar-initial">
+
+      <!-- left accent bar -->
+      <span class="accent-bar" [class]="getNotificationIconClass(notification.type)"></span>
+
+      <!-- avatar -->
+      <div class="n-avatar">
+        <img
+          *ngIf="getUserAvatar(notification) && !avatarFailed[notification._id]"
+          [src]="getUserAvatar(notification)"
+          [alt]="getUserName(notification)"
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer"
+          (error)="onAvatarError(notification._id)" />
+        <span *ngIf="!getUserAvatar(notification) || avatarFailed[notification._id]" class="n-initial">
           {{ getUserName(notification).charAt(0).toUpperCase() || 'U' }}
         </span>
-        <div class="notification-type-badge" [class]="getNotificationIconClass(notification.type)">
-          <lucide-icon [img]="getNotificationIcon(notification.type)" [size]="12"></lucide-icon>
-        </div>
+        <span class="n-type-badge" [class]="getNotificationIconClass(notification.type)">
+          <lucide-icon [img]="getNotificationIcon(notification.type)" [size]="10"></lucide-icon>
+        </span>
       </div>
-      
-      <div class="notification-content">
-        <div class="notification-header">
-          <div class="notification-user-info">
-            <h4 class="notification-user-name">{{ getUserName(notification) }}</h4>
-            <span class="notification-action-type">{{ getActionText(notification.type) }}</span>
-          </div>
-          <span class="notification-time">{{ getTimeAgo(notification.createdAt) }}</span>
+
+      <!-- content -->
+      <div class="n-content">
+
+        <!-- Primary message -->
+        <p class="n-message">
+          <strong>{{ getUserName(notification) }}</strong>
+          {{ getActionText(notification.type) }}
+        </p>
+
+        <!-- Detail message -->
+        <p class="n-detail" *ngIf="notification.message">{{ notification.message }}</p>
+
+        <!-- Meta row -->
+        <div class="n-meta">
+          <span class="n-chip">{{ getNotificationIconClass(notification.type) }}</span>
+          <span class="n-dot-sep">·</span>
+          <span class="n-time">{{ getTimeAgo(notification.createdAt) }}</span>
+          <ng-container *ngIf="notification.metadata?.businessName">
+            <span class="n-dot-sep">·</span>
+            <span class="n-biz">
+              <lucide-icon [img]="ShoppingBag" [size]="11"></lucide-icon>
+              {{ notification.metadata.businessName }}
+            </span>
+          </ng-container>
         </div>
-        
-        <p class="notification-message">{{ notification.message }}</p>
-        
-        <!-- Rating Stars for Review Notifications -->
-        <div class="notification-rating" *ngIf="notification.metadata?.rating">
-          <span *ngFor="let i of [1,2,3,4,5]" 
+
+        <!-- Rating Stars -->
+        <div class="n-rating" *ngIf="notification.metadata?.rating">
+          <span
+            *ngFor="let i of [1,2,3,4,5]"
             class="star"
             [class.filled]="i <= notification.metadata.rating"
-            [class.empty]="i > notification.metadata.rating">
-            ★
-          </span>
+            [class.empty]="i > notification.metadata.rating">★</span>
         </div>
-        
-        <div class="notification-meta" *ngIf="notification.metadata">
-          <span class="meta-badge" *ngIf="notification.metadata.businessName">
-            <lucide-icon [img]="ShoppingBag" [size]="12"></lucide-icon>
-            {{ notification.metadata.businessName }}
-          </span>
-        </div>
-        
-        <!-- Reaction Buttons for Review Notifications -->
-        <div class="notification-reactions" *ngIf="isReviewNotification(notification) && hasReviewId(notification)" (click)="$event.stopPropagation()">
+
+        <!-- Reaction Buttons -->
+        <div class="n-reactions" *ngIf="isReviewNotification(notification) && hasReviewId(notification)" (click)="$event.stopPropagation()">
           <app-reaction-buttons
             [reviewId]="notification.metadata.reviewId"
             [reviewOwnerId]="getReviewOwnerId(notification)"
@@ -115,100 +165,77 @@
             (reactionChanged)="onReactionChanged(notification, $event)">
           </app-reaction-buttons>
         </div>
-        
-        <!-- Reply Count Badge -->
-        <div class="notification-reply-count" *ngIf="getReplyCount(notification) > 0">
-          <lucide-icon [img]="MessageSquare" [size]="14"></lucide-icon>
-          <span>{{ getReplyCount(notification) }} {{ getReplyCount(notification) === 1 ? 'Reply' : 'Replies' }}</span>
-        </div>
-        
-        <!-- Existing Reply Display -->
-        <div class="notification-reply-display" *ngIf="hasReply(notification)">
-          <div class="reply-indicator">
-            <lucide-icon [img]="MessageSquare" [size]="14"></lucide-icon>
+
+        <!-- Reply display -->
+        <div class="n-reply-display" *ngIf="hasReply(notification)">
+          <div class="reply-label">
+            <lucide-icon [img]="MessageSquare" [size]="12"></lucide-icon>
             <span>Latest Reply</span>
           </div>
           <p class="reply-text">{{ notification.metadata.replies[0].comment || notification.metadata.replies[0].text }}</p>
           <span class="reply-time">{{ getTimeAgo(notification.metadata.replies[0].createdAt) }}</span>
         </div>
-        
+
         <!-- Reply Form -->
-        <div class="notification-reply-form" *ngIf="isReviewNotification(notification) && replyingToNotification === notification._id" (click)="$event.stopPropagation()">
-          <textarea 
-            class="reply-input" 
-            [(ngModel)]="replyText[notification._id]" 
+        <div class="n-reply-form" *ngIf="isReviewNotification(notification) && replyingToNotification === notification._id" (click)="$event.stopPropagation()">
+          <textarea
+            class="reply-input"
+            [(ngModel)]="replyText[notification._id]"
             placeholder="Write your reply as business owner..."
             rows="3"
             [disabled]="submittingReply"
             (click)="$event.stopPropagation()">
           </textarea>
-          <div class="reply-actions">
-            <button class="btn-cancel" (click)="cancelReply(notification._id, $event)" [disabled]="submittingReply">
-              Cancel
-            </button>
-            <button class="btn-submit" (click)="submitReply(notification, $event)" [disabled]="submittingReply || !replyText[notification._id]?.trim()">
+          <div class="reply-form-actions">
+            <button class="btn-cancel" (click)="cancelReply(notification._id, $event)" [disabled]="submittingReply">Cancel</button>
+            <button class="btn-submit-reply" (click)="submitReply(notification, $event)" [disabled]="submittingReply || !replyText[notification._id]?.trim()">
               {{ submittingReply ? 'Sending...' : 'Send Reply' }}
             </button>
           </div>
         </div>
-        
+
         <!-- Action Buttons -->
-        <div class="notification-action-buttons" *ngIf="isReviewNotification(notification)">
-          <button class="btn-action-primary" *ngIf="!hasReply(notification) && replyingToNotification !== notification._id" (click)="startReply(notification._id, $event)">
-            <lucide-icon [img]="Reply" [size]="14"></lucide-icon>
-            <span>Reply</span>
+        <div class="n-action-btns" *ngIf="isReviewNotification(notification)" (click)="$event.stopPropagation()">
+          <button class="btn-reply"
+            *ngIf="!hasReply(notification) && replyingToNotification !== notification._id"
+            (click)="startReply(notification._id, $event)">
+            <lucide-icon [img]="Reply" [size]="13"></lucide-icon>
+            Reply
           </button>
-          <button class="btn-action-secondary" (click)="viewReview(notification, $event)">
-            <lucide-icon [img]="ExternalLink" [size]="14"></lucide-icon>
-            <span>View Full Review</span>
+          <button class="btn-view" (click)="viewReview(notification, $event)">
+            <lucide-icon [img]="ExternalLink" [size]="13"></lucide-icon>
+            View Review
+          </button>
+          <span class="n-replied-badge" *ngIf="hasReply(notification)">
+            <lucide-icon [img]="CheckCheck" [size]="12"></lucide-icon>
+            Replied
+          </span>
+        </div>
+
+      </div>
+
+      <!-- right: unread dot + quick actions -->
+      <div class="n-right">
+        <div class="unread-dot" *ngIf="!notification.isRead"></div>
+        <div class="n-actions" (click)="$event.stopPropagation()">
+          <button class="n-btn n-read" *ngIf="!notification.isRead" (click)="markAsRead(notification, $event)" title="Mark as read">
+            <lucide-icon [img]="Check" [size]="13"></lucide-icon>
+          </button>
+          <button class="n-btn n-del" (click)="deleteNotification(notification, $event)" title="Delete">
+            <lucide-icon [img]="Trash2" [size]="13"></lucide-icon>
           </button>
         </div>
-        
-        <!-- Status Badge After Action -->
-        <div class="notification-status-badge" *ngIf="hasReply(notification)">
-          <lucide-icon [img]="CheckCheck" [size]="12"></lucide-icon>
-          <span>Replied</span>
-        </div>
       </div>
-      
-      <div class="notification-actions">
-        <button 
-          class="btn-action" 
-          (click)="markAsRead(notification, $event)"
-          *ngIf="!notification.isRead"
-          title="Mark as read">
-          <lucide-icon [img]="Check" [size]="16"></lucide-icon>
-        </button>
-        <button 
-          class="btn-action delete" 
-          (click)="deleteNotification(notification, $event)"
-          title="Delete">
-          <lucide-icon [img]="Trash2" [size]="16"></lucide-icon>
-        </button>
-      </div>
-      
-      <div class="unread-indicator" *ngIf="!notification.isRead"></div>
+
     </div>
   </div>
 
-  <!-- Empty State -->
-  <div class="empty-state" *ngIf="!loading && filteredNotifications.length === 0">
-    <lucide-icon [img]="Bell" [size]="64"></lucide-icon>
-    <h3>No Notifications</h3>
-    <p *ngIf="filterType !== 'all'">No {{ filterType }} notifications found</p>
-    <p *ngIf="filterType === 'all'">You're all caught up!</p>
-  </div>
-
-  <!-- Loading State -->
-  <div class="loading-state" *ngIf="loading">
-    <div class="spinner"></div>
-    <p>Loading notifications...</p>
-  </div>
-
-  <!-- Load More -->
-  <div class="load-more-section" *ngIf="!loading && hasMore">
-    <button class="btn-load-more" (click)="loadMore()" [disabled]="loadingMore">
-      {{ loadingMore ? 'Loading...' : 'Load More' }}
+  <!-- ── Load More ─────────────────────────────────── -->
+  <div class="load-more-wrap" *ngIf="!loading && hasMore">
+    <button class="load-more-btn" (click)="loadMore()" [disabled]="loadingMore">
+      <lucide-icon [img]="Bell" [size]="14"></lucide-icon>
+      {{ loadingMore ? 'Loading...' : 'Load more' }}
     </button>
   </div>
+
 </div>

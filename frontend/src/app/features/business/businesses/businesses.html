@@ -16,10 +16,10 @@
     <lucide-icon [img]="ShoppingBag" [size]="64" class="empty-icon"></lucide-icon>
     <h3>No Businesses Yet</h3>
     <p>Get started by creating your first business.</p>
-    <button (click)="openBusinessModal()" class="btn-primary">
+    <a routerLink="/owner/businesses/new" class="btn-primary">
       <lucide-icon [img]="Plus" [size]="16"></lucide-icon>
       Create Your First Business
-    </button>
+    </a>
   </div>
 
   <!-- Business Cards Grid -->
@@ -86,207 +86,32 @@
   </div>
 </div>
 
-<!-- Business Creation Modal -->
-<div *ngIf="showBusinessModal" class="modal-overlay" (click)="closeBusinessModal()">
-  <div class="modal-content business-modal" (click)="$event.stopPropagation()">
-    <button *ngIf="currentBusinessStep > 1" class="btn-back-modal" (click)="previousBusinessStep()" aria-label="Back">
-      <lucide-icon [img]="ArrowLeft" [size]="20"></lucide-icon>
-    </button>
-    
-    <button class="btn-close-modal" (click)="closeBusinessModal()" aria-label="Close">
-      <lucide-icon [img]="X" [size]="20"></lucide-icon>
-    </button>
-    
-    <div class="modal-header">
-      <h3>Create Business</h3>
-      <p>Step {{ currentBusinessStep }} of {{ totalBusinessSteps }}</p>
-    </div>
-    
-    <div class="modal-body business-form">
-      <!-- Step 1: Business Name & Type -->
-      <div *ngIf="currentBusinessStep === 1">
-        <div class="form-group">
-          <label>Business Name <span class="required">*</span></label>
-          <input 
-            type="text" 
-            [(ngModel)]="businessForm.name" 
-            placeholder="Enter business name"
-            class="form-input"
-            autofocus
-          />
-        </div>
-        
-        <div class="form-group">
-          <label>Business Type <span class="required">*</span></label>
-          <select [(ngModel)]="businessForm.type" class="form-input" (change)="onBusinessTypeChange()">
-            <option value="">Select type</option>
-            <option value="restaurant">Restaurant</option>
-            <option value="cafe">Café</option>
-            <option value="shop">Shop</option>
-            <option value="service">Service</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        
-        <!-- Custom Type Input (shown when Other is selected) -->
-        <div class="form-group" *ngIf="businessForm.type === 'other'">
-          <label>Specify Business Type <span class="required">*</span></label>
-          <input 
-            type="text" 
-            [(ngModel)]="businessForm.customType" 
-            placeholder="e.g., Bakery, Salon, Gym"
-            class="form-input"
-          />
-        </div>
-      </div>
-      
-      <!-- Step 2: Location -->
-      <div *ngIf="currentBusinessStep === 2">
-        <div class="form-group">
-          <label>Address <span class="required">*</span></label>
-          <input 
-            type="text" 
-            [(ngModel)]="businessForm.address" 
-            placeholder="Street address"
-            class="form-input"
-            autofocus
-          />
-        </div>
-        
-        <div class="form-group">
-          <label>City <span class="required">*</span></label>
-          <input 
-            type="text" 
-            [(ngModel)]="businessForm.city" 
-            placeholder="City name"
-            class="form-input"
-          />
-        </div>
-        
-        <div class="form-group">
-          <label>State <span class="required">*</span></label>
-          <input 
-            type="text" 
-            [(ngModel)]="businessForm.state" 
-            placeholder="State/Province"
-            class="form-input"
-          />
-        </div>
-      </div>
-      
-      <!-- Step 3: Contact & Description -->
-      <div *ngIf="currentBusinessStep === 3">
-        <div class="form-group">
-          <label>Phone</label>
-          <input 
-            type="tel" 
-            [(ngModel)]="businessForm.phone" 
-            placeholder="+1 234 567 8900"
-            class="form-input"
-            autofocus
-          />
-        </div>
-        
-        <div class="form-group">
-          <label>Website</label>
-          <input 
-            type="url" 
-            [(ngModel)]="businessForm.website" 
-            placeholder="https://example.com"
-            class="form-input"
-          />
-        </div>
-        
-        <div class="form-group">
-          <label>Description</label>
-          <textarea 
-            [(ngModel)]="businessForm.description" 
-            placeholder="Brief description (optional)"
-            rows="3"
-            class="form-input"
-          ></textarea>
-        </div>
-      </div>
-    </div>
-    
-    <div class="modal-actions">
-      <div class="btn-group" *ngIf="currentBusinessStep === 1">
-        <button class="btn-modal-primary" (click)="nextBusinessStep()">
-          Continue
-        </button>
-      </div>
-      
-      <div class="btn-group" *ngIf="currentBusinessStep === 2">
-        <button class="btn-modal-primary" (click)="nextBusinessStep()">
-          Continue
-        </button>
-      </div>
-      
-      <div class="btn-group" *ngIf="currentBusinessStep === 3">
-        <button class="btn-modal-primary" (click)="addBusiness()" [disabled]="addingBusiness">
-          {{ addingBusiness ? 'Creating...' : 'Create Business' }}
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- Delete Confirmation Modal -->
 <div *ngIf="showDeleteModal" class="modal-overlay" (click)="closeDeleteModal()">
   <div class="modal-content delete-modal" (click)="$event.stopPropagation()">
-    <div class="modal-handle"></div>
     <button class="btn-close-modal" (click)="closeDeleteModal()" aria-label="Close">
       <lucide-icon [img]="X" [size]="20"></lucide-icon>
     </button>
     
     <div class="modal-header">
       <div class="warning-icon">
-        <lucide-icon [img]="AlertTriangle" [size]="48"></lucide-icon>
+        <lucide-icon [img]="AlertTriangle" [size]="40"></lucide-icon>
       </div>
       <h3>Delete Business</h3>
       <p class="danger-text">This action cannot be undone!</p>
     </div>
     
     <div class="modal-body">
-      <p class="warning-text">
-        Are you sure you want to permanently delete <strong>{{ businessToDelete?.name }}</strong>?
-      </p>
-      
-      <div class="warning-box">
-        <div class="warning-box-header">
-          <lucide-icon [img]="AlertTriangle" [size]="20"></lucide-icon>
-          <span>This will permanently delete:</span>
-        </div>
-        <ul class="warning-list">
-          <li>
-            <lucide-icon [img]="Package" [size]="16"></lucide-icon>
-            All menu items ({{ businessToDelete?.stats?.totalItems || 0 }} items)
-          </li>
-          <li>
-            <lucide-icon [img]="MessageSquare" [size]="16"></lucide-icon>
-            All reviews and ratings
-          </li>
-          <li>
-            <lucide-icon [img]="ImageIcon" [size]="16"></lucide-icon>
-            All uploaded images from cloud storage
-          </li>
-          <li>
-            <lucide-icon [img]="ShoppingBag" [size]="16"></lucide-icon>
-            Business profile and all associated data
-          </li>
-        </ul>
-      </div>
-      
       <p class="confirmation-text">
-        Type <strong>{{ businessToDelete?.name }}</strong> to confirm deletion:
+        Type <strong>{{ businessToDelete?.name }}</strong> to confirm:
       </p>
-      
       <input 
         type="text" 
         [(ngModel)]="deleteConfirmationText" 
         placeholder="Enter business name"
         class="confirmation-input"
         [class.error]="deleteConfirmationText && deleteConfirmationText !== businessToDelete?.name"
+        autofocus
       />
     </div>
     
@@ -300,7 +125,7 @@
         [disabled]="deletingBusiness || deleteConfirmationText !== businessToDelete?.name"
       >
         <lucide-icon [img]="Trash2" [size]="16"></lucide-icon>
-        {{ deletingBusiness ? 'Deleting...' : 'Delete Business' }}
+        {{ deletingBusiness ? 'Deleting...' : 'Delete' }}
       </button>
     </div>
   </div>

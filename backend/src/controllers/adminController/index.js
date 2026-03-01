@@ -1,5 +1,7 @@
+import jwt from 'jsonwebtoken';
 import { User, Business, Review, Item, Report } from '../../models/index.js';
 import responseHandler from '../../utils/responseHandler.js';
+import { JWT_SECRET } from '../../config/config.js';
 import adminLogin from './adminLogin.js';
 import adminLogout from './adminLogout.js';
 import getUserAnalytics from './getUserAnalytics.js';
@@ -94,10 +96,19 @@ export const getUsers = async (req, res) => {
         const role = req.query.role; // user, business_owner
         const status = req.query.status; // active, suspended
 
+        const search = req.query.search;
         const query = {};
         if (role) query.role = role;
         if (status === 'active') query.isActive = true;
         if (status === 'suspended') query.isActive = false;
+        if (search) {
+            query.$or = [
+                { username: { $regex: search, $options: 'i' } },
+                { email: { $regex: search, $options: 'i' } },
+                { 'profile.firstName': { $regex: search, $options: 'i' } },
+                { 'profile.lastName': { $regex: search, $options: 'i' } }
+            ];
+        }
 
         const users = await User.find(query)
             .sort({ createdAt: -1 })
@@ -226,6 +237,36 @@ export const banUser = async (req, res) => {
 
     } catch (error) {
         return responseHandler.error(res, 'Failed to ban user', 500);
+    }
+};
+
+/**
+ * Login as any user — generate a JWT on their behalf (Admin only)
+ */
+export const loginAsUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const user = await User.findById(id).select('-password');
+        if (!user) return responseHandler.error(res, 'User not found', 404);
+        if (!user.isActive) return responseHandler.error(res, 'User account is inactive', 400);
+
+        const token = jwt.sign(
+            {
+                id: user._id,
+                role: user.role,
+                email: user.email,
+                username: user.username,
+                impersonated: true,
+                impersonatedBy: req.user.id
+            },
+            JWT_SECRET,
+            { expiresIn: '8h' }
+        );
+
+        return responseHandler.success(res, 'Login token generated', { token, user });
+    } catch (error) {
+        return responseHandler.error(res, 'Failed to generate login token', 500);
     }
 };
 

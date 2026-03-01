@@ -14,7 +14,9 @@ const validator = schemas => (req, res, next) => {
         }
         // Only update body and params, query is readonly in some Express setups
         if (type === 'body' || type === 'params') {
-            req[type] = value;
+            // Merge: keep all original fields (e.g. FormData bracket-notation keys),
+            // but apply Joi-transformed values (trimming etc.) for known fields.
+            req[type] = { ...types[type], ...value };
         }
     }
     next();

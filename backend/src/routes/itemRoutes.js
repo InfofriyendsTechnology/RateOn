@@ -34,6 +34,12 @@ router.patch('/:id/availability',
     itemController.updateAvailability.handler
 );
 
+router.delete('/:id',
+    auth,
+    authorize(['business_owner']),
+    itemController.deleteItem.handler
+);
+
 export default router;
 
 

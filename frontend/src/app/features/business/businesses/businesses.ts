@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { StorageService } from '../../../core/services/storage';
 import { BusinessService } from '../../../core/services/business';
 import { ToastService } from '../../../core/services/toast';
+import { BusinessStateService } from '../../../core/services/business-state.service';
 import { LucideAngularModule, ShoppingBag, MapPin, Phone, Star, Plus, Edit, X, ArrowLeft, Package, MessageSquare, Eye, Trash2, AlertTriangle, Image as ImageIcon } from 'lucide-angular';
 import { BreadcrumbsComponent } from '../../../shared/components/breadcrumbs/breadcrumbs';
 
@@ -15,7 +17,8 @@ import { BreadcrumbsComponent } from '../../../shared/components/breadcrumbs/bre
   templateUrl: './businesses.html',
   styleUrl: './businesses.scss'
 })
-export class BusinessesComponent implements OnInit {
+export class BusinessesComponent implements OnInit, OnDestroy {
+  private subs = new Subscription();
   // Lucide Icons
   readonly ShoppingBag = ShoppingBag;
   readonly MapPin = MapPin;
@@ -36,24 +39,6 @@ export class BusinessesComponent implements OnInit {
   businesses: any[] = [];
   loadingBusinesses = false;
   
-  // Business modal
-  showBusinessModal = false;
-  currentBusinessStep = 1;
-  totalBusinessSteps = 3;
-  addingBusiness = false;
-  businessForm = {
-    name: '',
-    type: '',
-    customType: '',
-    category: '',
-    city: '',
-    state: '',
-    address: '',
-    phone: '',
-    website: '',
-    description: ''
-  };
-  
   // Delete modal
   showDeleteModal = false;
   businessToDelete: any = null;
@@ -63,16 +48,33 @@ export class BusinessesComponent implements OnInit {
   constructor(
     private storage: StorageService,
     private businessService: BusinessService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private businessStateService: BusinessStateService
   ) {}
   
   ngOnInit() {
     this.user = this.storage.getUser();
     this.loadBusinesses();
+
+    // Instantly show business created from dashboard modal (works even when already on this route)
+    this.subs.add(
+      this.businessStateService.businessCreated$.subscribe(biz => {
+        if (biz?._id && !this.businesses.find((b: any) => b._id === biz._id)) {
+          this.businesses = [biz, ...this.businesses];
+        }
+      })
+    );
+  }
+
+  ngOnDestroy() {
+    this.subs.unsubscribe();
   }
   
   loadBusinesses() {
-    this.loadingBusinesses = true;
+    // Only show spinner if list is empty (avoid flash when pre-populated)
+    if (!this.businesses.length) {
+      this.loadingBusinesses = true;
+    }
     const userId = this.user?._id || this.user?.id;
     
     if (!userId) {
@@ -80,7 +82,7 @@ export class BusinessesComponent implements OnInit {
       return;
     }
     
-    this.businessService.getBusinesses({ owner: userId }).subscribe({
+    this.businessService.getBusinesses({ owner: userId, _nocache: Date.now() }).subscribe({
       next: (response: any) => {
         const data = response.data || response;
         this.businesses = data.businesses || data || [];
@@ -88,131 +90,6 @@ export class BusinessesComponent implements OnInit {
       },
       error: (err) => {
         this.loadingBusinesses = false;
-      }
-    });
-  }
-  
-  openBusinessModal() {
-    // Reset form first to ensure clean state
-    this.resetBusinessForm();
-    // Then show modal
-    this.showBusinessModal = true;
-    this.currentBusinessStep = 1;
-  }
-  
-  closeBusinessModal() {
-    this.showBusinessModal = false;
-    // Reset form after a short delay to ensure clean state
-    setTimeout(() => {
-      this.resetBusinessForm();
-    }, 300);
-  }
-  
-  resetBusinessForm() {
-    // Create a completely new object to ensure Angular detects the change
-    this.businessForm = Object.assign({}, {
-      name: '',
-      type: '',
-      customType: '',
-      category: '',
-      city: '',
-      state: '',
-      address: '',
-      phone: '',
-      website: '',
-      description: ''
-    });
-    this.currentBusinessStep = 1;
-    this.addingBusiness = false;
-  }
-  
-  onBusinessTypeChange() {
-    // Clear custom type when switching away from "other"
-    if (this.businessForm.type !== 'other') {
-      this.businessForm.customType = '';
-    }
-  }
-  
-  nextBusinessStep() {
-    if (this.currentBusinessStep === 1) {
-      if (!this.businessForm.name || !this.businessForm.type) {
-        this.toastService.error('Please fill in all required fields');
-        return;
-      }
-      // Validate custom type if "other" is selected
-      if (this.businessForm.type === 'other' && !this.businessForm.customType?.trim()) {
-        this.toastService.error('Please enter a custom business type');
-        return;
-      }
-    }
-    
-    if (this.currentBusinessStep === 2) {
-      if (!this.businessForm.city || !this.businessForm.state || !this.businessForm.address) {
-        this.toastService.error('Please fill in all required location fields');
-        return;
-      }
-    }
-    
-    if (this.currentBusinessStep < this.totalBusinessSteps) {
-      this.currentBusinessStep++;
-    }
-  }
-  
-  previousBusinessStep() {
-    if (this.currentBusinessStep > 1) {
-      this.currentBusinessStep--;
-    }
-  }
-  
-  addBusiness() {
-    if (!this.businessForm.name || !this.businessForm.type || !this.businessForm.city || !this.businessForm.state || !this.businessForm.address) {
-      this.toastService.error('Please fill in all required fields');
-      return;
-    }
-    
-    // Validate custom type if "other" is selected
-    if (this.businessForm.type === 'other' && !this.businessForm.customType?.trim()) {
-      this.toastService.error('Please enter a custom business type');
-      return;
-    }
-    
-    this.addingBusiness = true;
-    
-    // Use custom type if "other" was selected
-    const businessType = this.businessForm.type === 'other' ? this.businessForm.customType : this.businessForm.type;
-    
-    const businessData = {
-      name: this.businessForm.name,
-      type: businessType,
-      category: this.businessForm.category || businessType,
-      location: {
-        address: this.businessForm.address,
-        city: this.businessForm.city,
-        state: this.businessForm.state,
-        country: 'India',
-        coordinates: {
-          coordinates: [0, 0]
-        }
-      },
-      contact: {
-        phone: this.businessForm.phone || '',
-        website: this.businessForm.website || ''
-      },
-      description: this.businessForm.description || ''
-    };
-    
-    this.businessService.createBusiness(businessData).subscribe({
-      next: (response: any) => {
-        this.toastService.success('Business created successfully!');
-        this.closeBusinessModal();
-        this.loadBusinesses();
-      },
-      error: (err) => {
-        this.toastService.error('Failed to create business. Please try again.');
-        this.addingBusiness = false;
-      },
-      complete: () => {
-        this.addingBusiness = false;
       }
     });
   }

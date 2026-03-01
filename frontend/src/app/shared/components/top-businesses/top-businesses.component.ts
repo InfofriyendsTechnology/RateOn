@@ -26,8 +26,24 @@ export class TopBusinessesComponent {
   sortColumn: string = 'reviewCount';
   sortDirection: 'asc' | 'desc' = 'desc';
 
+  readonly filterChips = [
+    { label: 'Most Reviews',   column: 'reviewCount',   dir: 'desc' as const },
+    { label: 'Top Rating',     column: 'averageRating', dir: 'desc' as const },
+    { label: 'Most Reactions', column: 'reactionCount', dir: 'desc' as const },
+    { label: 'A–Z',            column: 'businessName',  dir: 'asc'  as const },
+  ];
+
   onPeriodChange(period: 'week' | 'month'): void {
     this.periodChange.emit(period);
+  }
+
+  setFilter(column: string, dir: 'asc' | 'desc'): void {
+    this.sortColumn    = column;
+    this.sortDirection = dir;
+  }
+
+  isChipActive(column: string, dir: 'asc' | 'desc'): boolean {
+    return this.sortColumn === column && this.sortDirection === dir;
   }
 
   sortBy(column: string): void {

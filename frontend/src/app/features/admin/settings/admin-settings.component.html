@@ -1,0 +1,247 @@
+<div class="settings-page">
+
+  <!-- ── Header ───────────────────────────────────── -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <lucide-icon [img]="Settings" [size]="22"></lucide-icon>
+      </div>
+      <div class="header-text">
+        <h1>Settings</h1>
+        <p class="subtitle">Manage your admin account and preferences</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- Section 1 — Admin Account                       -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="section-card">
+    <div class="section-header">
+      <h3 class="section-title">
+        <lucide-icon [img]="Settings" [size]="16"></lucide-icon>
+        Admin Account
+      </h3>
+      <p class="section-sub">Your super-admin identity on this platform.</p>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-row">
+        <span class="info-label">Email</span>
+        <span class="info-val mono">admin@rateon.com</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Role</span>
+        <span class="badge admin-badge">Super Admin</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Status</span>
+        <span class="status-chip">
+          <span class="status-dot"></span> Active
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- Section 2 — Security / Password                 -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="section-card">
+    <div class="section-header">
+      <h3 class="section-title">
+        <lucide-icon [img]="Shield" [size]="16"></lucide-icon>
+        Security
+      </h3>
+      <p class="section-sub">Your password is dynamic and changes daily.</p>
+    </div>
+
+    <!-- Formula explanation -->
+    <div class="formula-card">
+      <div class="formula-label">
+        <lucide-icon [img]="Key" [size]="14"></lucide-icon>
+        Password Formula
+      </div>
+      <div class="formula-parts">
+        <span class="formula-part">Day <em>(DD)</em></span>
+        <span class="formula-op">+</span>
+        <span class="formula-part">Month <em>(MM)</em></span>
+        <span class="formula-op">+</span>
+        <span class="formula-part">Year <em>(YYYY)</em></span>
+        <span class="formula-op">+</span>
+        <span class="formula-part static">9325</span>
+      </div>
+      <div class="formula-example">
+        e.g. today → <code>{{ passwordHint }}</code>
+      </div>
+    </div>
+
+    <!-- Today's password reveal -->
+    <div class="password-row">
+      <div class="password-info">
+        <span class="pw-label">Today's Password</span>
+        <span class="pw-date">{{ todayLabel }}</span>
+      </div>
+      <div class="password-field">
+        <span class="pw-value" [class.revealed]="showPassword">{{ displayPassword }}</span>
+        <button class="pw-btn" (click)="togglePassword()" [title]="showPassword ? 'Hide' : 'Reveal'">
+          <lucide-icon [img]="showPassword ? EyeOff : Eye" [size]="15"></lucide-icon>
+        </button>
+        <button class="pw-btn" (click)="copyPassword()" title="Copy">
+          <lucide-icon [img]="copied ? Check : Copy" [size]="15"></lucide-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- Section 3 — Weekly Password                     -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="section-card">
+    <div class="section-header">
+      <h3 class="section-title">
+        <lucide-icon [img]="Lock" [size]="16"></lucide-icon>
+        Weekly Password
+      </h3>
+      <p class="section-sub">Generate a custom password valid for 7 days — works alongside the daily formula.</p>
+    </div>
+
+    <!-- Alerts -->
+    <div class="weekly-alert success" *ngIf="weeklySuccess">
+      <span>{{ weeklySuccess }}</span>
+      <button (click)="weeklySuccess = ''">✕</button>
+    </div>
+    <div class="weekly-alert error" *ngIf="weeklyError">
+      <span>{{ weeklyError }}</span>
+      <button (click)="weeklyError = ''">✕</button>
+    </div>
+
+    <!-- Current status -->
+    <div class="weekly-status" *ngIf="weeklyInfo">
+      <ng-container *ngIf="weeklyInfo.hasWeeklyPassword && !weeklyInfo.isExpired; else noWeekly">
+        <span class="status-chip">
+          <span class="status-dot"></span>
+          Active · expires {{ weeklyExpiryLabel }}
+        </span>
+        <span class="days-badge">{{ weeklyInfo.daysRemaining }}d left</span>
+      </ng-container>
+      <ng-template #noWeekly>
+        <span class="inactive-chip">No weekly password set</span>
+      </ng-template>
+    </div>
+
+    <!-- Revealed new password (shown once after generation) -->
+    <div class="new-pw-reveal" *ngIf="weeklyNewPw">
+      <div class="new-pw-label">
+        <lucide-icon [img]="Key" [size]="14"></lucide-icon>
+        New password — save it now, it won't be shown again
+      </div>
+      <div class="new-pw-field">
+        <span class="pw-value" [class.revealed]="showWeeklyPw">{{ showWeeklyPw ? weeklyNewPw : '•'.repeat(12) }}</span>
+        <button class="pw-btn" (click)="showWeeklyPw = !showWeeklyPw">
+          <lucide-icon [img]="showWeeklyPw ? EyeOff : Eye" [size]="15"></lucide-icon>
+        </button>
+        <button class="pw-btn" (click)="copyWeeklyPw()">
+          <lucide-icon [img]="weeklyCopied ? Check : Copy" [size]="15"></lucide-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- Input + actions -->
+    <div class="weekly-actions">
+      <input
+        class="pw-input"
+        type="text"
+        [(ngModel)]="weeklyCustomPw"
+        placeholder="Custom password (leave empty to auto-generate)"
+        [disabled]="weeklyLoading"
+      />
+      <button class="btn-generate" (click)="generateWeekly()" [disabled]="weeklyLoading">
+        <lucide-icon [img]="weeklyLoading ? RefreshCw : Key" [size]="15" [class.spin]="weeklyLoading"></lucide-icon>
+        {{ weeklyLoading ? 'Saving...' : (weeklyCustomPw ? 'Set Password' : 'Auto Generate') }}
+      </button>
+
+      <!-- Clear button -->
+      <ng-container *ngIf="weeklyInfo?.hasWeeklyPassword && !weeklyInfo?.isExpired">
+        <ng-container *ngIf="!clearConfirm; else confirmClear">
+          <button class="btn-clear-weekly" (click)="clearConfirm = true" [disabled]="weeklyLoading">
+            <lucide-icon [img]="Trash2" [size]="15"></lucide-icon>
+            Clear
+          </button>
+        </ng-container>
+        <ng-template #confirmClear>
+          <div class="clear-confirm">
+            <span>Sure?</span>
+            <button class="confirm-yes" (click)="clearWeekly()">Yes</button>
+            <button class="confirm-no"  (click)="clearConfirm = false">No</button>
+          </div>
+        </ng-template>
+      </ng-container>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- Section 4 — Session                             -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="section-card">
+    <div class="section-header">
+      <h3 class="section-title">
+        <lucide-icon [img]="LogOut" [size]="16"></lucide-icon>
+        Session
+      </h3>
+      <p class="section-sub">End your current admin session.</p>
+    </div>
+
+    <ng-container *ngIf="!showLogoutConfirm; else logoutConfirm">
+      <button class="logout-btn" (click)="showLogoutConfirm = true">
+        <lucide-icon [img]="LogOut" [size]="16"></lucide-icon>
+        Log Out
+      </button>
+    </ng-container>
+
+    <ng-template #logoutConfirm>
+      <div class="confirm-row">
+        <span class="confirm-text">Are you sure you want to log out?</span>
+        <div class="confirm-actions">
+          <button class="confirm-yes" (click)="logout()">Yes, Log Out</button>
+          <button class="confirm-no"  (click)="showLogoutConfirm = false">Cancel</button>
+        </div>
+      </div>
+    </ng-template>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- Section 4 — App Info                            -->
+  <!-- ═══════════════════════════════════════════════ -->
+  <div class="section-card">
+    <div class="section-header">
+      <h3 class="section-title">
+        <lucide-icon [img]="Info" [size]="16"></lucide-icon>
+        App Info
+      </h3>
+    </div>
+
+    <div class="info-grid stacked">
+      <div class="info-row">
+        <span class="info-label">Platform</span>
+        <span class="info-val">RateOn</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Version</span>
+        <span class="info-val mono">v1.0.0</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Frontend</span>
+        <span class="info-val">Angular 19 + Lucide</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Backend</span>
+        <span class="info-val">Node.js · Express · MongoDB</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Admin Panel</span>
+        <span class="badge env-badge">Internal Use Only</span>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,329 @@
+<div class="ab-wrap">
+
+  <!-- Breadcrumbs + Page Title -->
+  <div class="ab-header">
+    <app-breadcrumbs [crumbs]="[
+      { label: 'Dashboard',     link: '/owner' },
+      { label: 'My Businesses', link: '/owner/businesses' },
+      { label: 'Add Business' }
+    ]"></app-breadcrumbs>
+    <div class="page-title-row">
+      <h1 class="page-title">Add New Business</h1>
+    </div>
+  </div>
+
+  <!-- ─── Step Indicator ──────────────────────────────────────────────────── -->
+  <div class="stepper">
+    <ng-container *ngFor="let step of steps; let last = last">
+      <div class="stepper-item"
+           [class.active]="currentStep === step.number"
+           [class.completed]="currentStep > step.number"
+           (click)="goToStep(step.number)">
+        <div class="step-circle">
+          <lucide-icon *ngIf="currentStep > step.number" [img]="Check" [size]="15"></lucide-icon>
+          <span *ngIf="currentStep <= step.number">{{ step.number }}</span>
+        </div>
+        <span class="step-label">{{ step.label }}</span>
+      </div>
+      <div class="stepper-line" *ngIf="!last" [class.done]="currentStep > step.number"></div>
+    </ng-container>
+  </div>
+
+  <!-- ─── Form Body ─────────────────────────────────────────────────────── -->
+  <div class="form-body" [formGroup]="businessForm">
+
+    <!-- ── STEP 1: Basic Info ─────────────────────────────────────── -->
+    <div class="step-panel" *ngIf="currentStep === 1">
+      <div class="step-heading">
+        <div class="step-icon-wrap">
+          <lucide-icon [img]="Building2" [size]="22"></lucide-icon>
+        </div>
+        <div>
+          <h2>Business Information</h2>
+          <p>Tell us about your business</p>
+        </div>
+      </div>
+
+      <div class="fields-grid">
+        <!-- Business Name -->
+        <div class="field full">
+          <label>Business Name <span class="req">*</span></label>
+          <input formControlName="name" type="text"
+                 placeholder="e.g. Jay's Café, Anand Medical Store" autofocus />
+          <span class="field-hint warn"
+                *ngIf="businessForm.get('name')?.value?.length > 0 && businessForm.get('name')?.value?.length < 3">
+            Minimum 3 characters required
+          </span>
+        </div>
+
+        <!-- Category -->
+        <div class="field">
+          <label>Category <span class="req">*</span></label>
+          <select formControlName="category">
+            <option value="">Select a category</option>
+            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+          </select>
+        </div>
+
+        <!-- Custom Category -->
+        <div class="field" *ngIf="businessForm.get('category')?.value === 'Other'">
+          <label>Specify Category <span class="req">*</span></label>
+          <input formControlName="customCategory" type="text"
+                 placeholder="e.g. Bookshop, Florist, Pet Store" />
+        </div>
+
+        <!-- Subcategory -->
+        <div class="field"
+             *ngIf="businessForm.get('category')?.value && businessForm.get('category')?.value !== 'Other'">
+          <label>Sub-category <span class="opt-badge">Optional</span></label>
+          <input formControlName="subcategory" type="text"
+                 placeholder="e.g. South Indian, Veg Only, 24-hour" />
+        </div>
+
+        <!-- Description -->
+        <div class="field full">
+          <label>Description <span class="opt-badge">Optional</span></label>
+          <textarea formControlName="description" rows="4"
+                    placeholder="Describe your business — what makes it special, what you offer…"></textarea>
+          <span class="char-count">{{ descriptionLength }} / 2000</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── STEP 2: Location ───────────────────────────────────────── -->
+    <div class="step-panel" *ngIf="currentStep === 2">
+      <div class="step-heading">
+        <div class="step-icon-wrap">
+          <lucide-icon [img]="MapPin" [size]="22"></lucide-icon>
+        </div>
+        <div>
+          <h2>Business Location</h2>
+          <p>Where can customers find you?</p>
+        </div>
+      </div>
+
+      <div class="fields-grid">
+        <div class="field full">
+          <label>Street Address <span class="req">*</span></label>
+          <input formControlName="address" type="text"
+                 placeholder="e.g. Shop No. 5, Gandhi Market, MG Road"
+                 [class.field-error]="stepTouched[2] && !businessForm.get('address')?.value?.trim()" />
+          <span class="field-hint warn"
+                *ngIf="stepTouched[2] && !businessForm.get('address')?.value?.trim()">
+            Street address is required
+          </span>
+        </div>
+
+        <div class="field">
+          <label>City <span class="req">*</span></label>
+          <input formControlName="city" type="text" placeholder="e.g. Mumbai"
+                 [class.field-error]="stepTouched[2] && !businessForm.get('city')?.value?.trim()" />
+          <span class="field-hint warn"
+                *ngIf="stepTouched[2] && !businessForm.get('city')?.value?.trim()">
+            City is required
+          </span>
+        </div>
+
+        <div class="field">
+          <label>State <span class="req">*</span></label>
+          <input formControlName="state" type="text" placeholder="e.g. Maharashtra"
+                 [class.field-error]="stepTouched[2] && !businessForm.get('state')?.value?.trim()" />
+          <span class="field-hint warn"
+                *ngIf="stepTouched[2] && !businessForm.get('state')?.value?.trim()">
+            State is required
+          </span>
+        </div>
+
+        <div class="field">
+          <label>Pincode <span class="opt-badge">Optional</span></label>
+          <input formControlName="pincode" type="text" maxlength="6" placeholder="e.g. 400001" />
+        </div>
+
+        <div class="field">
+          <label>Country</label>
+          <input formControlName="country" type="text" placeholder="India" />
+        </div>
+      </div>
+
+      <div class="info-note">
+        <lucide-icon [img]="MapPin" [size]="15"></lucide-icon>
+        Precise map coordinates can be pinned later from your business settings.
+      </div>
+    </div>
+
+    <!-- ── STEP 3: Contact &amp; Hours ───────────────────────────────── -->
+    <div class="step-panel" *ngIf="currentStep === 3">
+      <div class="step-heading">
+        <div class="step-icon-wrap">
+          <lucide-icon [img]="Phone" [size]="22"></lucide-icon>
+        </div>
+        <div>
+          <h2>Contact &amp; Hours</h2>
+          <p>All fields are optional — update them anytime later</p>
+        </div>
+      </div>
+
+      <h3 class="sub-heading">
+        <lucide-icon [img]="Phone" [size]="16"></lucide-icon>
+        Contact Details
+      </h3>
+      <div class="fields-grid">
+        <div class="field">
+          <label>
+            <lucide-icon [img]="Phone" [size]="14"></lucide-icon>
+            Phone
+          </label>
+          <input formControlName="phone" type="tel" placeholder="+91 98765 43210" />
+        </div>
+
+        <div class="field">
+          <label>
+            <lucide-icon [img]="Phone" [size]="14"></lucide-icon>
+            WhatsApp
+          </label>
+          <input formControlName="whatsapp" type="tel" placeholder="+91 98765 43210" />
+        </div>
+
+        <div class="field">
+          <label>
+            <lucide-icon [img]="Mail" [size]="14"></lucide-icon>
+            Email
+          </label>
+          <input formControlName="email" type="email" placeholder="business@example.com" />
+        </div>
+
+        <div class="field">
+          <label>
+            <lucide-icon [img]="Globe" [size]="14"></lucide-icon>
+            Website
+          </label>
+          <input formControlName="website" type="url" placeholder="https://yourbusiness.com" />
+        </div>
+      </div>
+
+      <h3 class="sub-heading" style="margin-top:2rem">
+        <lucide-icon [img]="Clock" [size]="16"></lucide-icon>
+        Business Hours
+      </h3>
+
+      <div class="hours-table" formArrayName="businessHours">
+        <ng-container *ngFor="let hour of businessHoursArray.controls; let i = index"
+                      [formGroupName]="i">
+          <div class="hour-row" [class.is-closed]="hour.get('isClosed')?.value">
+            <span class="day-name">{{ daysOfWeek[i].label }}</span>
+
+            <div class="time-pair" [class.disabled]="hour.get('isClosed')?.value">
+              <select formControlName="open"
+                      [attr.disabled]="hour.get('isClosed')?.value ? true : null">
+                <option *ngFor="let t of timeOptions" [value]="t">{{ t }}</option>
+              </select>
+              <span class="to-label">to</span>
+              <select formControlName="close"
+                      [attr.disabled]="hour.get('isClosed')?.value ? true : null">
+                <option *ngFor="let t of timeOptions" [value]="t">{{ t }}</option>
+              </select>
+            </div>
+
+            <button type="button" class="toggle-closed"
+                    [class.is-open]="!hour.get('isClosed')?.value"
+                    (click)="toggleDayClosed(i)">
+              {{ hour.get('isClosed')?.value ? 'Closed' : 'Open' }}
+            </button>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <!-- ── STEP 4: Photos ──────────────────────────────────────────── -->
+    <div class="step-panel" *ngIf="currentStep === 4">
+      <div class="step-heading">
+        <div class="step-icon-wrap">
+          <lucide-icon [img]="Camera" [size]="22"></lucide-icon>
+        </div>
+        <div>
+          <h2>Business Photos</h2>
+          <p>Add at least 1 cover photo to publish your listing</p>
+        </div>
+      </div>
+
+      <!-- Logo -->
+      <div class="media-section">
+        <h3 class="sub-heading">
+          <lucide-icon [img]="Image" [size]="16"></lucide-icon>
+          Business Logo <span class="req">*</span>
+        </h3>
+        <div class="logo-area">
+          <div class="logo-preview" *ngIf="logoPreview">
+            <img [src]="logoPreview" alt="Logo preview" />
+            <button type="button" class="remove-overlay" (click)="removeLogo()" title="Remove">
+              <lucide-icon [img]="X" [size]="14"></lucide-icon>
+            </button>
+          </div>
+          <div class="logo-drop" *ngIf="!logoPreview" (click)="logoInput.click()">
+            <lucide-icon [img]="Image" [size]="32" class="drop-icon"></lucide-icon>
+            <span class="drop-title">Upload Logo</span>
+            <span class="drop-sub">PNG, JPG · square · max 5 MB</span>
+          </div>
+          <input #logoInput type="file" accept="image/*" (change)="onLogoSelect($event)" style="display:none" />
+        </div>
+      </div>
+
+      <!-- Cover Photos -->
+      <div class="media-section">
+        <h3 class="sub-heading">
+          <lucide-icon [img]="Camera" [size]="16"></lucide-icon>
+          Cover Photos <span class="req">*</span>
+          <span class="photo-counter" *ngIf="photoPreviews.length > 0">{{ photoPreviews.length }} / 5</span>
+        </h3>
+
+        <div class="photos-grid">
+          <div class="photo-thumb" *ngFor="let src of photoPreviews; let i = index">
+            <img [src]="src" alt="Photo" />
+            <button type="button" class="remove-overlay" (click)="removePhoto(i)" title="Remove">
+              <lucide-icon [img]="X" [size]="14"></lucide-icon>
+            </button>
+            <span class="thumb-badge" *ngIf="i === 0">Cover</span>
+          </div>
+          <div class="photo-add" *ngIf="photoPreviews.length < 5" (click)="photoInput.click()">
+            <lucide-icon [img]="Plus" [size]="28" class="drop-icon"></lucide-icon>
+            <span>Add Photo</span>
+          </div>
+        </div>
+
+        <p class="photos-hint" [class.required-hint]="photoPreviews.length === 0 || !logoFile">
+          <ng-container *ngIf="photoPreviews.length === 0">⚠ At least 1 cover photo is required</ng-container>
+          <ng-container *ngIf="!logoFile && photoPreviews.length > 0">⚠ Logo is required</ng-container>
+          <ng-container *ngIf="logoFile && photoPreviews.length > 0">First photo will be the cover · PNG, JPG, WEBP · max 5 MB each</ng-container>
+        </p>
+        <input #photoInput type="file" accept="image/*" multiple (change)="onPhotosSelect($event)" style="display:none" />
+      </div>
+    </div>
+
+    <!-- ─── Navigation ────────────────────────────────────────────────────── -->
+    <div class="step-nav">
+      <button type="button" class="btn-back"
+              (click)="currentStep === 1 ? goBack() : prevStep()">
+        <lucide-icon [img]="ArrowLeft" [size]="17"></lucide-icon>
+        {{ currentStep === 1 ? 'Cancel' : 'Back' }}
+      </button>
+
+      <div class="nav-right">
+        <button type="button" class="btn-next"
+                *ngIf="currentStep < totalSteps"
+                (click)="nextStep()">
+          Next
+          <lucide-icon [img]="ArrowRight" [size]="17"></lucide-icon>
+        </button>
+
+        <button type="button" class="btn-submit"
+                *ngIf="currentStep === totalSteps"
+                (click)="onSubmit()"
+                [disabled]="submitting || photoPreviews.length === 0 || !logoFile">
+          <lucide-icon [img]="Check" [size]="17"></lucide-icon>
+          {{ submitting ? 'Creating…' : 'Create Business' }}
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /.form-body -->
+</div>

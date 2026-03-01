@@ -15,7 +15,8 @@ import {
     getUserDetails,
     suspendUser,
     unsuspendUser,
-    banUser
+    banUser,
+    loginAsUser
 } from '../controllers/adminController/index.js';
 import {
     createDummyData,
@@ -24,6 +25,11 @@ import {
     impersonateBusinessOwner,
     getSeedStats
 } from '../controllers/adminController/seedDataController.js';
+import {
+    setWeeklyPassword,
+    getWeeklyPasswordInfo,
+    clearWeeklyPassword
+} from '../controllers/adminController/weeklyPassword.js';
 import auth from '../middleware/auth.js';
 import authorize from '../middleware/authorize.js';
 
@@ -60,6 +66,12 @@ router.get('/users/:id', getUserDetails);
 router.put('/users/:id/suspend', suspendUser);
 router.put('/users/:id/unsuspend', unsuspendUser);
 router.put('/users/:id/ban', banUser);
+router.post('/users/:id/login-as', loginAsUser);
+
+// Settings — Weekly password
+router.get('/settings/weekly-password', getWeeklyPasswordInfo.handler);
+router.post('/settings/weekly-password', setWeeklyPassword.handler);
+router.delete('/settings/weekly-password', clearWeeklyPassword.handler);
 
 // Seed Data Management
 router.get('/seed/stats', getSeedStats.handler);

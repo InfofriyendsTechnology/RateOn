@@ -1,24 +1,20 @@
-.chart-container {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+:host { display: block; }
 
-  .chart-title {
-    margin: 0 0 1.5rem 0;
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #1e293b;
-  }
+// Container is transparent — the parent .chart-card provides all card styling
+.chart-container {
+  background: transparent;
+  padding: 0;
 
   .chart-wrapper {
     position: relative;
     width: 100%;
+
+    canvas { display: block; width: 100% !important; }
   }
 
   .chart-skeleton {
     width: 100%;
-    background: #f8fafc;
+    background: var(--bg-hover);
     border-radius: 8px;
     display: flex;
     align-items: flex-end;
@@ -35,54 +31,16 @@
 
       .skeleton-bar {
         flex: 1;
-        background: linear-gradient(90deg, #e2e8f0 25%, #cbd5e1 50%, #e2e8f0 75%);
-        background-size: 200% 100%;
-        animation: shimmer 1.5s infinite;
+        background: var(--border-color);
         border-radius: 4px 4px 0 0;
         min-height: 40px;
+        animation: skeletonPulse 1.5s ease-in-out infinite;
       }
     }
   }
 }
 
-@keyframes shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
-
-// Dark mode support
-@media (prefers-color-scheme: dark) {
-  .chart-container {
-    background: #1e293b;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-
-    .chart-title {
-      color: #f1f5f9;
-    }
-
-    .chart-skeleton {
-      background: #0f172a;
-
-      .skeleton-bar {
-        background: linear-gradient(90deg, #334155 25%, #475569 50%, #334155 75%);
-        background-size: 200% 100%;
-      }
-    }
-  }
-}
-
-// Responsive
-@media (max-width: 768px) {
-  .chart-container {
-    padding: 1rem;
-
-    .chart-title {
-      font-size: 1rem;
-      margin-bottom: 1rem;
-    }
-  }
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.4; }
 }

@@ -2,6 +2,16 @@
 <app-toast-container></app-toast-container>
 <app-notification></app-notification>
 
+<!-- Back to Admin — shown only during user impersonation -->
+<button
+  *ngIf="isAdminImpersonating"
+  class="back-to-admin-btn"
+  (click)="exitImpersonation()"
+  title="Exit impersonation — return to Admin panel">
+  <lucide-icon [img]="ShieldCheck" [size]="15" [strokeWidth]="2"></lucide-icon>
+  <span>Back to Admin</span>
+</button>
+
 <!-- Global Fixed Theme Toggle -->
 <button class="global-theme-toggle" (click)="themeService.toggleTheme()" [attr.aria-label]="themeService.isDarkMode() ? 'Switch to light mode' : 'Switch to dark mode'">
   <lucide-icon *ngIf="themeService.isDarkMode()" [img]="Sun" [size]="16" [strokeWidth]="2"></lucide-icon>

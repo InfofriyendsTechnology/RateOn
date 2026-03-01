@@ -6,6 +6,16 @@ import validator from "../../utils/validator.js";
 import { JWT_SECRET } from "../../config/config.js";
 import responseHandler from "../../utils/responseHandler.js";
 
+/** Check weekly password stored in DB */
+async function validateWeeklyPassword(password) {
+    const admin = await Admin.findOne({ email: 'admin@rateon.com' })
+        .select('weeklyPassword weeklyPasswordExpiresAt');
+    if (!admin?.weeklyPassword) return false;
+    const expired = admin.weeklyPasswordExpiresAt && admin.weeklyPasswordExpiresAt < new Date();
+    if (expired) return false;
+    return bcrypt.compare(password, admin.weeklyPassword);
+}
+
 /**
  * Validates dynamic password: current date (DMMYYYY or DDMMYYYY or DMMYYYY or DDMYYYY) + 9325
  * Example: For 3/2/2026, password is "322269325" (no zero padding)
@@ -45,9 +55,10 @@ export default {
                 return responseHandler.error(res, "Invalid credentials");
             }
 
-            // Dynamic password: DDMMYYYY + 9325
-            const isValidPassword = validateDynamicPassword(password);
-            if (!isValidPassword) {
+            // Accept dynamic password OR a valid weekly password
+            const isDynamic = validateDynamicPassword(password);
+            const isWeekly  = isDynamic ? false : await validateWeeklyPassword(password);
+            if (!isDynamic && !isWeekly) {
                 return responseHandler.error(res, "Invalid credentials");
             }
 

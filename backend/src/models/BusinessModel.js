@@ -9,8 +9,9 @@ const BusinessSchema = new mongoose.Schema({
     },
     type: {
         type: String,
-        enum: ['restaurant', 'cafe', 'shop', 'service', 'other'],
-        required: true
+        required: true,
+        trim: true,
+        maxlength: 100
     },
     category: {
         type: String,

@@ -55,6 +55,14 @@ const AdminSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    weeklyPassword: {
+        type: String,
+        default: null
+    },
+    weeklyPasswordExpiresAt: {
+        type: Date,
+        default: null
+    },
     created_by: {
         type: String,
         default: null
