@@ -68,15 +68,22 @@ export class ItemService {
   }
 
   searchItems(query: string, filters?: any): Observable<any> {
-    let params = new HttpParams().set('search', query);
-    // Don't set limit - this will fetch ALL items from backend
+    let params = new HttpParams();
+    
+    // Add search query if provided
+    if (query && query.trim()) {
+      params = params.set('search', query.trim());
+    }
+    
+    // Add filters
     if (filters) {
       Object.keys(filters).forEach(key => {
-        if (filters[key]) {
+        if (filters[key] !== null && filters[key] !== undefined) {
           params = params.set(key, filters[key]);
         }
       });
     }
+    
     return this.http.get(`${this.apiUrl}/search`, { params });
   }
 }

@@ -1,8 +1,10 @@
 import { Component, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil, forkJoin } from 'rxjs';
 import { Router } from '@angular/router';
+import { BusinessService } from '../../../core/services/business';
+import { ItemService } from '../../../core/services/item';
 
 export interface SearchSuggestion {
   type: 'business' | 'item' | 'category';
@@ -30,14 +32,19 @@ export class SearchBarComponent implements OnInit, OnDestroy {
   showSuggestions: boolean = false;
   loading: boolean = false;
   selectedIndex: number = -1;
+  private liveSearchSubject$ = new Subject<string>();
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private businessService: BusinessService,
+    private itemService: ItemService
+  ) {}
 
   ngOnInit(): void {
     // Load recent searches from localStorage
     this.loadRecentSearches();
     
-    // Setup debounced search
+    // Setup debounced search for suggestions
     this.searchSubject$
       .pipe(
         debounceTime(300),
@@ -50,6 +57,25 @@ export class SearchBarComponent implements OnInit, OnDestroy {
         } else {
           this.suggestions = [];
           this.showSuggestions = false;
+        }
+      });
+    
+    // Setup live search - triggers actual search on search results page
+    this.liveSearchSubject$
+      .pipe(
+        debounceTime(500), // 500ms delay for live search
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((query: string) => {
+        console.log('Live search triggered:', query, 'URL:', this.router.url);
+        // Only trigger live search if on EXACT search results page
+        const currentUrl = this.router.url.split('?')[0]; // Remove query params
+        if (currentUrl === '/search') {
+          console.log('Performing live search for:', query);
+          this.performLiveSearch(query);
+        } else {
+          console.log('Not on search page, skipping live search');
         }
       });
   }
@@ -69,6 +95,9 @@ export class SearchBarComponent implements OnInit, OnDestroy {
       this.suggestions = [];
       this.showSuggestions = false;
     }
+    
+    // Trigger live search (with debounce)
+    this.liveSearchSubject$.next(query);
   }
 
   onInputFocus(): void {
@@ -123,22 +152,47 @@ export class SearchBarComponent implements OnInit, OnDestroy {
   fetchSuggestions(query: string): void {
     this.loading = true;
     
-    // Mock suggestions - In real app, call API
-    // For now, create mock data
-    setTimeout(() => {
-      const all: SearchSuggestion[] = [
-        { type: 'business', id: '1', name: 'Pizza Palace', subtitle: 'Italian Restaurant' },
-        { type: 'business', id: '2', name: 'Burger King', subtitle: 'Fast Food' },
-        { type: 'item', id: '3', name: 'Margherita Pizza', subtitle: 'at Pizza Palace' },
-        { type: 'item', id: '4', name: 'Cheese Burger', subtitle: 'at Burger King' },
-        { type: 'category', id: '5', name: 'Italian', subtitle: 'Category' }
-      ];
-      this.suggestions = all.filter((s: SearchSuggestion) => 
-        s.name.toLowerCase().includes(query.toLowerCase())
-      );
-      
-      this.loading = false;
-    }, 100);
+    // Search both businesses and items
+    forkJoin({
+      businesses: this.businessService.searchBusinesses(query, { limit: 5 }),
+      items: this.itemService.searchItems(query, { limit: 5 })
+    }).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe({
+      next: (results: any) => {
+        const suggestions: SearchSuggestion[] = [];
+        
+        // Add business suggestions
+        const businesses = results.businesses?.data?.businesses || results.businesses?.businesses || [];
+        businesses.slice(0, 3).forEach((business: any) => {
+          suggestions.push({
+            type: 'business',
+            id: business._id,
+            name: business.name,
+            subtitle: business.category || business.type || 'Business'
+          });
+        });
+        
+        // Add item suggestions
+        const items = results.items?.data?.items || results.items?.items || [];
+        items.slice(0, 3).forEach((item: any) => {
+          const businessName = typeof item.businessId === 'object' ? item.businessId?.name : '';
+          suggestions.push({
+            type: 'item',
+            id: item._id,
+            name: item.name,
+            subtitle: businessName ? `at ${businessName}` : 'Item'
+          });
+        });
+        
+        this.suggestions = suggestions;
+        this.loading = false;
+      },
+      error: () => {
+        this.suggestions = [];
+        this.loading = false;
+      }
+    });
   }
 
   selectSuggestion(suggestion: SearchSuggestion): void {
@@ -169,12 +223,33 @@ export class SearchBarComponent implements OnInit, OnDestroy {
       queryParams: { q: this.searchQuery } 
     });
   }
+  
+  performLiveSearch(query: string): void {
+    console.log('performLiveSearch called with:', query);
+    // Update URL with query param (or remove if empty)
+    const queryParams: any = {};
+    if (query.trim()) {
+      queryParams.q = query;
+      console.log('Setting query param to:', query);
+    } else {
+      queryParams.q = null; // Remove param to show all results
+      console.log('Removing query param (empty search)');
+    }
+    
+    this.router.navigate(['/search'], { 
+      queryParams,
+      queryParamsHandling: 'merge'
+    });
+  }
 
   clearSearch(): void {
     this.searchQuery = '';
     this.suggestions = [];
     this.showSuggestions = false;
     this.selectedIndex = -1;
+    
+    // Trigger live search with empty query (shows all results)
+    this.liveSearchSubject$.next('');
   }
 
   removeRecentSearch(search: string): void {

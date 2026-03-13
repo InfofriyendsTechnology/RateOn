@@ -8,6 +8,7 @@ const router = Router();
 
 // Public routes
 router.get('/', businessController.listBusinesses.handler);
+router.get('/search', businessController.listBusinesses.handler); // Search route (reuses list with search param)
 router.get('/nearby', businessController.getNearbyBusinesses.handler);
 router.get('/:id', businessController.getBusinessById.handler);
 

@@ -23,7 +23,14 @@ export default {
         const filter = { isActive: true };
 
         if (search) {
-            filter.$text = { $search: search };
+            // Use regex for partial/letter-by-letter search instead of text search
+            const searchRegex = new RegExp(search, 'i'); // Case-insensitive
+            filter.$or = [
+                { name: searchRegex },
+                { description: searchRegex },
+                { category: searchRegex },
+                { type: searchRegex }
+            ];
         }
 
         if (category) {
@@ -57,11 +64,6 @@ export default {
         // Build sort object
         const sortOrder = order === 'asc' ? 1 : -1;
         const sort = { [sortBy]: sortOrder };
-
-        // If text search, sort by text score
-        if (search) {
-            sort.score = { $meta: 'textScore' };
-        }
 
         // If limit is specified and not 0, apply pagination
         const shouldPaginate = limit && parseInt(limit) > 0;

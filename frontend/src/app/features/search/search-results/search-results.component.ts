@@ -163,29 +163,17 @@ export class SearchResultsComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   performSearch(): void {
-    // Check if we have cached data and no search query
-    if (!this.searchQuery && this.allBusinesses.length > 0 && this.activeTab === 'businesses') {
-      // Use cached data - restore previous view state
-      const currentDisplayed = this.businesses.length || this.displayedCount;
-      this.businesses = this.allBusinesses.slice(0, currentDisplayed);
-      this.totalResults = this.allBusinesses.length;
-      return;
-    }
-    
-    if (!this.searchQuery && this.allItems.length > 0 && this.activeTab === 'items') {
-      // Use cached data - restore previous view state
-      const currentDisplayed = this.items.length || this.displayedCount;
-      this.items = this.allItems.slice(0, currentDisplayed);
-      this.totalResults = this.allItems.length;
-      return;
-    }
-    
+    console.log('performSearch called with query:', this.searchQuery);
     this.loading = true;
     this.currentPage = 1; // Reset to page 1 on new search
     
     if (this.activeTab === 'businesses') {
-      // Fetch real businesses
-      this.businessService.getBusinesses().subscribe({
+      // Use search API with query if provided, otherwise get all
+      const searchCall = this.searchQuery 
+        ? this.businessService.searchBusinesses(this.searchQuery)
+        : this.businessService.getBusinesses();
+      
+      searchCall.subscribe({
         next: (response: any) => {
           const data = response.data || response;
           const allBusinesses = data.businesses || data || [];
@@ -239,15 +227,7 @@ export class SearchResultsComponent implements OnInit, AfterViewInit, OnDestroy 
             }
           }));
           
-          // Filter by search query if present
-          if (this.searchQuery) {
-            const query = this.searchQuery.toLowerCase();
-            this.businesses = this.businesses.filter(b => 
-              b.name.toLowerCase().includes(query) || 
-              b.category.toLowerCase().includes(query) ||
-              (b.addressString || '').toLowerCase().includes(query)
-            );
-          }
+          // No need to filter again - backend already filtered with search param
           
           // Store all results for explore page (in-memory cache)
           this.allBusinesses = [...this.businesses];
@@ -270,8 +250,8 @@ export class SearchResultsComponent implements OnInit, AfterViewInit, OnDestroy 
         }
       });
     } else {
-      // Fetch all items by searching with empty query
-      this.itemService.searchItems('').subscribe({
+      // Use search API with query
+      this.itemService.searchItems(this.searchQuery || '').subscribe({
         next: (response: any) => {
           const data = response.data || response;
           const allItems = data.items || data || [];
@@ -289,15 +269,7 @@ export class SearchResultsComponent implements OnInit, AfterViewInit, OnDestroy 
             category: item.category || 'Item'
           }));
           
-          // Filter by search query if present
-          if (this.searchQuery) {
-            const query = this.searchQuery.toLowerCase();
-            this.items = this.items.filter(item => 
-              item.name.toLowerCase().includes(query) || 
-              item.category.toLowerCase().includes(query) ||
-              item.businessName.toLowerCase().includes(query)
-            );
-          }
+          // No need to filter again - backend already filtered with search param
           
           // Store all results for explore page (in-memory cache)
           this.allItems = [...this.items];
