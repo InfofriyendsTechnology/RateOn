@@ -5,11 +5,12 @@ import { LucideAngularModule, ThumbsUp, ThumbsDown, MessageSquare, User } from '
 import { ReactionService, ToggleReactionResponse } from '../../../core/services/reaction.service';
 import { AuthService } from '../../../core/services/auth';
 import { ToastService } from '../../../core/services/toast';
+import { RatingStars } from '../../../shared/components/rating-stars/rating-stars';
 
 @Component({
   selector: 'app-review-card',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule],
+  imports: [CommonModule, RouterModule, LucideAngularModule, RatingStars],
   templateUrl: './review-card.html',
   styleUrl: './review-card.scss',
 })
@@ -107,14 +108,6 @@ export class ReviewCard implements OnInit, OnChanges {
     if (userId) {
       this.router.navigate(['/user', userId]);
     }
-  }
-
-  getStarArray(): number[] {
-    return [1, 2, 3, 4, 5];
-  }
-
-  isStarFilled(star: number): boolean {
-    return star <= (this.review?.rating || 0);
   }
 
   formatDate(date: string): string {

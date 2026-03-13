@@ -64,16 +64,14 @@
           <h1 class="business-name">{{ business.name }}</h1>
           <div class="business-meta">
             <span class="category-badge">{{ business.category || business.type }}</span>
-            <div class="rating-stars" *ngIf="business.averageRating || business.rating?.average || business.stats?.avgRating">
-              <span class="stars">
-                <span *ngFor="let star of [1,2,3,4,5]" 
-                  class="star"
-                  [class.filled]="star <= (business.averageRating || business.rating?.average || business.stats?.avgRating || 0)"
-                  [class.empty]="star > (business.averageRating || business.rating?.average || business.stats?.avgRating || 0)">
-                  ★
-                </span>
-              </span>
-              <span class="rating-text">{{ (business.averageRating || business.rating?.average || business.stats?.avgRating || 0).toFixed(1) }} ({{ business.reviewCount || business.stats?.totalReviews || business.rating?.count || 0 }} reviews)</span>
+            <div class="rating-display" *ngIf="business.averageRating || business.rating?.average || business.stats?.avgRating">
+              <app-rating-stars 
+                [rating]="business.averageRating || business.rating?.average || business.stats?.avgRating || 0" 
+                [readonly]="true" 
+                [showCount]="true"
+                [reviewCount]="business.reviewCount || business.stats?.totalReviews || business.rating?.count || 0"
+                size="medium">
+              </app-rating-stars>
             </div>
           </div>
         </div>
@@ -266,12 +264,11 @@
               </div>
               <div class="review-meta">
                 <div class="rating-stars">
-                  <span *ngFor="let star of [1,2,3,4,5]" 
-                    class="star"
-                    [class.filled]="star <= review.rating"
-                    [class.empty]="star > review.rating">
-                    ★
-                  </span>
+                  <app-rating-stars
+                    [rating]="review.rating"
+                    [readonly]="true"
+                    size="small">
+                  </app-rating-stars>
                 </div>
                 <span class="review-date">{{ review.createdAt | date: 'MMM d, yyyy' }}</span>
               </div>
@@ -493,7 +490,7 @@
       
       <div class="review-preview" *ngIf="reviewToDelete">
         <div class="preview-rating">
-          <span *ngFor="let star of [1,2,3,4,5]" class="star" [class.filled]="star <= reviewToDelete.rating">★</span>
+          <app-rating-stars [rating]="reviewToDelete.rating" [readonly]="true" size="small"></app-rating-stars>
         </div>
         <p class="preview-comment">{{ reviewToDelete.comment || reviewToDelete.reviewText }}</p>
       </div>

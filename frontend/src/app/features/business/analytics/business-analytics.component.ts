@@ -6,11 +6,12 @@ import { BusinessService } from '../../../core/services/business';
 import { LucideAngularModule, BarChart2, ShoppingBag, Package, MessageSquare, Star, TrendingUp, RefreshCw } from 'lucide-angular';
 import { BaseChartDirective } from 'ng2-charts';
 import { ChartData, ChartOptions } from 'chart.js';
+import { RatingStars } from '../../../shared/components/rating-stars/rating-stars';
 
 @Component({
   selector: 'app-business-analytics',
   standalone: true,
-  imports: [CommonModule, RouterModule, LucideAngularModule, BaseChartDirective],
+  imports: [CommonModule, RouterModule, LucideAngularModule, BaseChartDirective, RatingStars],
   templateUrl: './business-analytics.component.html',
   styleUrl: './business-analytics.component.scss'
 })

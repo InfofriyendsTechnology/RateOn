@@ -6,6 +6,7 @@ export type RatingSize = 'small' | 'medium' | 'large';
 
 @Component({
   selector: 'app-rating-stars',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './rating-stars.html',
   styleUrl: './rating-stars.scss',
@@ -63,19 +64,62 @@ export class RatingStars implements ControlValueAccessor {
     }
   }
   
-  // Interaction handlers
-  onStarClick(star: number): void {
+  // Get fill percentage for half stars
+  getStarFillPercentage(star: number): number {
+    const effectiveRating = this.readonly ? this.rating : (this.hoveredRating || this.rating);
+    const diff = effectiveRating - (star - 1);
+    
+    // Debug logging
+    if (star === 1 && effectiveRating > 0 && effectiveRating < 5) {
+      console.log('Rating:', effectiveRating, 'Star:', star, 'Diff:', diff, 'Fill %:', diff * 100);
+    }
+    
+    if (diff >= 1) return 100; // Fully filled
+    if (diff <= 0) return 0;   // Empty
+    return diff * 100;         // Partial fill (0-100%)
+  }
+  
+  // Interaction handlers - support half stars on click
+  onStarClick(star: number, event?: MouseEvent): void {
     if (this.readonly) return;
     
-    this.rating = star;
-    this.ratingChange.emit(star);
-    this.onChange(star);
+    // Allow half star selection by clicking left half of star
+    let rating = star;
+    if (event && !this.readonly) {
+      const target = event.target as HTMLElement;
+      const rect = target.getBoundingClientRect();
+      const clickX = event.clientX - rect.left;
+      const starWidth = rect.width;
+      
+      // If clicked on left half, give half star
+      if (clickX < starWidth / 2) {
+        rating = star - 0.5;
+      }
+    }
+    
+    this.rating = rating;
+    this.ratingChange.emit(rating);
+    this.onChange(rating);
     this.onTouched();
   }
   
-  onStarHover(star: number): void {
+  onStarHover(star: number, event?: MouseEvent): void {
     if (this.readonly) return;
-    this.hoveredRating = star;
+    
+    // Show half star hover on left half
+    let hoverRating = star;
+    if (event) {
+      const target = event.target as HTMLElement;
+      const rect = target.getBoundingClientRect();
+      const hoverX = event.clientX - rect.left;
+      const starWidth = rect.width;
+      
+      if (hoverX < starWidth / 2) {
+        hoverRating = star - 0.5;
+      }
+    }
+    
+    this.hoveredRating = hoverRating;
   }
   
   onMouseLeave(): void {

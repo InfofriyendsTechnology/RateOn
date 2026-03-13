@@ -63,10 +63,13 @@
     <!-- Rating -->
     <div class="review-rating">
       <div class="stars">
-        <span *ngFor="let star of getStarArray(review.rating)" class="star filled">★</span>
-        <span *ngFor="let star of getEmptyStarArray(review.rating)" class="star">★</span>
+        <app-rating-stars
+          [rating]="review.rating"
+          [readonly]="true"
+          size="large">
+        </app-rating-stars>
       </div>
-      <span class="rating-number">{{ review.rating }}.0</span>
+      <span class="rating-number">{{ review.rating }}</span>
     </div>
 
     <!-- Review Title -->

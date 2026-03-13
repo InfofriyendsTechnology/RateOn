@@ -69,16 +69,11 @@
           <lucide-icon [img]="Star" [size]="15"></lucide-icon>
           Your Rating *
         </div>
-        <div class="star-rating" [class.readonly]="isViewMode">
-          <span
-            *ngFor="let star of [1,2,3,4,5]"
-            [class]="'star ' + getStarClass(star)"
-            (click)="!isViewMode && setRating(star)"
-            (mouseenter)="!isViewMode && setHoveredRating(star)"
-            (mouseleave)="!isViewMode && clearHoveredRating()"
-            [style.cursor]="isViewMode ? 'default' : 'pointer'"
-          >★</span>
-        </div>
+        <app-rating-stars
+          [(ngModel)]="rating"
+          [readonly]="isViewMode"
+          size="large">
+        </app-rating-stars>
         <p class="rating-label" *ngIf="rating > 0">{{getRatingLabel()}} · {{rating}}/5</p>
         <p class="err-text" *ngIf="showValidation && rating === 0 && !isViewMode">Please select at least 1 star</p>
       </div>
@@ -186,8 +181,11 @@
             <div class="ri-info">
               <span class="ri-name">{{getReviewerName(review)}}</span>
               <div class="ri-stars">
-                <span *ngFor="let s of getStarsArray(review.rating)" class="star filled">★</span>
-                <span *ngFor="let s of getEmptyStarsArray(review.rating)" class="star empty">★</span>
+                <app-rating-stars
+                  [rating]="review.rating"
+                  [readonly]="true"
+                  size="small">
+                </app-rating-stars>
                 <span class="ri-num">{{review.rating}}/5</span>
               </div>
             </div>

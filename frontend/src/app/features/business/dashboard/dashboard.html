@@ -185,7 +185,7 @@
                 </div>
                 <div class="biz-stats">
                   <span class="biz-stat"><lucide-icon [img]="MessageSquare" [size]="12"></lucide-icon> {{ b.stats?.totalReviews || b.reviewCount || 0 }}</span>
-                  <span class="biz-stat"><lucide-icon [img]="Star" [size]="12"></lucide-icon> {{ (b.averageRating || b.rating || 0).toFixed(1) }}</span>
+                  <app-rating-stars [rating]="b.averageRating || b.rating || 0" [readonly]="true" size="small"></app-rating-stars>
                 </div>
               </a>
             </div>

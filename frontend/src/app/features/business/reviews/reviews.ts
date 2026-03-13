@@ -11,11 +11,12 @@ import { ReviewService } from '../../../core/services/review';
 import { ReplyService } from '../../../core/services/reply.service';
 import { ToastService } from '../../../core/services/toast';
 import { ReactionButtons } from '../../../shared/components/reaction-buttons/reaction-buttons';
+import { RatingStars } from '../../../shared/components/rating-stars/rating-stars';
 
 @Component({
   selector: 'app-reviews-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, ReactionButtons],
+  imports: [CommonModule, FormsModule, LucideAngularModule, ReactionButtons, RatingStars],
   templateUrl: './reviews.html',
   styleUrl: './reviews.scss'
 })

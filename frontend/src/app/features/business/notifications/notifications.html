@@ -147,11 +147,7 @@
 
         <!-- Rating Stars -->
         <div class="n-rating" *ngIf="notification.metadata?.rating">
-          <span
-            *ngFor="let i of [1,2,3,4,5]"
-            class="star"
-            [class.filled]="i <= notification.metadata.rating"
-            [class.empty]="i > notification.metadata.rating">★</span>
+          <app-rating-stars [rating]="notification.metadata.rating" [readonly]="true" size="small"></app-rating-stars>
         </div>
 
         <!-- Reaction Buttons -->

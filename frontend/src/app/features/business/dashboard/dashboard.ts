@@ -13,11 +13,12 @@ import { BusinessStateService } from '../../../core/services/business-state.serv
 import { LucideAngularModule, LayoutDashboard, Compass, Trophy, ShoppingBag, Settings, Edit, LogOut, Menu, User, Plus, ArrowLeft, X, Star, Sun, Moon, Bell, MessageSquare, Package, BarChart2 } from 'lucide-angular';
 import { filter } from 'rxjs/operators';
 import { BreadcrumbsComponent, Crumb } from '../../../shared/components/breadcrumbs/breadcrumbs';
+import { RatingStars } from '../../../shared/components/rating-stars/rating-stars';
 
 @Component({
   selector: 'app-business-dashboard',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, RouterOutlet, LucideAngularModule, BreadcrumbsComponent],
+  imports: [CommonModule, FormsModule, RouterLink, RouterLinkActive, RouterOutlet, LucideAngularModule, BreadcrumbsComponent, RatingStars],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })

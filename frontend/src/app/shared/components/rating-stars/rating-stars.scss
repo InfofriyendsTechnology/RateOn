@@ -7,31 +7,53 @@
     display: flex;
     gap: 2px;
     align-items: center;
+    line-height: 0; // Fix vertical alignment
   }
   
-  .star {
+  .star-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     line-height: 1;
-    transition: all 0.2s ease;
-    
-    &.filled {
-      color: #fbbf24;
-    }
-    
-    &.half {
-      color: #fbbf24;
-      opacity: 0.5;
-    }
-    
-    &.empty {
-      color: #d1d5db;
-    }
+    // DEBUG: Uncomment to see boundaries
+    // outline: 1px solid red;
     
     &.interactive {
       cursor: pointer;
+      transition: transform 0.2s ease;
       
       &:hover {
-        transform: scale(1.2);
+        transform: scale(1.15);
       }
+    }
+    
+    .star {
+      display: inline-block;
+      line-height: 1;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    
+    .star-empty {
+      color: #4b5563; // Darker gray for better visibility
+      
+      // Light mode
+      :host-context([data-theme="light"]) & {
+        color: #d1d5db;
+      }
+    }
+    
+    .star-filled {
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: #fbbf24; // Gold for filled
+      overflow: hidden;
+      white-space: nowrap;
+      
+      // Add slight shadow for better visibility
+      filter: drop-shadow(0 1px 2px rgba(251, 191, 36, 0.3));
     }
   }
   

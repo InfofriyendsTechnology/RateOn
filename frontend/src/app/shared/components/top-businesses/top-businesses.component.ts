@@ -1,5 +1,6 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RatingStars } from '../rating-stars/rating-stars';
 
 export interface TopBusiness {
   businessId: string;
@@ -14,7 +15,7 @@ export interface TopBusiness {
 @Component({
   selector: 'app-top-businesses',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RatingStars],
   templateUrl: './top-businesses.component.html',
   styleUrl: './top-businesses.component.scss'
 })
@@ -108,22 +109,5 @@ export class TopBusinessesComponent {
       }
       return 0;
     });
-  }
-
-  getRatingStars(rating: number): string[] {
-    const stars: string[] = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating % 1 >= 0.5;
-
-    for (let i = 0; i < fullStars; i++) {
-      stars.push('full');
-    }
-    if (hasHalfStar) {
-      stars.push('half');
-    }
-    while (stars.length < 5) {
-      stars.push('empty');
-    }
-    return stars;
   }
 }

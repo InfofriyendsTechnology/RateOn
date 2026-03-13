@@ -13,11 +13,12 @@ import { ReactionService } from '../../../core/services/reaction.service';
 import { ReplyService, CreateReplyRequest } from '../../../core/services/reply.service';
 import { BreadcrumbsComponent, Crumb } from '../../../shared/components/breadcrumbs/breadcrumbs';
 import { AuthModalComponent } from '../../../shared/components/auth-modal/auth-modal.component';
+import { RatingStars } from '../../../shared/components/rating-stars/rating-stars';
 
 @Component({
   selector: 'app-item-public-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, BreadcrumbsComponent, AuthModalComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, BreadcrumbsComponent, AuthModalComponent, RatingStars],
   templateUrl: './item-public-view.html',
   styleUrl: './item-public-view.scss',
 })

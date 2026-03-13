@@ -2,13 +2,18 @@
   <div class="stars">
     <span 
       *ngFor="let star of getStars()"
-      class="star"
-      [class]="getStarClass(star)"
+      class="star-wrapper"
       [class.interactive]="!readonly"
-      (click)="onStarClick(star)"
-      (mouseenter)="onStarHover(star)"
+      (click)="onStarClick(star, $event)"
+      (mousemove)="onStarHover(star, $event)"
     >
-      ★
+      <!-- Background (empty) star -->
+      <span class="star star-empty">★</span>
+      <!-- Foreground (filled) star with gradient -->
+      <span 
+        class="star star-filled"
+        [style.width.%]="getStarFillPercentage(star)"
+      >★</span>
     </span>
   </div>
   

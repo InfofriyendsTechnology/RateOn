@@ -273,30 +273,7 @@
   }
 }
 
-// ── Stars ────────────────────────────────────────────────
-.star-rating {
-  display: flex;
-  gap: 0.25rem;
-  margin-bottom: 0.5rem;
-
-  &.readonly .star {
-    cursor: default !important;
-    &:hover { transform: none !important; }
-  }
-
-  .star {
-    font-size: 2.25rem;
-    line-height: 1;
-    transition: transform 0.15s;
-    user-select: none;
-    cursor: pointer;
-
-    &.filled { color: #fbbf24; }
-    &.empty   { color: var(--border-color); }
-    &:hover   { transform: scale(1.15); }
-  }
-}
-
+// ── Stars: using app-rating-stars component ────────────
 .rating-label {
   font-size: 0.8125rem;
   color: #fbbf24;

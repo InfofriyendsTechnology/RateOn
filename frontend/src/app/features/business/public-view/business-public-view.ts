@@ -15,11 +15,12 @@ import { ReplyService, CreateReplyRequest } from '../../../core/services/reply.s
 import { ItemCard } from '../../../shared/components/item-card/item-card';
 import { BreadcrumbsComponent, Crumb } from '../../../shared/components/breadcrumbs/breadcrumbs';
 import { AuthModalComponent } from '../../../shared/components/auth-modal/auth-modal.component';
+import { RatingStars } from '../../../shared/components/rating-stars/rating-stars';
 
 @Component({
   selector: 'app-business-public-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, ItemCard, BreadcrumbsComponent, AuthModalComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, ItemCard, BreadcrumbsComponent, AuthModalComponent, RatingStars],
   templateUrl: './business-public-view.html',
   styleUrl: './business-public-view.scss',
 })

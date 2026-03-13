@@ -20,14 +20,11 @@
 
       <div class="item-details-section">
         <div class="item-rating" *ngIf="getRating() > 0">
-          <div class="stars">
-            <span *ngFor="let star of [1,2,3,4,5]" 
-              class="star"
-              [class.filled]="star <= getRating()"
-              [class.empty]="star > getRating()">
-              ★
-            </span>
-          </div>
+          <app-rating-stars
+            [rating]="getRating()"
+            [readonly]="true"
+            size="medium">
+          </app-rating-stars>
           <span class="rating-text">{{ getRating().toFixed(1) }} ({{ getReviewCount() }} reviews)</span>
         </div>
         
@@ -93,12 +90,11 @@
               <h4 class="reviewer-name reviewer-name-link">{{ review.userId?.name || review.userId?.username || 'Anonymous' }}</h4>
               <div class="review-meta">
                 <div class="rating-stars">
-                  <span *ngFor="let star of [1,2,3,4,5]" 
-                    class="star"
-                    [class.filled]="star <= review.rating"
-                    [class.empty]="star > review.rating">
-                    ★
-                  </span>
+                  <app-rating-stars
+                    [rating]="review.rating"
+                    [readonly]="true"
+                    size="small">
+                  </app-rating-stars>
                 </div>
                 <span class="review-date">{{ review.createdAt | date: 'MMM d, yyyy' }}</span>
               </div>

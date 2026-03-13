@@ -111,11 +111,7 @@
             <button class="r-name" (click)="viewUserProfile(review)">{{ getUserDisplayName(review) }}</button>
           </div>
           <div class="r-meta">
-            <div class="rating-stars">
-              <span *ngFor="let i of [1,2,3,4,5]" class="star"
-                [class.filled]="i <= review.rating"
-                [class.empty]="i > review.rating">★</span>
-            </div>
+            <app-rating-stars [rating]="review.rating" [readonly]="true" size="small"></app-rating-stars>
             <span class="r-sep">·</span>
             <span class="r-time">{{ getTimeAgo(review.createdAt) }}</span>
             <span class="r-sep">·</span>

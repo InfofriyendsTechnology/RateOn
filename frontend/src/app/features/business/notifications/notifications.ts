@@ -8,11 +8,12 @@ import { ToastService } from '../../../core/services/toast';
 import { Subscription } from 'rxjs';
 import { ReactionButtons } from '../../../shared/components/reaction-buttons/reaction-buttons';
 import { ReplyService } from '../../../core/services/reply.service';
+import { RatingStars } from '../../../shared/components/rating-stars/rating-stars';
 
 @Component({
   selector: 'app-notifications-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, LucideAngularModule, ReactionButtons],
+  imports: [CommonModule, FormsModule, LucideAngularModule, ReactionButtons, RatingStars],
   templateUrl: './notifications.html',
   styleUrl: './notifications.scss'
 })

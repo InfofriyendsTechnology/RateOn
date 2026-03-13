@@ -16,15 +16,11 @@
   <div class="business-content">
     <!-- Rating Section - at top -->
     <div class="business-rating">
-      <div class="stars">
-        <span 
-          *ngFor="let star of [1,2,3,4,5]" 
-          class="star"
-          [class.filled]="star <= displayAverageRating"
-          [class.empty]="star > displayAverageRating">
-          ★
-        </span>
-      </div>
+      <app-rating-stars
+        [rating]="displayAverageRating"
+        [readonly]="true"
+        size="small">
+      </app-rating-stars>
       <span class="rating-value">{{displayAverageRating | number:'1.1-1'}}</span>
     </div>
     

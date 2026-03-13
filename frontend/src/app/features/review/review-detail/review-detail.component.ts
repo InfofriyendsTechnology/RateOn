@@ -10,11 +10,12 @@ import { ReplyThreadComponent } from '../../../shared/components/reply-thread/re
 import { AuthModalComponent } from '../../../shared/components/auth-modal/auth-modal.component';
 import { StorageService } from '../../../core/services/storage';
 import { BreadcrumbsComponent } from '../../../shared/components/breadcrumbs/breadcrumbs';
+import { RatingStars } from '../../../shared/components/rating-stars/rating-stars';
 
 @Component({
   selector: 'app-review-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, ReactionButtons, ReplyThreadComponent, AuthModalComponent, BreadcrumbsComponent],
+  imports: [CommonModule, FormsModule, RouterModule, ReactionButtons, ReplyThreadComponent, AuthModalComponent, BreadcrumbsComponent, RatingStars],
   templateUrl: './review-detail.component.html',
   styleUrls: ['./review-detail.component.scss']
 })
@@ -240,14 +241,6 @@ export class ReviewDetailComponent implements OnInit, OnDestroy {
       month: 'long',
       day: 'numeric'
     });
-  }
-
-  getStarArray(rating: number): number[] {
-    return Array(rating).fill(0);
-  }
-
-  getEmptyStarArray(rating: number): number[] {
-    return Array(5 - rating).fill(0);
   }
 
   goBack(): void {

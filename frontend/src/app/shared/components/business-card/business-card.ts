@@ -3,10 +3,11 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { Business } from '../../../core/services/business';
 import { LucideAngularModule, MapPin, ShoppingBag, CheckCircle, Star, Package, MessageSquare, ImageOff, Edit } from 'lucide-angular';
+import { RatingStars } from '../rating-stars/rating-stars';
 
 @Component({
   selector: 'app-business-card',
-  imports: [CommonModule, LucideAngularModule],
+  imports: [CommonModule, LucideAngularModule, RatingStars],
   templateUrl: './business-card.html',
   styleUrl: './business-card.scss'
 })

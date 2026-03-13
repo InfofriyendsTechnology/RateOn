@@ -27,12 +27,12 @@
 
   <!-- Rating stars -->
   <div class="rc-rating">
-    <span
-      *ngFor="let star of getStarArray()"
-      class="rc-star"
-      [class.filled]="isStarFilled(star)"
-    >&#9733;</span>
-    <span class="rc-rating-num">{{ review.rating }}.0</span>
+    <app-rating-stars
+      [rating]="review.rating"
+      [readonly]="true"
+      size="medium">
+    </app-rating-stars>
+    <span class="rc-rating-num">{{ review.rating }}</span>
   </div>
 
   <!-- Title + comment -->

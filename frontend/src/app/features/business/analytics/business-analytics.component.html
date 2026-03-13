@@ -144,7 +144,7 @@
             <div class="rating-item" *ngFor="let b of businesses" [routerLink]="['/owner/businesses', b._id]">
               <div class="ri-name">{{ b.name }}</div>
               <div class="ri-stars">
-                <span *ngFor="let s of [1,2,3,4,5]" class="ri-star" [class.filled]="s <= getBusinessRatingNum(b)">★</span>
+                <app-rating-stars [rating]="getBusinessRatingNum(b)" [readonly]="true" size="small"></app-rating-stars>
               </div>
               <div class="ri-meta">
                 <span class="ri-avg">{{ getBusinessRating(b) }}</span>

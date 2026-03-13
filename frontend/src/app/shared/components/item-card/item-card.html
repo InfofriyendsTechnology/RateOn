@@ -12,15 +12,11 @@
     <!-- Rating Section - at top -->
     <div class="item-rating">
       <div class="rating-left">
-        <div class="stars">
-          <span 
-            *ngFor="let star of [1,2,3,4,5]" 
-            class="star"
-            [class.filled]="star <= getRating()"
-            [class.empty]="star > getRating()">
-            ★
-          </span>
-        </div>
+        <app-rating-stars
+          [rating]="getRating()"
+          [readonly]="true"
+          size="small">
+        </app-rating-stars>
         <span class="rating-value">{{getRating() | number:'1.1-1'}}</span>
       </div>
       <span class="availability-status"

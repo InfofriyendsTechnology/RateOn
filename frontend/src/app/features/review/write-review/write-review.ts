@@ -11,10 +11,11 @@ import { StorageService } from '../../../core/services/storage';
 import { AuthService } from '../../../core/services/auth';
 import { ReviewDraftService } from '../../../core/services/review-draft';
 import { AuthModalComponent } from '../../../shared/components/auth-modal/auth-modal.component';
+import { RatingStars } from '../../../shared/components/rating-stars/rating-stars';
 
 @Component({
   selector: 'app-write-review',
-  imports: [CommonModule, FormsModule, LucideAngularModule, AuthModalComponent],
+  imports: [CommonModule, FormsModule, LucideAngularModule, AuthModalComponent, RatingStars],
   templateUrl: './write-review.html',
   styleUrl: './write-review.scss',
 })
@@ -162,14 +163,6 @@ export class WriteReview implements OnInit {
     return review.userId?.avatar || review.user?.avatar || '';
   }
 
-  getStarsArray(rating: number): number[] {
-    return Array(Math.round(rating)).fill(0);
-  }
-
-  getEmptyStarsArray(rating: number): number[] {
-    return Array(5 - Math.round(rating)).fill(0);
-  }
-
   formatDate(date: string): string {
     if (!date) return '';
     return new Date(date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
@@ -281,26 +274,13 @@ export class WriteReview implements OnInit {
   }
 
   // Rating Methods
-  setRating(rating: number) {
-    this.rating = rating;
-  }
-
-  setHoveredRating(rating: number) {
-    this.hoveredRating = rating;
-  }
-
-  clearHoveredRating() {
-    this.hoveredRating = 0;
-  }
-
-  getStarClass(star: number): string {
-    const displayRating = this.hoveredRating || this.rating;
-    return star <= displayRating ? 'filled' : 'empty';
-  }
-  
   getRatingLabel(): string {
-    const labels = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
-    return labels[this.rating] || '';
+    if (this.rating === 0) return '';
+    if (this.rating <= 1) return 'Poor';
+    if (this.rating <= 2) return 'Fair';
+    if (this.rating <= 3) return 'Good';
+    if (this.rating <= 4) return 'Very Good';
+    return 'Excellent';
   }
 
   // Image Upload Methods

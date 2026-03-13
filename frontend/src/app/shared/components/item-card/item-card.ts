@@ -4,10 +4,11 @@ import { Router } from '@angular/router';
 import { Item } from '../../../core/services/item';
 import { AvailabilityBadge } from '../availability-badge/availability-badge';
 import { LucideAngularModule, Star, MessageSquare } from 'lucide-angular';
+import { RatingStars } from '../rating-stars/rating-stars';
 
 @Component({
   selector: 'app-item-card',
-  imports: [CommonModule, AvailabilityBadge, LucideAngularModule],
+  imports: [CommonModule, AvailabilityBadge, LucideAngularModule, RatingStars],
   templateUrl: './item-card.html',
   styleUrl: './item-card.scss'
 })

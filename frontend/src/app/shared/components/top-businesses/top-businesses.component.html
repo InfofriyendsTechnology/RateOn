@@ -98,17 +98,11 @@
                 {{ business.reviewCount }}
               </td>
               <td class="rating">
-                <div class="stars">
-                  @for (star of getRatingStars(business.averageRating); track $index) {
-                    @if (star === 'full') {
-                      <i class="lucide lucide-star star-icon filled"></i>
-                    } @else if (star === 'half') {
-                      <i class="lucide lucide-star-half star-icon filled"></i>
-                    } @else {
-                      <i class="lucide lucide-star star-icon empty"></i>
-                    }
-                  }
-                </div>
+                <app-rating-stars 
+                  [rating]="business.averageRating" 
+                  [readonly]="true" 
+                  size="small">
+                </app-rating-stars>
                 <span class="rating-value">{{ business.averageRating.toFixed(1) }}</span>
               </td>
               <td class="reaction-count">
