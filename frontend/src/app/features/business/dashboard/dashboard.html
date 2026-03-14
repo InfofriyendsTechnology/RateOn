@@ -5,7 +5,7 @@
   <!-- Sidebar -->
   <aside class="sidebar" [class.mobile-open]="sidebarOpen">
     <div class="sidebar-header">
-      <div class="logo">
+      <a class="logo" routerLink="/" title="Go to Home">
         <!-- Full logo when sidebar is open -->
         <img *ngIf="sidebarOpen && isDarkMode" src="/LOGO_WHITE.png" alt="RateOn" class="logo-full">
         <img *ngIf="sidebarOpen && !isDarkMode" src="/LOGO_BLACK.png" alt="RateOn" class="logo-full">
@@ -13,7 +13,7 @@
         <!-- Icon logo when sidebar is collapsed -->
         <img *ngIf="!sidebarOpen && isDarkMode" src="/LOGO_WHITE_ICON.png" alt="RateOn" class="logo-small">
         <img *ngIf="!sidebarOpen && !isDarkMode" src="/LOGO_BLACK_ICON.png" alt="RateOn" class="logo-small">
-      </div>
+      </a>
       
       <!-- Mobile Close Button -->
       <button *ngIf="sidebarOpen" class="sidebar-close-btn" (click)="toggleSidebar()" aria-label="Close sidebar">

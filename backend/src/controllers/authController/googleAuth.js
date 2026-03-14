@@ -37,11 +37,15 @@ export default {
             }
 
             // Redirect to frontend with token and user data
+            // needsPassword: true means this is a Google-only account with no password set
+            const needsPassword = !user.password;
+
             const userData = encodeURIComponent(JSON.stringify({
                 token,
                 user: userResponse,
                 userType: 'user',
-                returnUrl
+                returnUrl,
+                needsPassword
             }));
 
             return res.redirect(`${frontendUrl}/auth/callback?data=${userData}`);

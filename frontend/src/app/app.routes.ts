@@ -5,6 +5,7 @@ import { adminGuard } from './core/guards/admin.guard';
 import { LoginComponent } from './features/auth/login/login';
 import { RegisterComponent } from './features/auth/register/register';
 import { CallbackComponent } from './features/auth/callback/callback';
+import { CreatePasswordComponent } from './features/auth/create-password/create-password';
 import { LandingComponent } from './features/home/landing/landing';
 import { ProfileComponent } from './features/user/profile/profile';
 import { BusinessDashboardComponent } from './features/business/dashboard/dashboard';
@@ -39,6 +40,7 @@ export const routes: Routes = [
   { path: 'auth/login', component: LoginComponent },
   { path: 'auth/register', component: RegisterComponent },
   { path: 'auth/callback', component: CallbackComponent },
+  { path: 'auth/create-password', component: CreatePasswordComponent, canActivate: [authGuard] },
   
   // Admin routes
   { path: 'admin/login', component: AdminLoginComponent },

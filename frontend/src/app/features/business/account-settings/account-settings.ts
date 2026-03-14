@@ -4,10 +4,11 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth';
+import { StorageService } from '../../../core/services/storage';
 import { ToastService } from '../../../core/services/toast';
 import { ThemeService } from '../../../core/services/theme';
 import { environment } from '../../../../environments/environment';
-import { LucideAngularModule, User, Mail, Shield, CheckCircle, Eye, Building, X, AlertTriangle, Trash2, Palette, Sun, Moon, Bell, Key, ExternalLink, BarChart3, Settings } from 'lucide-angular';
+import { LucideAngularModule, User, Mail, Shield, CheckCircle, Building, X, AlertTriangle, Trash2, Palette, Sun, Moon, Bell, Key, ExternalLink, BarChart3, Settings } from 'lucide-angular';
 
 @Component({
   selector: 'app-account-settings',
@@ -54,7 +55,6 @@ export class AccountSettingsComponent implements OnInit {
   readonly Mail = Mail;
   readonly Shield = Shield;
   readonly CheckCircle = CheckCircle;
-  readonly Eye = Eye;
   readonly Building = Building;
   readonly X = X;
   readonly AlertTriangle = AlertTriangle;
@@ -73,7 +73,8 @@ export class AccountSettingsComponent implements OnInit {
     private router: Router,
     private http: HttpClient,
     private toast: ToastService,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private storage: StorageService
   ) {}
   
   ngOnInit() {
@@ -204,10 +205,10 @@ export class AccountSettingsComponent implements OnInit {
     
     this.deletingAccount = true;
     
-    this.http.delete(`${environment.apiUrl}/user/account`).subscribe({
+    this.http.delete(`${environment.apiUrl}/user/profile`).subscribe({
       next: () => {
+        this.storage.clearAuth();
         this.toast.success('Account deleted successfully');
-        this.authService.logout();
         this.router.navigate(['/']);
       },
       error: (err: any) => {

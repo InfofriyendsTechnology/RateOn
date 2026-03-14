@@ -127,35 +127,6 @@
       </div>
     </div>
 
-    <!-- ── Privacy ── -->
-    <div class="section-card">
-      <div class="section-header">
-        <div class="section-icon c-purple"><lucide-icon [img]="Eye" [size]="16"></lucide-icon></div>
-        <h3>Privacy</h3>
-      </div>
-      <div class="setting-row">
-        <div class="setting-info">
-          <div class="si-title">Profile Visibility</div>
-          <div class="si-desc">Control who can see your profile</div>
-        </div>
-        <select [(ngModel)]="privacySettings.profileVisibility" (change)="updatePrivacySettings()" class="select-input">
-          <option value="public">Public</option>
-          <option value="business-only">Business Customers Only</option>
-          <option value="private">Private</option>
-        </select>
-      </div>
-      <div class="setting-row">
-        <div class="setting-info">
-          <div class="si-title">Show Email</div>
-          <div class="si-desc">Display your email on public business profiles</div>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" [(ngModel)]="privacySettings.showEmail" (change)="updatePrivacySettings()">
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-    </div>
-
     <!-- ── Business Management ── -->
     <div class="section-card">
       <div class="section-header">

@@ -5,7 +5,8 @@ import {
     register, 
     logout, 
     googleAuth, 
-    verifyEmail
+    verifyEmail,
+    setPassword
 } from "../controllers/authController/index.js";
 import auth from "../middleware/auth.js";
 
@@ -47,6 +48,9 @@ router.get("/google/failure", (req, res) => {
     res.redirect(`${process.env.FRONTEND_URL}/login?error=google_auth_failed`);
 });
 
+
+// Set password for Google-only accounts (first-time password setup)
+router.post("/set-password", auth, setPassword.validator, setPassword.handler);
 
 // Email verification
 router.get("/verify-email", verifyEmail.handler);

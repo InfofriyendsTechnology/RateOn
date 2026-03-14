@@ -88,4 +88,8 @@ export class AuthService {
   isAuthenticated(): boolean {
     return this.isAuthenticatedSubject.value;
   }
+
+  setPassword(password: string, confirmPassword: string): Observable<any> {
+    return this.api.post<any>('/auth/set-password', { password, confirmPassword });
+  }
 }

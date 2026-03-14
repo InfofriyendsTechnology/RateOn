@@ -146,8 +146,6 @@ export class CallbackComponent implements OnInit {
           // Update AuthService to sync the authentication state
           this.authService.updateCurrentUser(authData.user);
 
-          this.message = 'Login successful! Redirecting...';
-          
           // Check for return URL from auth data or sessionStorage
           let redirectUrl = authData.returnUrl || sessionStorage.getItem('auth_return_url');
           
@@ -170,6 +168,18 @@ export class CallbackComponent implements OnInit {
               ? '/owner' 
               : '/';
           }
+
+          // Google-only account with no password → force password setup first
+          if (authData.needsPassword) {
+            this.message = 'Almost done! Setting up your account...';
+            sessionStorage.setItem('password_setup_return_url', redirectUrl);
+            setTimeout(() => {
+              this.router.navigateByUrl('/auth/create-password', { replaceUrl: true });
+            }, 1000);
+            return;
+          }
+
+          this.message = 'Login successful! Redirecting...';
           
           setTimeout(() => {
             // Use navigateByUrl with replaceUrl to prevent back button issues
