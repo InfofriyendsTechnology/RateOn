@@ -213,7 +213,7 @@ export class LandingComponent implements OnInit {
   }
   
   navigateToExplore() {
-    this.router.navigate(['/explore']);
+    this.router.navigate(['/search']);
   }
   
   navigateToProfile() {
