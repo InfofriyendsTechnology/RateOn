@@ -94,15 +94,16 @@ export const emitNotificationToUser = (userId, notification) => {
 /**
  * Emit unread count update to user
  * @param {String} userId - Target user ID
- * @param {Number} unreadCount - New unread count
+ * @param {Object} data - Data containing unread counts (count, reviewCount, etc.)
  */
-export const emitUnreadCountUpdate = (userId, unreadCount) => {
+export const emitUnreadCountUpdate = (userId, data) => {
     try {
         if (!io) {
             return false;
         }
 
-        io.to(`user:${userId}`).emit('unread_count_update', { unreadCount });
+        const payload = typeof data === 'object' ? data : { unreadCount: data };
+        io.to(`user:${userId}`).emit('unread_count_update', payload);
         return true;
     } catch (error) {
         return false;

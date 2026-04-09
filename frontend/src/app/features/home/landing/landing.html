@@ -161,7 +161,8 @@
         <app-item-card 
           *ngFor="let item of featuredItems"
           [item]="item"
-          (cardClick)="router.navigate(['/item', $event._id])">
+          (cardClick)="router.navigate(['/item', $event._id])"
+          (reviewAction)="navigateToWriteItemReview($event)">
         </app-item-card>
       </div>
       

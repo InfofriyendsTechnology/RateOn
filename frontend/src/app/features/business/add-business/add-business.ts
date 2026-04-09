@@ -122,8 +122,8 @@ export class AddBusinessComponent implements OnInit {
       country: ['India'],
       pincode: [''],
       // Step 3
-      phone:    [''],
-      whatsapp: [''],
+      phone:    ['', [Validators.pattern(/^[0-9]{10}$/)]], 
+      whatsapp: ['', [Validators.pattern(/^[0-9]{10}$/)]],
       email:    [''],
       website:  [''],
       businessHours: this.fb.array(
@@ -170,7 +170,13 @@ export class AddBusinessComponent implements OnInit {
         this.businessForm.get('state')?.value?.trim()
       );
     }
-    if (step === 3) return true; // all optional
+    if (step === 3) {
+      const phone = this.businessForm.get('phone')?.value;
+      const whatsapp = this.businessForm.get('whatsapp')?.value;
+      if (phone && phone.trim() && !/^[0-9]{10}$/.test(phone.trim())) return false;
+      if (whatsapp && whatsapp.trim() && !/^[0-9]{10}$/.test(whatsapp.trim())) return false;
+      return true; // all optional otherwise
+    }
     if (step === 4) return this.photoPreviews.length > 0 && this.logoFile !== null;
     return false;
   }

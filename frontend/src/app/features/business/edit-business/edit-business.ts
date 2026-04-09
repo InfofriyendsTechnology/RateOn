@@ -101,8 +101,8 @@ export class EditBusinessComponent implements OnInit {
       state: ['', Validators.required],
       country: ['India'],
       pincode: [''],
-      phone: [''],
-      whatsapp: [''],
+      phone: ['', [Validators.pattern(/^[0-9]{10}$/)]],
+      whatsapp: ['', [Validators.pattern(/^[0-9]{10}$/)]],
       email: [''],
       website: [''],
       businessHours: this.fb.array(defaultHours.map(hour => this.fb.group({
@@ -177,6 +177,20 @@ export class EditBusinessComponent implements OnInit {
     if (!this.canSave()) {
       this.markFormGroupTouched(this.businessForm);
       this.toast.error('Please fill all required fields: Name, Category, Address, City, and State');
+      return;
+    }
+    
+    // Validate phone number (exactly 10 digits if provided)
+    const phone = this.businessForm.get('phone')?.value;
+    const whatsapp = this.businessForm.get('whatsapp')?.value;
+    
+    if (phone && phone.trim() && !/^[0-9]{10}$/.test(phone.trim())) {
+      this.toast.error('Phone number must be exactly 10 digits');
+      return;
+    }
+    
+    if (whatsapp && whatsapp.trim() && !/^[0-9]{10}$/.test(whatsapp.trim())) {
+      this.toast.error('WhatsApp number must be exactly 10 digits');
       return;
     }
     
@@ -285,7 +299,10 @@ export class EditBusinessComponent implements OnInit {
       if (field.errors['required']) return 'This field is required';
       if (field.errors['minlength']) return `Minimum ${field.errors['minlength'].requiredLength} characters required`;
       if (field.errors['maxlength']) return `Maximum ${field.errors['maxlength'].requiredLength} characters allowed`;
-      if (field.errors['pattern']) return 'Invalid format';
+      if (field.errors['pattern']) {
+        if (fieldName === 'phone' || fieldName === 'whatsapp') return 'Must be exactly 10 digits';
+        return 'Invalid format';
+      }
       if (field.errors['email']) return 'Invalid email format';
     }
     return '';

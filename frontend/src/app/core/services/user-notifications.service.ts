@@ -48,6 +48,7 @@ export class UserNotificationsService {
 
   private newNotification$ = new Subject<AppNotification>();
   private unreadCount$ = new BehaviorSubject<number>(0);
+  private unreadReviewsCount$ = new BehaviorSubject<number>(0);
   private listRefresh$ = new Subject<void>();
 
   constructor(
@@ -96,15 +97,23 @@ const base = (() => { try { return new URL(environment.apiUrl, window.location.o
     this.socket.on('new_notification', (notif: AppNotification) => {
       this.zone.run(() => {
         this.newNotification$.next(notif);
-        // bump unread count locally
+        // bump counts locally
         this.unreadCount$.next((this.unreadCount$.value || 0) + 1);
+        if (notif.type === 'new_review') {
+          this.unreadReviewsCount$.next((this.unreadReviewsCount$.value || 0) + 1);
+        }
         this.listRefresh$.next();
       });
     });
 
-    this.socket.on('unread_count_update', (payload: { unreadCount: number }) => {
+    this.socket.on('unread_count_update', (payload: { unreadCount?: number, unreadReviewsCount?: number }) => {
       this.zone.run(() => {
-        this.unreadCount$.next(payload?.unreadCount ?? 0);
+        if (payload?.unreadCount !== undefined) {
+          this.unreadCount$.next(payload.unreadCount);
+        }
+        if (payload?.unreadReviewsCount !== undefined) {
+          this.unreadReviewsCount$.next(payload.unreadReviewsCount);
+        }
         this.listRefresh$.next();
       });
     });
@@ -124,12 +133,18 @@ const base = (() => { try { return new URL(environment.apiUrl, window.location.o
   // Streams
   onNewNotification(): Observable<AppNotification> { return this.newNotification$.asObservable(); }
   onUnreadCount(): Observable<number> { return this.unreadCount$.asObservable(); }
+  onUnreadReviewsCount(): Observable<number> { return this.unreadReviewsCount$.asObservable(); }
   onListRefresh(): Observable<void> { return this.listRefresh$.asObservable(); }
 
   // Helper to seed unread count from REST once (call after login or on app init)
   seedUnreadCount(): void {
-    this.getNotifications(1, 1, 'unread').subscribe({
-      next: (resp) => this.unreadCount$.next(resp?.data?.unreadCount ?? 0),
+    this.http.get<any>(`${this.apiUrl}/unread-count`).subscribe({
+      next: (resp) => {
+        if (resp?.success && resp.data) {
+          this.unreadCount$.next(resp.data.count || 0);
+          this.unreadReviewsCount$.next(resp.data.reviewCount || 0);
+        }
+      },
       error: () => {}
     });
   }

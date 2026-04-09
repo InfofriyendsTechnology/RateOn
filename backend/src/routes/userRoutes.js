@@ -9,6 +9,7 @@ import {
 } from '../controllers/userController/profile.js';
 import { becomeBusinessOwner } from '../controllers/userController/index.js';
 import getUserById from '../controllers/userController/getUserById.js';
+import changePassword from '../controllers/userController/changePassword.js';
 
 const router = Router();
 
@@ -18,6 +19,9 @@ router.put('/profile', auth, uploadSingle('avatar', 'rateon/avatars'), updateUse
 router.post('/profile/avatar', auth, uploadSingle('avatar', 'rateon/avatars'), uploadAvatar);
 router.delete('/profile', auth, deleteUserProfile);
 
+// Change password
+router.put('/change-password', auth, changePassword.handler);
+
 // Role conversion
 router.post('/become-business-owner', auth, becomeBusinessOwner.handler);
 
@@ -25,6 +29,7 @@ router.post('/become-business-owner', auth, becomeBusinessOwner.handler);
 router.get('/:userId', getUserById.handler);
 
 export default router;
+
 
 
 

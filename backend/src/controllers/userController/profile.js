@@ -290,7 +290,69 @@ export const deleteUserProfile = async (req, res, next) => {
         // 5. Delete all reports by this user
         await Report.deleteMany({ userId });
 
-        // 6. Delete user
+        // 6. Delete all businesses owned by this user (and their items/reviews)
+        const userBusinesses = await Business.find({ owner: userId });
+
+        for (const business of userBusinesses) {
+            const businessId = business._id;
+
+            // Delete all items of this business (with their images)
+            const businessItems = await Item.find({ businessId });
+            for (const item of businessItems) {
+                // Delete item images from Cloudinary
+                if (item.images && item.images.length > 0) {
+                    for (const imageUrl of item.images) {
+                        const pubId = getPublicIdFromUrl(imageUrl);
+                        if (pubId) await deleteFromCloudinary(pubId).catch(() => {});
+                    }
+                }
+                // Delete all reviews for this item
+                const itemReviews = await Review.find({ itemId: item._id });
+                for (const r of itemReviews) {
+                    if (r.images && r.images.length > 0) {
+                        for (const img of r.images) {
+                            const pid = getPublicIdFromUrl(img);
+                            if (pid) await deleteFromCloudinary(pid).catch(() => {});
+                        }
+                    }
+                }
+                await Review.deleteMany({ itemId: item._id });
+                await Reaction.deleteMany({ targetId: item._id });
+            }
+            await Item.deleteMany({ businessId });
+
+            // Delete all reviews for this business
+            const bizReviews = await Review.find({ businessId });
+            for (const r of bizReviews) {
+                if (r.images && r.images.length > 0) {
+                    for (const img of r.images) {
+                        const pid = getPublicIdFromUrl(img);
+                        if (pid) await deleteFromCloudinary(pid).catch(() => {});
+                    }
+                }
+            }
+            await Review.deleteMany({ businessId });
+            await Reaction.deleteMany({ targetId: businessId });
+            await Reply.deleteMany({ businessId });
+
+            // Delete business logo from Cloudinary
+            if (business.logo) {
+                const pid = getPublicIdFromUrl(business.logo);
+                if (pid) await deleteFromCloudinary(pid).catch(() => {});
+            }
+            // Delete business cover images from Cloudinary
+            if (business.coverImages && business.coverImages.length > 0) {
+                for (const img of business.coverImages) {
+                    const pid = getPublicIdFromUrl(img);
+                    if (pid) await deleteFromCloudinary(pid).catch(() => {});
+                }
+            }
+        }
+
+        // Delete all business documents
+        await Business.deleteMany({ owner: userId });
+
+        // 7. Delete user
         await User.findByIdAndDelete(userId);
 
         return responseHandler.success(res, 'Profile deleted successfully');

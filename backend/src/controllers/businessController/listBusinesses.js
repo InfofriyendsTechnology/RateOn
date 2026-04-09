@@ -6,7 +6,7 @@ export default {
     try {
         const {
             page = 1,
-            limit = 0, // Default 0 = no limit (fetch ALL businesses)
+            limit = 20, // Default limit to prevent fetching ALL businesses
             search,
             category,
             type,

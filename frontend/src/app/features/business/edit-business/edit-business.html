@@ -236,8 +236,16 @@
             type="tel" 
             id="phone" 
             formControlName="phone"
-            placeholder="e.g., +1 234 567 8900 or 1234567890"
+            [class.invalid]="isFieldInvalid('phone')"
+            placeholder="10-digit number (e.g. 9876543210)"
+            maxlength="10"
           />
+          <span class="error-message" *ngIf="isFieldInvalid('phone')">
+            {{getFieldError('phone')}}
+          </span>
+          <span class="error-message" *ngIf="!isFieldInvalid('phone') && businessForm.get('phone')?.value?.length > 0 && businessForm.get('phone')?.value?.length !== 10">
+            Phone number must be exactly 10 digits
+          </span>
         </div>
 
         <div class="form-group">
@@ -246,8 +254,16 @@
             type="tel" 
             id="whatsapp" 
             formControlName="whatsapp"
-            placeholder="e.g., +1 234 567 8900 or 1234567890"
+            [class.invalid]="isFieldInvalid('whatsapp')"
+            placeholder="10-digit number (e.g. 9876543210)"
+            maxlength="10"
           />
+          <span class="error-message" *ngIf="isFieldInvalid('whatsapp')">
+            {{getFieldError('whatsapp')}}
+          </span>
+          <span class="error-message" *ngIf="!isFieldInvalid('whatsapp') && businessForm.get('whatsapp')?.value?.length > 0 && businessForm.get('whatsapp')?.value?.length !== 10">
+            WhatsApp number must be exactly 10 digits
+          </span>
         </div>
       </div>
 

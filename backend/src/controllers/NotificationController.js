@@ -7,7 +7,15 @@ import AppError from '../utils/AppError.js';
 // @access  Private
 export const getNotifications = asyncHandler(async (req, res) => {
   const { page = 1, limit = 20, unreadOnly = false } = req.query;
-  const userId = req.user._id;
+  const userId = req.user._id || req.user.id;
+
+  // Admin users don't have regular notifications
+  if (!userId || userId === 'super-admin' || req.user.userType === 'admin') {
+    return res.status(200).json({
+      success: true,
+      data: { notifications: [], pagination: { page: 1, limit: 20, total: 0, totalPages: 0 } }
+    });
+  }
 
   const query = { userId };
   if (unreadOnly === 'true') {
@@ -44,16 +52,28 @@ export const getNotifications = asyncHandler(async (req, res) => {
 // @route   GET /api/notifications/unread-count
 // @access  Private
 export const getUnreadCount = asyncHandler(async (req, res) => {
-  const userId = req.user._id;
+  const userId = req.user._id || req.user.id;
 
-  const count = await Notification.countDocuments({
-    userId,
-    isRead: false
-  });
+  // Admin users don't have regular notifications
+  if (!userId || userId === 'super-admin' || req.user.userType === 'admin') {
+    return res.status(200).json({ success: true, data: { count: 0, reviewCount: 0 } });
+  }
+
+  const [count, reviewCount] = await Promise.all([
+    Notification.countDocuments({
+      userId,
+      isRead: false
+    }),
+    Notification.countDocuments({
+      userId,
+      isRead: false,
+      type: 'new_review'
+    })
+  ]);
 
   res.status(200).json({
     success: true,
-    data: { count }
+    data: { count, reviewCount }
   });
 });
 

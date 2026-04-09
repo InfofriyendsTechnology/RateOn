@@ -7,6 +7,18 @@ import { emitNotificationToUser, emitUnreadCountUpdate } from '../services/webso
  */
 
 class NotificationService {
+    /**
+     * Helper to get unread counts partitioned by type
+     * @param {String} userId 
+     */
+    static async getPartitionedUnreadCounts(userId) {
+        const [total, reviews] = await Promise.all([
+            Notification.countDocuments({ userId, isRead: false }),
+            Notification.countDocuments({ userId, isRead: false, type: 'new_review' })
+        ]);
+        return { unreadCount: total, unreadReviewsCount: reviews };
+    }
+
 
     /**
      * Create a notification for a new review on business item
@@ -45,6 +57,10 @@ class NotificationService {
 
             // Emit WebSocket event
             emitNotificationToUser(businessOwnerId.toString(), notification);
+            
+            // Also update counts
+            const counts = await this.getPartitionedUnreadCounts(businessOwnerId);
+            emitUnreadCountUpdate(businessOwnerId.toString(), counts);
             
             return notification;
         } catch (error) {
@@ -272,9 +288,9 @@ class NotificationService {
                 { new: true }
             );
 
-            // Get updated unread count and emit
-            const unreadCount = await Notification.countDocuments({ userId, isRead: false });
-            emitUnreadCountUpdate(userId.toString(), unreadCount);
+            // Get updated unread counts and emit
+            const counts = await this.getPartitionedUnreadCounts(userId);
+            emitUnreadCountUpdate(userId.toString(), counts);
             
             return notification;
         } catch (error) {
@@ -294,7 +310,7 @@ class NotificationService {
             );
 
             // Emit unread count update (should be 0)
-            emitUnreadCountUpdate(userId.toString(), 0);
+            emitUnreadCountUpdate(userId.toString(), { unreadCount: 0, unreadReviewsCount: 0 });
             
             return result;
         } catch (error) {
@@ -314,9 +330,9 @@ class NotificationService {
                 userId
             });
 
-            // Get updated unread count and emit
-            const unreadCount = await Notification.countDocuments({ userId, isRead: false });
-            emitUnreadCountUpdate(userId.toString(), unreadCount);
+            // Get updated unread counts and emit
+            const counts = await this.getPartitionedUnreadCounts(userId);
+            emitUnreadCountUpdate(userId.toString(), counts);
             
             return notification;
         } catch (error) {
@@ -349,6 +365,10 @@ class NotificationService {
 
             await notification.populate('triggeredBy', 'username profile.avatar');
             emitNotificationToUser(followingId.toString(), notification);
+
+            // Update counts
+            const counts = await this.getPartitionedUnreadCounts(followingId);
+            emitUnreadCountUpdate(followingId.toString(), counts);
 
             return notification;
         } catch (error) {

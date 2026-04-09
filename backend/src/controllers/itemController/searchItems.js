@@ -12,7 +12,7 @@ export default {
             minPrice,
             availability,
             page = 1,
-            limit = 0, // Default 0 = no limit (fetch ALL items)
+            limit = 20, // Default limit to prevent fetching ALL items
             sortBy = 'stats.averageRating',
             order = 'desc'
         } = req.query;

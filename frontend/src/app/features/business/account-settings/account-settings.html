@@ -191,20 +191,36 @@
     <div class="modal-body">
       <div class="form-group">
         <label>Current Password</label>
-        <input type="password" [(ngModel)]="passwordForm.currentPassword" placeholder="Enter current password" class="form-input" />
+        <div class="password-input-wrap">
+          <input [type]="showCurrentPassword ? 'text' : 'password'" [(ngModel)]="passwordForm.currentPassword" placeholder="Enter current password" class="form-input" />
+          <button type="button" class="pw-toggle" (click)="togglePasswordVisibility('current')">
+            <lucide-icon [img]="showCurrentPassword ? EyeOff : Eye" [size]="16"></lucide-icon>
+          </button>
+        </div>
       </div>
       <div class="form-group">
         <label>New Password</label>
-        <input type="password" [(ngModel)]="passwordForm.newPassword" placeholder="Enter new password" class="form-input" />
+        <div class="password-input-wrap">
+          <input [type]="showNewPassword ? 'text' : 'password'" [(ngModel)]="passwordForm.newPassword" placeholder="Enter new password (min 6 chars)" class="form-input" />
+          <button type="button" class="pw-toggle" (click)="togglePasswordVisibility('new')">
+            <lucide-icon [img]="showNewPassword ? EyeOff : Eye" [size]="16"></lucide-icon>
+          </button>
+        </div>
       </div>
       <div class="form-group">
         <label>Confirm New Password</label>
-        <input type="password" [(ngModel)]="passwordForm.confirmPassword" placeholder="Confirm new password" class="form-input" />
+        <div class="password-input-wrap">
+          <input [type]="showConfirmPassword ? 'text' : 'password'" [(ngModel)]="passwordForm.confirmPassword" placeholder="Confirm new password" class="form-input" [class.input-error]="!passwordsMatch" />
+          <button type="button" class="pw-toggle" (click)="togglePasswordVisibility('confirm')">
+            <lucide-icon [img]="showConfirmPassword ? EyeOff : Eye" [size]="16"></lucide-icon>
+          </button>
+        </div>
+        <span class="match-error" *ngIf="!passwordsMatch">⚠ Passwords do not match</span>
       </div>
     </div>
     <div class="modal-foot">
       <button class="btn-modal-cancel" (click)="closeChangePasswordModal()" [disabled]="changingPassword">Cancel</button>
-      <button class="btn-modal-primary" (click)="changePassword()" [disabled]="changingPassword">
+      <button class="btn-modal-primary" (click)="changePassword()" [disabled]="changingPassword || !passwordsMatch">
         {{ changingPassword ? 'Changing...' : 'Change Password' }}
       </button>
     </div>

@@ -308,6 +308,38 @@ $yellow-soft: rgba(251, 191, 36, 0.08);
       transition: border-color 0.2s;
 
       &:focus { outline: none; border-color: $yellow; }
+      &.input-error { border-color: #ef4444; }
+    }
+
+    .password-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+
+      .form-input { padding-right: 2.5rem; }
+
+      .pw-toggle {
+        position: absolute;
+        right: 10px;
+        background: none;
+        border: none;
+        color: var(--text-tertiary);
+        cursor: pointer;
+        padding: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: color 0.2s;
+        &:hover { color: var(--text-primary); }
+      }
+    }
+
+    .match-error {
+      display: block;
+      margin-top: 4px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #ef4444;
     }
   }
 

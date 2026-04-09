@@ -67,6 +67,7 @@ export class BusinessDashboardComponent implements OnInit {
   
   // Notifications
   unreadNotificationsCount = 0;
+  unreadReviewsCount = 0;
   
   // Business creation modal
   showBusinessModal = false;
@@ -254,6 +255,10 @@ export class BusinessDashboardComponent implements OnInit {
     // Subscribe to unread count updates
     this.notificationService.onUnreadCount().subscribe(count => {
       this.unreadNotificationsCount = count;
+    });
+
+    this.notificationService.onUnreadReviewsCount().subscribe(count => {
+      this.unreadReviewsCount = count;
     });
     
     // Listen for new notifications — toast for all types, reload data on review

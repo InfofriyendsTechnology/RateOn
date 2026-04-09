@@ -173,7 +173,11 @@
             <lucide-icon [img]="Phone" [size]="14"></lucide-icon>
             Phone
           </label>
-          <input formControlName="phone" type="tel" placeholder="+91 98765 43210" />
+          <input formControlName="phone" type="tel" placeholder="10-digit number (e.g. 9876543210)" maxlength="10" />
+          <span class="field-hint warn"
+                *ngIf="businessForm.get('phone')?.value?.length > 0 && businessForm.get('phone')?.value?.length !== 10">
+            Phone number must be exactly 10 digits
+          </span>
         </div>
 
         <div class="field">
@@ -181,7 +185,11 @@
             <lucide-icon [img]="Phone" [size]="14"></lucide-icon>
             WhatsApp
           </label>
-          <input formControlName="whatsapp" type="tel" placeholder="+91 98765 43210" />
+          <input formControlName="whatsapp" type="tel" placeholder="10-digit number (e.g. 9876543210)" maxlength="10" />
+          <span class="field-hint warn"
+                *ngIf="businessForm.get('whatsapp')?.value?.length > 0 && businessForm.get('whatsapp')?.value?.length !== 10">
+            WhatsApp number must be exactly 10 digits
+          </span>
         </div>
 
         <div class="field">

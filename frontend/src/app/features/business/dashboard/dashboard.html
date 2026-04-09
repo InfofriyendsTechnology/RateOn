@@ -40,7 +40,7 @@
       <a routerLink="/owner/reviews" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
         <lucide-icon [img]="MessageSquare" [size]="16" class="nav-icon"></lucide-icon>
         <span class="nav-text" *ngIf="sidebarOpen">Reviews</span>
-        <span class="nav-badge" *ngIf="sidebarOpen && unreadNotificationsCount > 0">{{ unreadNotificationsCount }}</span>
+        <span class="nav-badge" *ngIf="sidebarOpen && unreadReviewsCount > 0">{{ unreadReviewsCount }}</span>
       </a>
 
       <a routerLink="/owner/analytics" routerLinkActive="active" class="nav-item" (click)="closeSidebarOnMobile()">
